@@ -1,7 +1,16 @@
 import {
+  Circle,
+  Flag,
+  Landmark,
+  ShoppingBag,
+  TreePine,
+  Utensils,
+} from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
   DropdownMenuRadioGroup,
   DropdownMenuRadioItem,
@@ -9,16 +18,6 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { LCategory } from "@/type/location";
-import { Button } from "@/components/ui/button";
-import {
-  Circle,
-  Clock,
-  Flag,
-  Landmark,
-  ShoppingBag,
-  TreePine,
-  Utensils,
-} from "lucide-react";
 
 type LocCatDDProps = {
   lcat: LCategory;

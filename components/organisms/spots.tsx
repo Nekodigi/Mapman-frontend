@@ -1,22 +1,13 @@
-import { Button } from "@/components/ui/button";
 import {
   Plus,
-  Star,
-  Landmark,
-  TreePine,
-  Flag,
-  ShoppingBag,
-  Utensils,
-  Circle,
-  EllipsisVertical,
-  ExternalLink,
 } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
-import Image from "next/image";
-import { LCategory, Location } from "@/type/location";
 import { useContext } from "react";
+
 import { AccountContext } from "../context/account";
+
 import { Spot } from "@/components/molecules/spot";
+import { Button } from "@/components/ui/button";
+import { Separator } from "@/components/ui/separator";
 
 export const Spots = () => {
   const account = useContext(AccountContext);

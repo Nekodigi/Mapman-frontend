@@ -1,26 +1,20 @@
 import {
+  Clock,
+} from "lucide-react";
+
+import { WeekToggle } from "../molecules/weekToggle";
+
+import { Button } from "@/components/ui/button";
+import {
   DropdownMenu,
   DropdownMenuContent,
-  DropdownMenuItem,
   DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Week } from "@/type/date";
 import { Slider } from "@/components/ui/slider";
-import { Button } from "@/components/ui/button";
-import {
-  Circle,
-  Clock,
-  Flag,
-  Landmark,
-  ShoppingBag,
-  TreePine,
-  Utensils,
-} from "lucide-react";
-import { WeekToggle } from "../molecules/weekToggle";
+import { Week } from "@/type/date";
+
 
 const capFirst = (str: string) => {
   return str.charAt(0).toUpperCase() + str.slice(1);

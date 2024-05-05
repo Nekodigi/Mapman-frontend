@@ -1,5 +1,5 @@
-import { Week } from "@/type/date";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { Week } from "@/type/date";
 
 type WeekToggleProps = {
   week: Week | undefined;

@@ -1,40 +1,17 @@
 "use client";
 
-import React, { useState, useRef, useEffect } from "react";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
-import { Input } from "@/components/ui/input";
-
-import { Button } from "@/components/ui/button";
-import { Switch } from "@/components/ui/switch";
-import { Label } from "@/components/ui/label";
-import { cn } from "@/lib/utils";
 import {
-  Circle,
-  Clock,
   Flag,
-  Landmark,
-  ShoppingBag,
-  TreePine,
-  Utensils,
 } from "lucide-react";
-import {
-  Command,
-  CommandDialog,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-  CommandSeparator,
-  CommandShortcut,
-} from "@/components/ui/command";
-import { Search } from "@/components/molecules/search";
+import React, { useState, useRef, useEffect } from "react";
+
 import { LocCatDD } from "@/components/molecules/locCatDD";
-import { LCategory } from "@/type/location";
-import { WeekToggle } from "@/components/molecules/weekToggle";
-import { Week } from "@/type/date";
-import { WeekHourDD } from "@/components/organisms/weekHourDD";
+import { Search } from "@/components/molecules/search";
 import { HoursDD } from "@/components/organisms/hoursDD";
+import { Button } from "@/components/ui/button";
+import { Week } from "@/type/date";
+import { LCategory } from "@/type/location";
 
 interface MapProps {
   initialCenter: google.maps.LatLngLiteral;

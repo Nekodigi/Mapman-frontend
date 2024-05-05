@@ -1,33 +1,19 @@
-import { Button } from "@/components/ui/button";
 import {
-  Plus,
-  Star,
-  Landmark,
-  TreePine,
-  Flag,
-  ShoppingBag,
-  Utensils,
-  Circle,
   EllipsisVertical,
   ExternalLink,
 } from "lucide-react";
-import { Separator } from "@/components/ui/separator";
 import Image from "next/image";
-import { LCategory, Location } from "@/type/location";
-import { useContext } from "react";
-import { AccountContext } from "@/components/context/account";
+
 import { LCategoryIcon } from "@/components/atoms/lcategory";
 import { Stars } from "@/components/atoms/stars";
+import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import { Location } from "@/type/location";
 
 type SpotProps = {
   loc: Location;

@@ -1,43 +1,30 @@
-import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { z } from "zod";
 
+import { LocCatDD } from "../molecules/locCatDD";
+import { StarsToggle } from "../molecules/starsToggle";
+import { HoursDD } from "../organisms/hoursDD";
+
+import { Button } from "@/components/ui/button";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
-  FormDescription,
   FormField,
   FormItem,
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import {
-  Dialog,
-  DialogContent,
-  DialogDescription,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
-import { EllipsisVertical } from "lucide-react";
-import { LocCatDD } from "../molecules/locCatDD";
 import { LCategory } from "@/type/location";
-import { useState } from "react";
-import { StarsToggle } from "../molecules/starsToggle";
-import { HoursDD } from "../organisms/hoursDD";
 
 const LCategoryLUT = [
   "museum",

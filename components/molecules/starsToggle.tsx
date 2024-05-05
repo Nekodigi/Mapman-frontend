@@ -1,5 +1,5 @@
-import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { Stars } from "@/components/atoms/stars";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 
 type StarsToggleProps = {
   stars: number;

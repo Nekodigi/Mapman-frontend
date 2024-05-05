@@ -1,11 +1,5 @@
 "use client";
-import {
-  Command,
-  CommandEmpty,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import { Search as JSSearch } from "js-search";
 import {
   FC,
   useCallback,
@@ -15,8 +9,16 @@ import {
   useRef,
   useState,
 } from "react";
+
 import { AccountContext } from "../context/account";
-import { Search as JSSearch } from "js-search";
+
+import {
+  Command,
+  CommandEmpty,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 import { Location } from "@/type/location";
 
 export const Search: FC = () => {
@@ -39,7 +41,7 @@ export const Search: FC = () => {
   );
 
   const search = useMemo(() => {
-    let s = new JSSearch("locs");
+    const s = new JSSearch("locs");
     s.addIndex("name");
     s.addDocuments(account?.locs || []);
     return s;
@@ -55,7 +57,7 @@ export const Search: FC = () => {
     }
     const result = inputText === "" ? account?.locs : search.search(inputText);
     setSearchResults(result.map((v) => (v as Location).name));
-  }, [inputText]);
+  }, [inputText, account, search]);
   return (
     <Command
       shouldFilter={false}
