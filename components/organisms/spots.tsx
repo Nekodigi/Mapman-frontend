@@ -16,7 +16,12 @@ export const Spots = () => {
     <div className="flex flex-col grow min-h-0">
       <div className="flex pl-3 items-center justify-between min-h-12">
         <h2 className="font-medium text-base">Nearby Spots</h2>
-        <Button variant="ghost" size="icon">
+        <Button variant="ghost" size="icon" onClick={
+          () => {account?.locEditor.setOpen(true)
+            account?.locEditor.setId(-1)
+            console.log("open")
+          }
+        }>
           <Plus />
         </Button>
       </div>

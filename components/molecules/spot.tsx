@@ -22,13 +22,13 @@ export const Spot = ({ loc }: SpotProps) => {
   return (
     <div className="flex items-center justify-between w-full pr-4">
       <div className="flex p-2 h-18 gap-2">
-        <Image
+        {/* <Image
           src={loc.imgs[0]}
           width={64}
           height={64}
           className="object-cover rounded"
           alt="thumbnail"
-        />
+        /> */}
         <div className="flex flex-col gap-1">
           <h3 className="font-medium">{loc.name}</h3>
           <div className="flex gap-2 items-center">

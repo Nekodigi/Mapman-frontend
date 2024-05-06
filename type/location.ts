@@ -23,6 +23,7 @@ export type MapType = "google" | "gaode";
 export type Location = {
   name: string;
   category: LCategory;
+  original_categories?: string[];
   hours?: number[][];
   importance: number;
   price?: string;

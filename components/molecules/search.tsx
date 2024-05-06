@@ -57,7 +57,7 @@ export const Search: FC = () => {
     }
     const result = inputText === "" ? account?.locs : search.search(inputText);
     setSearchResults(result.map((v) => (v as Location).name));
-  }, [inputText, account, search]);
+  }, [inputText]);
   return (
     <Command
       shouldFilter={false}

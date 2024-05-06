@@ -1,11 +1,10 @@
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
+import { useCallback, useContext, useEffect, useMemo, useState } from "react";
+
 
 import { LocCatDD } from "../molecules/locCatDD";
 import { StarsToggle } from "../molecules/starsToggle";
 import { HoursDD } from "../organisms/hoursDD";
+import { LocPicker } from "../organisms/locPicker";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -15,232 +14,122 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { LCategory } from "@/type/location";
+import { Label } from "@/components/ui/label";
+import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
+import { LCategory, Location, MapType } from "@/type/location";
+import { AccountContext } from "../context/account";
 
-const LCategoryLUT = [
-  "museum",
-  "park",
-  "landmark",
-  "shop",
-  "restaurant",
-  "other",
-] as const;
-const formSchema = z.object({
-  name: z.string().min(2, {
-    message: "Name must be at least 2 characters.",
-  }),
-  category: z.enum(LCategoryLUT),
-  importance: z.number().int().min(1).max(3),
-  hours: z.array(z.array(z.number().int().min(0).max(48))),
-});
+export const EditLocation = () => {
+  const hours: number[][] = [[0, 0], [20, 34], [20, 34], [20, 34], [20, 34], [20, 34], [0, 0]]
+  const account = useContext(AccountContext);
+  const locEditor = useMemo(() => account?.locEditor, [account]);
+  const loc = useMemo(() => locEditor?.loc, [locEditor]);
+  const setLoc = useMemo(() => locEditor?.setLoc, [locEditor]);
+  const open = useMemo(() => locEditor?.open, [locEditor]);
+  const setOpen = useMemo(() => locEditor?.setOpen, [locEditor]);
 
-export function ProfileForm() {
-  // 1. Define your form.
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      category: "museum",
-      importance: 1,
-      hours: [
-        [0, 0],
-        [20, 34],
-        [20, 34],
-        [20, 34],
-        [20, 34],
-        [20, 34],
-        [0, 0],
-      ],
-    },
-  });
+  // const handleSubmit = () => {
+  //   setOpen(false);
+  //   //separate below part to useEffect
+  //   // console.log(loc)
+  //   // if (locEditor?.id === -1){
+  //   //   account?.locsDispatch({type: "add", loc: loc})
+  //   // }else{
+  //   //   account?.locsDispatch({type: "edit", loc: loc})
+  //   // }
 
-  // 2. Define a submit handler.
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    // Do something with the form values.
-    // ✅ This will be type-safe and validated.
-    console.log(values);
+
+  //     }
+
+
+  // useEffect(() => {
+  //   console.log("writing")
+  //     console.log(loc)
+  //       if (locEditor?.id === -1){
+  //         account?.locsDispatch({type: "add", loc: loc})
+  //       }else{
+  //         account?.locsDispatch({type: "edit", loc: loc})
+  //       }
+  // }, [open])
+  
+  if (!loc || !setLoc || !open || !setOpen) {
+    return null;
   }
-  const [lcat, setLcat] = useState<LCategory>("museum");
-  const [importance, setImportance] = useState(1);
-  const [map, setMap] = useState("google");
-  const [hours, setHours] = useState<number[][]>([
-    [0, 0],
-    [20, 34],
-    [20, 34],
-    [20, 34],
-    [20, 34],
-    [20, 34],
-    [0, 0],
-  ]);
 
   return (
-    <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-        <FormField
-          control={form.control}
-          name="name"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-center gap-4">
-                <FormLabel className="min-w-20 text-right">Name*</FormLabel>
-                <FormControl>
-                  <Input placeholder="San Francisco" {...field} required />
-                </FormControl>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
+    <Dialog open={open} onOpenChange={setOpen} >
+      {/* <DialogTrigger>Edit</DialogTrigger> */}
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Spot</DialogTitle>
+        </DialogHeader>
         <div className="flex items-center gap-4">
-          <FormLabel className="min-w-20 w-20 text-right">
-            Category & Importance*
-          </FormLabel>
-          <FormField
-            control={form.control}
-            name="category"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <LocCatDD
-                    lcat={field.value}
-                    setLcat={(lc) => {
-                      field.onChange({
-                        target: {
-                          value: lc,
-                        },
-                      });
-                    }}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
-          />
-          <FormField
-            control={form.control}
-            name="importance"
-            render={({ field }) => (
-              <FormItem>
-                <FormControl>
-                  <StarsToggle
-                    stars={field.value}
-                    setStars={(star) => {
-                      field.onChange({
-                        target: {
-                          value: star,
-                        },
-                      });
-                    }}
-                  />
-                </FormControl>
-              </FormItem>
-            )}
+          <Label className="min-w-20 text-right">Name</Label>
+          <Input value={loc.name} onChange={(e) => {
+            setLoc(
+              {
+                ...loc,
+                name: e.target.value
+              }
+            )
+          }}
+            //trigger when finish hit enter
+            onKeyDown={
+              async (e) => {
+                if (e.key === "Enter") {
+                  const location = await fetch(`/api/location?name=${loc.name}`, { method: "POST" }).then((res) => res.json());
+                  if (location) {
+                    setLoc(location);
+                }
+              }}}
+
           />
         </div>
-
-        <FormField
-          control={form.control}
-          name="hours"
-          render={({ field }) => (
-            <FormItem>
-              <div className="flex items-center gap-4">
-                <FormLabel className="min-w-20 text-right">Hours</FormLabel>
-                <FormControl>
-                  <HoursDD
-                    hours={field.value}
-                    setHours={(h) => {
-                      field.onChange({
-                        target: {
-                          value: h,
-                        },
-                      });
-                    }}
-                  />
-                </FormControl>
-              </div>
-              <FormMessage />
-            </FormItem>
-          )}
-        />
-
-        {/* <FormItem>
-          <div className="flex items-center gap-4">
-            <FormLabel className="min-w-20 text-right">Price</FormLabel>
-            <FormControl>
-              <Input placeholder="Free" {...field} required />
-            </FormControl>
+        <div className="flex items-center gap-4">
+          <div className="min-w-20 text-right">
+          <LocCatDD lcat={loc.category} setLcat={
+            (lc: LCategory) => setLoc({
+              ...loc,
+              category: lc
+            })
+          } />
           </div>
-          <FormMessage />
-        </FormItem>
-
-        <FormItem>
-          <div className="flex items-center gap-4">
-            <FormLabel className="min-w-20 text-right">Lon,Lat*</FormLabel>
-            <FormControl>
-              <Input placeholder="10.00,10.00" {...field} required />
-            </FormControl>
-          </div>
-          <FormMessage />
-        </FormItem>
-        <FormItem>
-          <div className="flex items-center gap-4">
-            <FormLabel className="w-20 text-right">Map</FormLabel>
-
-            <ToggleGroup
-              value={map}
-              onValueChange={(newMap: string) => {
-                newMap !== "" && setMap(newMap);
-              }}
-              type="single"
-            >
-              <ToggleGroupItem value="google">Google</ToggleGroupItem>
-              <ToggleGroupItem value="gaode">Gaode</ToggleGroupItem>
-            </ToggleGroup>
-            <FormMessage />
-          </div>
-        </FormItem>
-
-        <FormItem>
-          <div className="flex items-center gap-4">
-            <FormLabel className="min-w-20 text-right">Website</FormLabel>
-            <FormControl>
-              <Input placeholder="https://..." {...field} required />
-            </FormControl>
-          </div>
-          <FormMessage />
-        </FormItem> */}
-        <Button type="submit">Submit</Button>
-      </form>
-    </Form>
+          <StarsToggle stars={loc.importance} setStars={
+            (star: number) => setLoc({
+              ...loc,
+              importance: star
+            })
+          } />
+        </div>
+        <div className="flex items-center gap-4">
+          <Label className="min-w-20 text-right">Hours</Label>
+          <HoursDD hours={loc.hours!} setHours={
+            (h: number[][]) => setLoc({
+              ...loc,
+              hours: h
+            })
+          } />
+        </div>
+        <LocPicker loc={loc} setLoc={setLoc} />
+        <div className="flex items-center gap-4">
+          <Label className="min-w-20 text-right">Map</Label>
+        <ToggleGroup
+        value={loc.map}
+        onValueChange={(newMap: string) => {
+          newMap !== "" && setLoc({
+            ...loc,
+            map: newMap as MapType
+          });
+        }}
+        type="single"
+      >
+        <ToggleGroupItem value="google">Google</ToggleGroupItem>
+        <ToggleGroupItem value="gaode">Gaode</ToggleGroupItem>
+      </ToggleGroup>
+      </div>
+        <Button onClick={locEditor?.finish}>Submit</Button>
+      </DialogContent>
+    </Dialog>
   );
 }
-
-type EditLocationProps = {
-  loc: Location;
-  onClose: () => void;
-  onSave: (loc: Location) => void;
-};
-export const EditLocation = () => {
-  return (
-    <div>
-      <Dialog>
-        <DialogTrigger>Edit</DialogTrigger>
-        <DialogContent>
-          <DialogHeader>
-            <DialogTitle>Edit Spot</DialogTitle>
-          </DialogHeader>
-          <ProfileForm />
-        </DialogContent>
-      </Dialog>
-      <ProfileForm />
-    </div>
-  );
-};
