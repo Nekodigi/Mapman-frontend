@@ -22,9 +22,9 @@ type HoursDDProps = {
 };
 export const HoursDD = ({ hours, setHours }: HoursDDProps) => {
   const [week, setWeek] = useState<Week | undefined | "">();
+  // const [type, setType] = useState<"now" | "anytime" | "select">("now");
 
   const wid = useMemo(() => {
-    console.log(week);
     return week ? WeekLUT.indexOf(week) : new Date().getDay();
   }, [week]);
 
@@ -32,7 +32,7 @@ export const HoursDD = ({ hours, setHours }: HoursDDProps) => {
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline">
-          <Clock className="mr-2 h-4 w-4" />
+          <Clock className="mr-2 size-4" />
           {renderHours(hours)}
         </Button>
       </DropdownMenuTrigger>
@@ -42,10 +42,14 @@ export const HoursDD = ({ hours, setHours }: HoursDDProps) => {
         </div>
 
         <DropdownMenuSeparator />
-
+        {/* <ToggleGroup value={type} onValueChange={setType as any} type="single">
+          <ToggleGroupItem value="now">Now</ToggleGroupItem>
+          <ToggleGroupItem value="anytime">Anytime</ToggleGroupItem>
+          <ToggleGroupItem value="select">Select</ToggleGroupItem>
+        </ToggleGroup> */}
         <WeekToggle week={week as Week} setWeek={setWeek} />
         <Slider
-          className=" pb-4 pt-2 px-4"
+          className=" px-4 pb-4 pt-2"
           value={hours[wid]}
           max={48}
           step={1}

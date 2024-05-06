@@ -4,6 +4,7 @@ import type { Metadata } from "next";
 
 import "./globals.css";
 import { AccountProvider } from "@/components/context/account";
+import AuthProvider from "@/components/context/auth";
 import { Footer } from "@/components/organisms/footer";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
@@ -27,21 +28,23 @@ export default function RootLayout({
     <html lang="en">
       <body
         className={cn(
-          "flex flex-col h-screen bg-background antialiased font-sans ",
+          "bg-background flex h-screen flex-col font-sans antialiased ",
           fontSans.variable
         )}
       >
-        <AccountProvider>
-          <ThemeProvider
-            attribute="class"
-            defaultTheme="system"
-            enableSystem
-            disableTransitionOnChange
-          >
-            {children}
-            <Footer />
-          </ThemeProvider>
-        </AccountProvider>
+        <AuthProvider>
+          <AccountProvider>
+            <ThemeProvider
+              attribute="class"
+              defaultTheme="system"
+              enableSystem
+              disableTransitionOnChange
+            >
+              {children}
+              <Footer />
+            </ThemeProvider>
+          </AccountProvider>
+        </AuthProvider>
       </body>
     </html>
   );

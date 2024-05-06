@@ -36,7 +36,7 @@ export const WeekHourDD = ({
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
         <Button variant="outline">
-          <Clock className="mr-2 h-4 w-4" />
+          <Clock className="mr-2 size-4" />
           {week ? capFirst(week) : "Today"} {Math.floor(hour[0] / 2)}:
           {hour[0] % 2 === 0 ? "00" : "30"}
         </Button>

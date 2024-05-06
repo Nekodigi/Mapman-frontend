@@ -1,6 +1,4 @@
-import {
-  Plus,
-} from "lucide-react";
+import { Plus } from "lucide-react";
 import { useContext } from "react";
 
 import { AccountContext } from "../context/account";
@@ -13,23 +11,23 @@ export const Spots = () => {
   const account = useContext(AccountContext);
 
   return (
-    <div className="flex flex-col grow min-h-0">
-      <div className="flex pl-3 items-center justify-between min-h-12">
-        <h2 className="font-medium text-base">Nearby Spots</h2>
-        <Button variant="ghost" size="icon" onClick={
-          () => {account?.locEditor.setOpen(true)
-            account?.locEditor.setId(-1)
-            console.log("open")
-          }
-        }>
+    <div className="flex min-h-0 grow flex-col">
+      <div className="flex min-h-12 items-center justify-between pl-3">
+        <h2 className="text-base font-medium">Nearby Spots</h2>
+        <Button
+          variant="ghost"
+          size="icon"
+          onClick={() => {
+            account?.locEditor.setOpen(true);
+            account?.locEditor.setId(-1);
+          }}
+        >
           <Plus />
         </Button>
       </div>
       <Separator />
-      <div className="flex flex-col min-h-0 overflow-scroll">
-        {account?.locs.map((loc) => (
-          <Spot key={loc.name} loc={loc} />
-        ))}
+      <div className="flex min-h-0 flex-col overflow-auto">
+        {account?.locs.map((loc) => <Spot key={loc.name} loc={loc} />)}
       </div>
     </div>
   );

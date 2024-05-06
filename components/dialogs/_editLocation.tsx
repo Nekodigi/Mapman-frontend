@@ -101,7 +101,7 @@ export function ProfileForm() {
           )}
         />
         <div className="flex items-center gap-4">
-          <FormLabel className="min-w-20 w-20 text-right">
+          <FormLabel className="w-20 min-w-20 text-right">
             Category & Importance*
           </FormLabel>
           <FormField

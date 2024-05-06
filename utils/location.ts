@@ -10,12 +10,11 @@ import {
   googlePark,
   googleRestaurant,
   googleShop,
- Location } from "@/type/location";
+  Location,
+} from "@/type/location";
 import { periods2hours } from "@/utils/date";
 
-
 const client = new Client({});
-
 
 //categorize
 export const categorize = (location: string) => {
@@ -34,9 +33,8 @@ export const categorize = (location: string) => {
   }
 };
 
-
 export const photo2url = (photo: PlacePhoto) => {
-  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=128&photo_reference=${photo}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}`;
+  return `https://maps.googleapis.com/maps/api/place/photo?maxwidth=128&photo_reference=${photo.photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}`;
 };
 
 export const getLocationByName = async (name: string) => {
@@ -86,7 +84,7 @@ export const getLocationByName = async (name: string) => {
     lon: res.geometry?.location.lng,
     lat: res.geometry?.location.lat,
     zoom: 15,
-    imgs: res.photos?.map((photo: PlacePhoto) => photo.photo_reference) || [],
+    imgs: res.photos?.map((photo: PlacePhoto) => photo2url(photo)) || [],
     map: "google",
     website: res.website,
     status: {

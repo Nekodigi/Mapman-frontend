@@ -3,6 +3,8 @@
 import { Map, FileText, MessageSquareMore } from "lucide-react";
 import Link from "next/link";
 
+import { SettingsDL } from "../dialogs/settingsDL";
+
 import {
   NavigationMenu,
   NavigationMenuItem,
@@ -43,6 +45,7 @@ export const Footer = () => {
         <Button url="/ask">
           <MessageSquareMore />
         </Button>
+        <SettingsDL />
       </NavigationMenu>
     </footer>
   );

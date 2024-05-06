@@ -1,5 +1,3 @@
-
-
 import { Status } from "@googlemaps/react-wrapper";
 import React, { useState, useRef, useEffect } from "react";
 
@@ -13,7 +11,6 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Location } from "@/type/location";
-
 
 interface MapProps {
   initialCenter: google.maps.LatLngLiteral;
@@ -31,7 +28,6 @@ const render = (status: Status): JSX.Element | null => {
   }
 };
 
-
 type LocPickerProps = {
   loc: Location;
   setLoc: (loc: Location) => void;
@@ -43,7 +39,7 @@ const MapPreview = ({ loc }: MapPreviewProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
   const [marker, setMarker] = useState<google.maps.Marker>();
-  
+
   useEffect(() => {
     const center = { lat: loc.lat, lng: loc.lon };
     const zoom = loc.zoom;
@@ -54,7 +50,7 @@ const MapPreview = ({ loc }: MapPreviewProps) => {
         center,
         scaleControl: true,
         disableDefaultUI: true,
-        zoom
+        zoom,
       });
       setMap(newMap);
     } else if (map) {
@@ -62,18 +58,16 @@ const MapPreview = ({ loc }: MapPreviewProps) => {
       map.setZoom(zoom);
     }
     marker?.setMap(null);
-    setMarker(new google.maps.Marker({
-      position: center,
-      map: map,
-    }));
+    setMarker(
+      new google.maps.Marker({
+        position: center,
+        map: map,
+      })
+    );
+  }, [map, loc.lat, loc.zoom, loc.lon]);
 
-  }, [map, loc]);
-
-  return (
-    <div ref={ref} className="w-full h-[128px]" />
-    
-  )
-}
+  return <div ref={ref} className="h-[128px] w-full" />;
+};
 export const LocPicker = ({ loc, setLoc }: LocPickerProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
@@ -99,42 +93,54 @@ export const LocPicker = ({ loc, setLoc }: LocPickerProps) => {
     }
   }, [map, loc]);
 
-
   return (
     <Dialog>
-      <DialogTrigger><MapPreview loc={loc} /></DialogTrigger>
+      <DialogTrigger>
+        <MapPreview loc={loc} />
+      </DialogTrigger>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Edit Spot</DialogTitle>
         </DialogHeader>
         <div className="flex items-center gap-4">
           <Label className="min-w-20 text-right">Lon,Lat</Label>
-          <Input value={loc.lon} type="number" onChange={
-            (e) => setLoc({
-              ...loc,
-              lon: Number(e.target.value)
-            })
-          } />
-          <Input value={loc.lat} type="number" onChange={
-            (e) => setLoc({
-              ...loc,
-              lat: Number(e.target.value)
-            })
-          } />
+          <Input
+            value={loc.lon}
+            type="number"
+            onChange={(e) =>
+              setLoc({
+                ...loc,
+                lon: Number(e.target.value),
+              })
+            }
+          />
+          <Input
+            value={loc.lat}
+            type="number"
+            onChange={(e) =>
+              setLoc({
+                ...loc,
+                lat: Number(e.target.value),
+              })
+            }
+          />
         </div>
         <div className="flex items-center gap-4">
           <Label className="min-w-20 text-right">Zoom</Label>
-          <Input value={loc.zoom} type="number" onChange={
-            (e) => setLoc({
-              ...loc,
-              zoom: Number(e.target.value)
-            })
-          } />
+          <Input
+            value={loc.zoom}
+            type="number"
+            onChange={(e) =>
+              setLoc({
+                ...loc,
+                zoom: Number(e.target.value),
+              })
+            }
+          />
         </div>
         <MapPreview loc={loc} />
         {/* <div ref={ref} className="w-full h-[128px]" /> */}
-
       </DialogContent>
     </Dialog>
-  )
-}
+  );
+};

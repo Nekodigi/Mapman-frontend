@@ -32,17 +32,17 @@ export const LocCatDD = ({ lcat, setLcat, allowAll }: LocCatDDProps) => {
           {/* <Landmark className="h-4 w-4" /> */}
           {/* display ptype with icon */}
           {lcat === "museum" ? (
-            <Landmark className="h-4 w-4" />
+            <Landmark className="size-4" />
           ) : lcat === "park" ? (
-            <TreePine className="h-4 w-4" />
+            <TreePine className="size-4" />
           ) : lcat === "landmark" ? (
-            <Flag className="h-4 w-4" />
+            <Flag className="size-4" />
           ) : lcat === "shop" ? (
-            <ShoppingBag className="h-4 w-4" />
+            <ShoppingBag className="size-4" />
           ) : lcat === "restaurant" ? (
-            <Utensils className="h-4 w-4" />
+            <Utensils className="size-4" />
           ) : (
-            <Circle className="h-4 w-4" />
+            <Circle className="size-4" />
           )}
         </Button>
       </DropdownMenuTrigger>
@@ -52,23 +52,23 @@ export const LocCatDD = ({ lcat, setLcat, allowAll }: LocCatDDProps) => {
         <DropdownMenuRadioGroup value={lcat} onValueChange={setLcat as any}>
           {allowAll && (
             <DropdownMenuRadioItem value="">
-              <Circle className="mr-2 h-4 w-4" /> All
+              <Circle className="mr-2 size-4" /> All
             </DropdownMenuRadioItem>
           )}
           <DropdownMenuRadioItem value="museum">
-            <Landmark className="mr-2 h-4 w-4" /> Museum
+            <Landmark className="mr-2 size-4" /> Museum
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="park">
-            <TreePine className="mr-2 h-4 w-4" /> Park
+            <TreePine className="mr-2 size-4" /> Park
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="landmark">
-            <Flag className="mr-2 h-4 w-4" /> Landmark
+            <Flag className="mr-2 size-4" /> Landmark
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="shop">
-            <ShoppingBag className="mr-2 h-4 w-4" /> Shop
+            <ShoppingBag className="mr-2 size-4" /> Shop
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="restaurant">
-            <Utensils className="mr-2 h-4 w-4" /> Restaurant
+            <Utensils className="mr-2 size-4" /> Restaurant
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>

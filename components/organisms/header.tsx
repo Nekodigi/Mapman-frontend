@@ -64,10 +64,10 @@ export function Header({ className, ...props }: HeaderProps) {
               href={example.href}
               key={example.href}
               className={cn(
-                "flex h-7 items-center justify-center rounded-full px-4 text-center text-sm transition-colors hover:text-primary",
+                "hover:text-primary flex h-7 items-center justify-center rounded-full px-4 text-center text-sm transition-colors",
                 pathname?.startsWith(example.href) ||
                   (index === 0 && pathname === "/")
-                  ? "bg-muted font-medium text-primary"
+                  ? "bg-muted text-primary font-medium"
                   : "text-muted-foreground"
               )}
             >
@@ -97,7 +97,7 @@ export function ExampleCodeLink({ pathname }: ExampleCodeLinkProps) {
       href={example?.code}
       target="_blank"
       rel="nofollow"
-      className="absolute right-0 top-0 hidden items-center rounded-[0.5rem] text-sm font-medium md:flex"
+      className="absolute right-0 top-0 hidden items-center rounded-lg text-sm font-medium md:flex"
     >
       View code
       {/* <ArrowRightIcon className="ml-1 h-4 w-4" /> */}
