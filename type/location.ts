@@ -20,8 +20,12 @@ export const LCategoryLUT = [
 
 export type MapType = "google" | "gaode";
 
+export type LocationVar = {
+  distance?: number;
+}
 export type Location = {
   name: string;
+  id?: string;
   category: LCategory;
   original_categories?: string[];
   hours?: number[][];
@@ -36,6 +40,7 @@ export type Location = {
   note?: string;
   ticket?: string;
   status: Status;
+  vars?: LocationVar;
 };
 
 // museum

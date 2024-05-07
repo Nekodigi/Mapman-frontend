@@ -12,6 +12,7 @@ import {
 import { Account } from "@/type/account";
 import { Week } from "@/type/date";
 import { LCategory, Location } from "@/type/location";
+import { distance } from "@/utils/location";
 
 type LocationEditorContextType = {
   loc: Location;
@@ -32,7 +33,6 @@ export type SearchOption = {
   hours: HoursFilter;
   lcat: LCategory;
 };
-
 type AccountContextType = {
   account: Account;
   setAccount: (account: Account) => void;
@@ -42,23 +42,27 @@ type AccountContextType = {
   searchOption: SearchOption;
   setSearchOption: React.Dispatch<React.SetStateAction<SearchOption>>;
 };
+type AccountProviderProps = {
+  children: React.ReactNode;
+};
 
 export const AccountContext = createContext<AccountContextType | undefined>(
   undefined
 );
 
-type AccountProviderProps = {
-  children: React.ReactNode;
-};
-
 export const AccountProvider = ({ children }: AccountProviderProps) => {
   type Action = {
-    type: "add" | "edit" | "delete";
-    location: Location;
-    index: number;
+    type: "add" | "edit" | "delete" | "setAll";
+    location?: Location;
+    index?: number;
+    locations?: Location[];
   };
   const called = useRef(false);
-
+  const [searchOption, setSearchOption] = useState<SearchOption>({
+    center: undefined,
+    hours: { type: "now" },
+    lcat: "museum",
+  });
   const [account, setAccount] = useState<Account>({
     name: "mapman",
     email: "test@a.a",
@@ -86,7 +90,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       createdAt: new Date(),
     },
   });
-
   const locsDispatch = (action: Action) => {
     const newAccount = { ...account };
     const index = account.profiles.findIndex(
@@ -97,12 +100,12 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
         setAccount((prev) => {
           const newAccount = { ...prev };
           const locationExists = newAccount.profiles[index].locations.find(
-            (location) => location.name === action.location.name
+            (location) => location.name === action.location!.name
           );
           if (locationExists) return newAccount;
           newAccount.profiles[index].locations = [
             ...newAccount.profiles[index].locations,
-            action.location,
+            action.location!,
           ];
           return newAccount;
         });
@@ -111,7 +114,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
         newAccount.profiles[index].locations = newAccount.profiles[
           index
         ].locations.map((location, index) =>
-          index === action.index ? action.location : location
+          index === action.index ? action.location! : location
         );
         setAccount(newAccount);
         break;
@@ -121,9 +124,12 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
         ].locations.filter((_, index) => index !== action.index);
         setAccount(newAccount);
         break;
+      case "setAll":
+        newAccount.profiles[index].locations = action.locations!;
+        setAccount(newAccount);
+        break;
     }
   };
-
   const [loc, setLoc] = useState<Location>({
     name: "",
     category: "museum",
@@ -220,11 +226,25 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     return account.profiles[index].locations;
   }, [account]);
 
-  const [searchOption, setSearchOption] = useState<SearchOption>({
-    center: undefined,
-    hours: { type: "now" },
-    lcat: "museum",
-  });
+  useEffect(() => {
+    //calculate all distance from center
+    if (searchOption.center === undefined) {
+      return;
+    }
+    const center = searchOption.center;
+    locs.map((loc) => {
+      loc.vars = loc.vars || {};
+      loc.vars.distance = distance(
+        center, loc)
+    });
+    // sort by distance
+    locs.sort((a, b) => {
+      return a.vars?.distance! - b.vars?.distance!;
+    });
+    locsDispatch({ type: "setAll", locations: locs });
+    console.log(locs)
+  }, [searchOption.center, locs]);
+  
 
   return (
     <AccountContext.Provider

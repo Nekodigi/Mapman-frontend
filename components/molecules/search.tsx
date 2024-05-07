@@ -24,6 +24,7 @@ type SearchProps = {
 export const Search = ({ finish, search }: SearchProps) => {
   const [inputText, setInputText] = useState("");
   const inputRef = useRef<HTMLInputElement>(null); //focus related control
+  const commandRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string>();
   const [searchResults, setSearchResults] = useState<string[]>([]);
@@ -40,12 +41,26 @@ export const Search = ({ finish, search }: SearchProps) => {
     []
   );
 
+  const handleClickOutside = (event: MouseEvent) => {
+    if (commandRef.current && !commandRef.current.contains(event.target as any)) {
+      setOpen(false);
+    }
+  };
+
+  useEffect(() => {
+    document.addEventListener('mousedown', handleClickOutside);
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, []);
+
   useEffect(() => {
     setSearchResults(search(inputText) || []);
   }, [inputText]);
   return (
-    <div className="pointer-events-auto">
+    <div className="pointer-events-auto" >
       <Command
+        ref={commandRef}
         shouldFilter={false}
         onKeyDown={handleKeyDown}
         value={selected}
@@ -62,16 +77,17 @@ export const Search = ({ finish, search }: SearchProps) => {
               setSelected(undefined);
             }
           }}
-          onBlur={() => setOpen(false)}
+
           onFocus={() => {
             setOpen(true);
             if (selected) {
-              inputRef.current?.select(); // select all if selected when focus
+              setInputText("");
+              //inputRef.current?.select(); // select all if selected when focus
             }
           }}
         />
         <div className="relative">
-          {(!selected || open) && (
+          {(!selected && open) && (
             <CommandList className="bg-background absolute left-0 top-0 w-full rounded shadow-md">
               <CommandEmpty className="text-muted-foreground px-4 py-2">
                 No Hit

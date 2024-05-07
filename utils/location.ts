@@ -1,5 +1,6 @@
 import {
   Client,
+  LatLngLiteral,
   PlaceInputType,
   PlacePhoto,
 } from "@googlemaps/google-maps-services-js";
@@ -15,6 +16,25 @@ import {
 import { periods2hours } from "@/utils/date";
 
 const client = new Client({});
+
+export const distance = (a: Location, b: Location) => {
+  return gDistance({ lat: a.lat, lng: a.lon }, { lat: b.lat, lng: b.lon });
+};
+export const gDistance = (a: LatLngLiteral, b: LatLngLiteral) => {
+  const lat1 = (a.lat * Math.PI) / 180;
+  const lon1 = (a.lng * Math.PI) / 180;
+  const lat2 = (b.lat * Math.PI) / 180;
+  const lon2 = (b.lng * Math.PI) / 180;
+
+  const dlon = lon2 - lon1;
+
+  const ref =
+    Math.acos(
+      Math.sin(lat1) * Math.sin(lat2) +
+        Math.cos(lat1) * Math.cos(lat2) * Math.cos(dlon)
+    ) * 6371;
+  return ref;
+};
 
 //categorize
 export const categorize = (location: string) => {
@@ -77,6 +97,7 @@ export const getLocationByName = async (name: string) => {
   }
   const location: Location = {
     name: res.name,
+    id: id,
     original_categories: res.types,
     category: categorize(res.types[0]),
     hours: periods2hours(res.opening_hours?.periods),
