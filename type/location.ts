@@ -22,7 +22,7 @@ export type MapType = "google" | "gaode";
 
 export type LocationVar = {
   distance?: number;
-}
+};
 export type Location = {
   name: string;
   id?: string;
@@ -33,7 +33,7 @@ export type Location = {
   price?: string;
   lon: number;
   lat: number;
-  zoom: number;
+  zoom?: number;
   imgs: string[];
   map: MapType;
   website?: string;

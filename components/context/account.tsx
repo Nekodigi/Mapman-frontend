@@ -1,13 +1,7 @@
 "use client";
 //context to provide acocount info
 
-import {
-  createContext,
-  useEffect,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { createContext, useEffect, useMemo, useRef, useState } from "react";
 
 import { Account } from "@/type/account";
 import { Week } from "@/type/date";
@@ -216,7 +210,26 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   }, []);
 
   useEffect(() => {
+    if (account.email === "") {
+      return;
+    }
+    // fs_a.doc(account.email).onSnapshot((doc) => {
+    //   if (doc.exists) {
+    //     const data = doc.data() as Account;
+    //     setAccount(data);
+    //   }
+    // });
+  }, [account.email]);
+
+  useEffect(() => {
     localStorage.setItem("account", JSON.stringify(account));
+    //save account using api, with fetch
+    fetch("/api/account", {
+      method: "POST",
+      body: JSON.stringify(account),
+    }).then((res) => {
+      console.log(res);
+    });
   }, [account]);
 
   const locs = useMemo(() => {
@@ -234,17 +247,15 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     const center = searchOption.center;
     locs.map((loc) => {
       loc.vars = loc.vars || {};
-      loc.vars.distance = distance(
-        center, loc)
+      loc.vars.distance = distance(center, loc);
     });
     // sort by distance
     locs.sort((a, b) => {
       return a.vars?.distance! - b.vars?.distance!;
     });
     locsDispatch({ type: "setAll", locations: locs });
-    console.log(locs)
+    console.log(locs);
   }, [searchOption.center, locs]);
-  
 
   return (
     <AccountContext.Provider

@@ -12,6 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Location } from "@/type/location";
 
+const ZOOM = 12;
 interface MapProps {
   initialCenter: google.maps.LatLngLiteral;
   initialZoom: number;
@@ -34,15 +35,15 @@ type LocPickerProps = {
 };
 type MapPreviewProps = {
   loc: Location;
+  setLoc: (loc: Location) => void;
 };
-const MapPreview = ({ loc }: MapPreviewProps) => {
+const MapPreview = ({ loc, setLoc }: MapPreviewProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
   const [marker, setMarker] = useState<google.maps.Marker>();
 
   useEffect(() => {
     const center = { lat: loc.lat, lng: loc.lon };
-    const zoom = loc.zoom;
     if (ref.current && !map) {
       // Ensure the div ref exists and map is not initialized
 
@@ -50,21 +51,31 @@ const MapPreview = ({ loc }: MapPreviewProps) => {
         center,
         scaleControl: true,
         disableDefaultUI: true,
-        zoom,
+        zoom: ZOOM,
       });
       setMap(newMap);
     } else if (map) {
       map.setCenter(center);
-      map.setZoom(zoom);
+      //map.setZoom(zoom);
     }
     marker?.setMap(null);
-    setMarker(
-      new google.maps.Marker({
-        position: center,
-        map: map,
-      })
-    );
-  }, [map, loc.lat, loc.zoom, loc.lon]);
+    const m = new google.maps.Marker({
+      position: center,
+      map: map,
+      draggable: true,
+    });
+    m.addListener("dragend", (e: any) => {
+      const pos = marker?.getPosition();
+      pos &&
+        setLoc({
+          ...loc,
+          lat: e.latLng.lat(),
+          lon: e.latLng.lng(),
+        });
+    });
+    setMarker(m);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [map, loc.lat, loc.lon]);
 
   return <div ref={ref} className="h-[128px] w-full" />;
 };
@@ -76,7 +87,6 @@ export const LocPicker = ({ loc, setLoc }: LocPickerProps) => {
   // Initialize and update the map when center or zoom changes
   useEffect(() => {
     const center = { lat: loc.lat, lng: loc.lon };
-    const zoom = loc.zoom;
     if (ref.current && !map) {
       // Ensure the div ref exists and map is not initialized
 
@@ -84,19 +94,19 @@ export const LocPicker = ({ loc, setLoc }: LocPickerProps) => {
         center,
         scaleControl: true,
         disableDefaultUI: true,
-        zoom,
+        zoom: ZOOM,
       });
       setMap(newMap);
     } else if (map) {
       map.setCenter(center);
-      map.setZoom(zoom);
+      map.setZoom(ZOOM);
     }
   }, [map, loc]);
 
   return (
     <Dialog>
       <DialogTrigger>
-        <MapPreview loc={loc} />
+        <MapPreview loc={loc} setLoc={setLoc} />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -125,20 +135,7 @@ export const LocPicker = ({ loc, setLoc }: LocPickerProps) => {
             }
           />
         </div>
-        <div className="flex items-center gap-4">
-          <Label className="min-w-20 text-right">Zoom</Label>
-          <Input
-            value={loc.zoom}
-            type="number"
-            onChange={(e) =>
-              setLoc({
-                ...loc,
-                zoom: Number(e.target.value),
-              })
-            }
-          />
-        </div>
-        <MapPreview loc={loc} />
+        <MapPreview loc={loc} setLoc={setLoc} />
         {/* <div ref={ref} className="w-full h-[128px]" /> */}
       </DialogContent>
     </Dialog>

@@ -37,7 +37,9 @@ export const Spot = ({ loc }: SpotProps) => {
           <div className="flex items-center gap-2">
             <LCategoryIcon category={loc.category} />
             <Stars stars={loc.importance} />
-            {loc.vars?.distance !== undefined && loc.vars.distance !== 0 && <p className="text-xs">{loc.vars.distance.toPrecision(1)}km</p>}
+            {loc.vars?.distance !== undefined && loc.vars.distance !== 0 && (
+              <p className="text-xs">{loc.vars.distance.toFixed(1)}km</p>
+            )}
             {/* <p className="text-xs">1.2km</p>
             <p className="text-xs">10min</p> */}
           </div>
@@ -49,8 +51,11 @@ export const Spot = ({ loc }: SpotProps) => {
       </div>
       <div className="flex gap-2">
         <Button variant="ghost" size="icon" asChild>
-          <Link href={`https://www.google.com/maps/search/?api=1&query=${loc.name}&query_place_id=${loc.id}`} target="_blank" >
-          <ExternalLink className="size-4" />
+          <Link
+            href={`https://www.google.com/maps/search/?api=1&query=${loc.name}&query_place_id=${loc.id}`}
+            target="_blank"
+          >
+            <ExternalLink className="size-4" />
           </Link>
         </Button>
 
@@ -72,12 +77,15 @@ export const Spot = ({ loc }: SpotProps) => {
             >
               Edit
             </DropdownMenuItem>
-            <DropdownMenuItem className="text-red-500" onClick={
-              () => {
+            <DropdownMenuItem
+              className="text-red-500"
+              onClick={() => {
                 const id = account?.locs.findIndex((l) => l.name === loc.name)!;
-                account?.locsDispatch({ type: 'delete', index: id });
-              }
-            }>Delete</DropdownMenuItem>
+                account?.locsDispatch({ type: "delete", index: id });
+              }}
+            >
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>

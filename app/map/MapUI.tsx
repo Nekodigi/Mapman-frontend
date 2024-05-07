@@ -18,13 +18,8 @@ import { Search } from "@/components/molecules/search";
 import { HoursFilterDD } from "@/components/organisms/hoursFilterDD";
 import { Button } from "@/components/ui/button";
 import { LCategory, Location } from "@/type/location";
-import { gDistance } from "@/utils/location";
 
-interface MapProps {
-  initialCenter: google.maps.LatLngLiteral;
-  initialZoom: number;
-}
-
+const N_NEARBY = 3;
 interface MapState {
   center: google.maps.LatLngLiteral;
   zoom: number;
@@ -41,13 +36,15 @@ const render = (status: Status): JSX.Element | null => {
   }
 };
 
-const MyMapComponent: React.FC<MapProps> = ({ initialCenter, initialZoom }) => {
+const MyMapComponent = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
-  const [center, setCenter] =
-    useState<google.maps.LatLngLiteral>(initialCenter);
-  const [zoom, setZoom] = useState<number>(initialZoom);
+  const [center, setCenter] = useState<google.maps.LatLngLiteral>({
+    lat: 0,
+    lng: 0,
+  });
+  const [zoom, setZoom] = useState<number>(8);
   const account = useContext(AccountContext);
   const svgMarker = {
     path: "M-1.547 12l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM0 0q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z",
@@ -102,18 +99,44 @@ const MyMapComponent: React.FC<MapProps> = ({ initialCenter, initialZoom }) => {
       );
     }
     if (map) {
-      map.setCenter(center);
-      const bounds = new google.maps.LatLngBounds();
-      const filtered = account?.locs.filter((loc) =>
-        loc.vars?.distance ? loc.vars?.distance < 5 : true
+      let filtered = account?.locs.filter((loc) =>
+        loc.vars?.distance ? loc.vars?.distance < 8 : true
       );
+      filtered = filtered?.sort((a, b) => {
+        if (a.vars?.distance && b.vars?.distance) {
+          return a.vars?.distance - b.vars?.distance;
+        }
+        return 0;
+      });
+      //get first 10 items of filtered
+      filtered = filtered?.slice(0, N_NEARBY);
+      if (center.lat === 0 && center.lng === 0) {
+        filtered = account?.locs;
+      }
+      console.log(center);
+      const bounds = new google.maps.LatLngBounds();
+
       filtered?.forEach((loc) =>
         bounds.extend(new google.maps.LatLng(loc.lat, loc.lon))
       );
-      // account?.locs.forEach((loc) =>
-      //   bounds.extend(new google.maps.LatLng(loc.lat, loc.lon))
-      // );
-      map.fitBounds(bounds);
+      const b = bounds.toJSON();
+      //expand bound that it has proportional distance from center
+      if (!(center.lat === 0 && center.lng === 0)) {
+        bounds.extend(
+          new google.maps.LatLng(
+            center.lat + (center.lat - b.south),
+            center.lng + (center.lng - b.west)
+          )
+        );
+        bounds.extend(
+          new google.maps.LatLng(
+            center.lat + (center.lat - b.north),
+            center.lng + (center.lng - b.east)
+          )
+        );
+      }
+      // // consider search bar consume 64px of 360px height
+      map.fitBounds(bounds, { top: 64, bottom: 0, left: 0, right: 0 });
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -140,20 +163,8 @@ const MyMapComponent: React.FC<MapProps> = ({ initialCenter, initialZoom }) => {
         lat: account.searchOption.center.lat,
         lng: account.searchOption.center.lon,
       });
-      setZoom(account.searchOption.center.zoom);
     }
   }, [account?.searchOption]);
-
-  const updateCenter = (newCenter: google.maps.LatLngLiteral): void => {
-    setCenter(newCenter);
-  };
-
-  const getCurrentCenter = (): void => {
-    if (map) {
-      const currentCenter = map.getCenter();
-      alert(`Current Center: ${currentCenter?.lat()}, ${currentCenter?.lng()}`);
-    }
-  };
 
   return (
     <>
@@ -184,7 +195,7 @@ const MapOverlay: React.FC = () => {
   );
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-0 flex h-[360px] flex-col justify-between p-4">
+    <div className="pointer-events-none absolute inset-x-0 top-0 flex h-[360px] flex-col justify-between p-2">
       <Search
         search={search}
         finish={(loc) =>
@@ -213,10 +224,7 @@ const MapUI = () => {
         apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}
         render={render as any}
       >
-        <MyMapComponent
-          initialCenter={{ lat: -34.397, lng: 150.644 }}
-          initialZoom={8}
-        />
+        <MyMapComponent />
         <MapOverlay />
       </Wrapper>
     </div>
