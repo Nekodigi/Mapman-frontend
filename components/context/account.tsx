@@ -14,7 +14,6 @@ import { Account } from "@/type/account";
 import { Week } from "@/type/date";
 import { LCategory, Location } from "@/type/location";
 import { distance } from "@/utils/location";
-import { socket } from "@/socket";
 import { useSession } from "next-auth/react";
 import { isEqual } from "lodash";
 
