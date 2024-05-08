@@ -261,14 +261,14 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       console.log("initialization completed(not registered)");
       return;
     }
-    socket.emit("setAccount", { email: email });
-    console.log("defined socket");
-    socket.on("account", (data: Account) => {
-      if (!isEqual(data, account_cache)) {
-        setAccount(data);
-        console.log("changed by socket");
-      }
-    });
+    //socket.emit("setAccount", { email: email });
+    // console.log("defined socket");
+    // socket.on("account", (data: Account) => {
+    //   if (!isEqual(data, account_cache)) {
+    //     setAccount(data);
+    //     console.log("changed by socket");
+    //   }
+    // });
 
     (async () => {
       const remote = await fetchAccount(account_cache);
