@@ -37,8 +37,12 @@ export const Spot = ({ loc }: SpotProps) => {
           <div className="flex items-center gap-2">
             <LCategoryIcon category={loc.category} />
             <Stars stars={loc.importance} />
-            {loc.vars?.distance !== undefined && loc.vars.distance !== 0 && (
-              <p className="text-xs">{loc.vars.distance.toFixed(1)}km</p>
+            {loc.vars?.distance !== undefined && (
+              <p className="text-xs">
+                {loc.vars.distance === 0
+                  ? "Origin"
+                  : `${loc.vars.distance.toFixed(1)}km`}
+              </p>
             )}
             {/* <p className="text-xs">1.2km</p>
             <p className="text-xs">10min</p> */}

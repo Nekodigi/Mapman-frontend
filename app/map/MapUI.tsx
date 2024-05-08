@@ -71,14 +71,11 @@ const MyMapComponent = () => {
             }
             return false;
           });
-          console.log("esitst", loc.vars?.distance);
           if (exist) {
             exist.setOpacity(loc.vars?.distance === 0 ? 1 : 0.3);
 
             return exist;
           } else {
-            console.log("create new marker");
-
             //create marker
             const marker = new google.maps.Marker({
               position: { lat: loc.lat, lng: loc.lon },
@@ -113,7 +110,6 @@ const MyMapComponent = () => {
       if (center.lat === 0 && center.lng === 0) {
         filtered = account?.locs;
       }
-      console.log(center);
       const bounds = new google.maps.LatLngBounds();
 
       filtered?.forEach((loc) =>

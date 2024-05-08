@@ -26,10 +26,6 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Label } from "@/components/ui/label";
 
-
-
-
-
 export const SettingsDL = () => {
   const account = useContext(AccountContext);
   const { data: session, status } = useSession();

@@ -116,6 +116,5 @@ export const getLocationByName = async (name: string) => {
       createdAt: new Date(),
     },
   };
-  // }
   return location;
 };

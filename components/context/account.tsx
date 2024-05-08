@@ -1,12 +1,77 @@
 "use client";
 //context to provide acocount info
 
-import { createContext, useEffect, useMemo, useRef, useState } from "react";
+import {
+  createContext,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { Account } from "@/type/account";
 import { Week } from "@/type/date";
 import { LCategory, Location } from "@/type/location";
 import { distance } from "@/utils/location";
+import { socket } from "@/socket";
+import { useSession } from "next-auth/react";
+import { isEqual } from "lodash";
+
+const DEFAULT_LOC: Location = {
+  name: "",
+  category: "museum",
+  hours: [
+    [0, 0],
+    [20, 34],
+    [20, 34],
+    [20, 34],
+    [20, 34],
+    [20, 34],
+    [0, 0],
+  ],
+  importance: 1,
+  lon: 0,
+  lat: 0,
+  zoom: 15,
+  imgs: [],
+  map: "google",
+  status: {
+    checkSum: "",
+    isArchived: false,
+    isDeleted: false,
+    archivedAt: undefined,
+    createdAt: new Date(),
+  },
+};
+
+const DEFAULT_ACCOUNT: Account = {
+  name: "mapman",
+  email: "",
+  currentProfile: "default",
+  profiles: [
+    {
+      name: "default",
+      locations: [],
+      documents: [],
+      cover: "",
+      status: {
+        checkSum: "0",
+        isArchived: false,
+        isDeleted: false,
+        createdAt: new Date(),
+      },
+    },
+  ],
+  theme: "light",
+  subscription: "free",
+  status: {
+    checkSum: "0",
+    isArchived: false,
+    isDeleted: false,
+    createdAt: new Date(),
+  },
+};
 
 type LocationEditorContextType = {
   loc: Location;
@@ -45,111 +110,67 @@ export const AccountContext = createContext<AccountContextType | undefined>(
 );
 
 export const AccountProvider = ({ children }: AccountProviderProps) => {
+  const { data: session, status } = useSession();
+  const phase = useRef<"initializing" | "loading" | "ready" | "ignore_this">(
+    "initializing"
+  );
+
   type Action = {
     type: "add" | "edit" | "delete" | "setAll";
     location?: Location;
     index?: number;
     locations?: Location[];
   };
-  const called = useRef(false);
   const [searchOption, setSearchOption] = useState<SearchOption>({
     center: undefined,
     hours: { type: "now" },
     lcat: "museum",
   });
-  const [account, setAccount] = useState<Account>({
-    name: "mapman",
-    email: "test@a.a",
-    currentProfile: "default",
-    profiles: [
-      {
-        name: "default",
-        locations: [],
-        documents: [],
-        cover: "",
-        status: {
-          checkSum: "0",
-          isArchived: false,
-          isDeleted: false,
-          createdAt: new Date(),
-        },
-      },
-    ],
-    theme: "light",
-    subscription: "free",
-    status: {
-      checkSum: "0",
-      isArchived: false,
-      isDeleted: false,
-      createdAt: new Date(),
-    },
-  });
-  const locsDispatch = (action: Action) => {
-    const newAccount = { ...account };
-    const index = account.profiles.findIndex(
-      (profile) => profile.name === account.currentProfile
-    );
-    switch (action.type) {
-      case "add":
-        setAccount((prev) => {
-          const newAccount = { ...prev };
-          const locationExists = newAccount.profiles[index].locations.find(
-            (location) => location.name === action.location!.name
+  const [account, setAccount] = useState<Account>(DEFAULT_ACCOUNT);
+  const locsDispatch = useCallback(
+    (action: Action) => {
+      const newAccount = { ...account };
+      const index = account.profiles.findIndex(
+        (profile) => profile.name === account.currentProfile
+      );
+      switch (action.type) {
+        case "add":
+          setAccount((prev) => {
+            const newAccount = { ...prev };
+            const locationExists = newAccount.profiles[index].locations.find(
+              (location) => location.name === action.location!.name
+            );
+            if (locationExists) return newAccount;
+            newAccount.profiles[index].locations = [
+              ...newAccount.profiles[index].locations,
+              action.location!,
+            ];
+            return newAccount;
+          });
+          break;
+        case "edit":
+          newAccount.profiles[index].locations = newAccount.profiles[
+            index
+          ].locations.map((location, index) =>
+            index === action.index ? action.location! : location
           );
-          if (locationExists) return newAccount;
-          newAccount.profiles[index].locations = [
-            ...newAccount.profiles[index].locations,
-            action.location!,
-          ];
-          return newAccount;
-        });
-        break;
-      case "edit":
-        newAccount.profiles[index].locations = newAccount.profiles[
-          index
-        ].locations.map((location, index) =>
-          index === action.index ? action.location! : location
-        );
-        setAccount(newAccount);
-        break;
-      case "delete":
-        newAccount.profiles[index].locations = newAccount.profiles[
-          index
-        ].locations.filter((_, index) => index !== action.index);
-        setAccount(newAccount);
-        break;
-      case "setAll":
-        newAccount.profiles[index].locations = action.locations!;
-        setAccount(newAccount);
-        break;
-    }
-  };
-  const [loc, setLoc] = useState<Location>({
-    name: "",
-    category: "museum",
-    hours: [
-      [0, 0],
-      [20, 34],
-      [20, 34],
-      [20, 34],
-      [20, 34],
-      [20, 34],
-      [0, 0],
-    ],
-    importance: 1,
-    lon: 0,
-    lat: 0,
-    zoom: 15,
-    imgs: [],
-    map: "google",
-    status: {
-      checkSum: "",
-      isArchived: false,
-      isDeleted: false,
-      archivedAt: undefined,
-      createdAt: new Date(),
+          setAccount(newAccount);
+          break;
+        case "delete":
+          newAccount.profiles[index].locations = newAccount.profiles[
+            index
+          ].locations.filter((_, index) => index !== action.index);
+          setAccount(newAccount);
+          break;
+        case "setAll":
+          newAccount.profiles[index].locations = action.locations!;
+          setAccount(newAccount);
+          break;
+      }
     },
-  });
+    [account]
+  );
+  const [loc, setLoc] = useState<Location>(DEFAULT_LOC);
   const finish = () => {
     setOpen(false);
     if (id === -1) {
@@ -163,32 +184,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   const setId = (id: number) => {
     _setId(id);
     if (id === -1) {
-      setLoc({
-        name: "",
-        category: "museum",
-        hours: [
-          [0, 0],
-          [20, 34],
-          [20, 34],
-          [20, 34],
-          [20, 34],
-          [20, 34],
-          [0, 0],
-        ],
-        importance: 1,
-        lon: 139.650027,
-        lat: 35.6764225,
-        zoom: 10,
-        imgs: [],
-        map: "google",
-        status: {
-          checkSum: "",
-          isArchived: false,
-          isDeleted: false,
-          archivedAt: undefined,
-          createdAt: new Date(),
-        },
-      });
+      setLoc(DEFAULT_LOC);
     } else {
       const index = account.profiles.findIndex(
         (profile) => profile.name === account.currentProfile
@@ -196,48 +192,99 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       setLoc(account.profiles[index].locations[id]);
     }
   };
-  const locEditor = { loc, setLoc, id, setId, open, setOpen, finish };
-
-  useEffect(() => {
-    if (called.current) {
-      return;
-    }
-    called.current = true;
-    //load from JSON
-    const account_cache = localStorage.getItem("account");
-    setAccount(account ? JSON.parse(account_cache!) : account);
-    localStorage.setItem("account", JSON.stringify(account));
-  }, []);
-
-  useEffect(() => {
-    if (account.email === "") {
-      return;
-    }
-    // fs_a.doc(account.email).onSnapshot((doc) => {
-    //   if (doc.exists) {
-    //     const data = doc.data() as Account;
-    //     setAccount(data);
-    //   }
-    // });
-  }, [account.email]);
-
-  useEffect(() => {
-    localStorage.setItem("account", JSON.stringify(account));
-    //save account using api, with fetch
-    fetch("/api/account", {
-      method: "POST",
-      body: JSON.stringify(account),
-    }).then((res) => {
-      console.log(res);
-    });
-  }, [account]);
-
   const locs = useMemo(() => {
     const index = account.profiles.findIndex(
       (profile) => profile.name === account.currentProfile
     );
     return account.profiles[index].locations;
   }, [account]);
+  const locEditor: LocationEditorContextType = {
+    loc,
+    setLoc,
+    id,
+    setId,
+    open,
+    setOpen,
+    finish,
+  };
+  const saveAccount = async (acc: Account) => {
+    console.log(phase.current);
+    if (phase.current !== "ready" || status === "loading") {
+      if (phase.current === "ignore_this") phase.current = "ready";
+      return;
+    }
+    console.log("change saving...");
+    localStorage.setItem("account", JSON.stringify(acc));
+    if (acc.email === "") {
+      console.log("only local change saved!");
+      return;
+    }
+    await fetch("/api/account", {
+      method: "POST",
+      body: JSON.stringify(acc),
+    });
+    console.log(acc.profiles[0].locations);
+    console.log("change saved!");
+  };
+  //* return undefined when identical
+  const fetchAccount = async (cache: Account) => {
+    const res = (await (
+      await fetch(`/api/account/?email=${cache.email}`)
+    ).json()) as Account;
+    console.log("initial synced account", res);
+    if (!isEqual(cache, res)) {
+      return res;
+    }
+  };
+  const fetchAccountCache = () => {
+    let account_cache = DEFAULT_ACCOUNT;
+    // load account
+    try {
+      const cache = localStorage.getItem("account");
+      if (cache !== null) account_cache = JSON.parse(cache) as Account;
+    } catch (e) {}
+    if (status === "authenticated")
+      account_cache.email = session?.user?.email || "";
+    // render account
+    setAccount(account_cache);
+    return account_cache;
+  };
+
+  //* INITIAL: Load from localStorage
+  useEffect(() => {
+    if (phase.current !== "initializing" || status === "loading") return;
+    phase.current = "loading";
+    const account_cache = fetchAccountCache();
+    const email = session?.user?.email || "";
+    account_cache.email = email;
+    if (email === undefined || email === "") {
+      phase.current = "ready";
+      console.log("initialization completed(not registered)");
+      return;
+    }
+    socket.emit("setAccount", { email: email });
+    console.log("defined socket");
+    socket.on("account", (data: Account) => {
+      console.log("socket account");
+      phase.current = "ignore_this";
+      setAccount(data);
+    });
+
+    (async () => {
+      const remote = await fetchAccount(account_cache);
+      if (remote) {
+        setAccount(remote);
+      }
+      phase.current = "ready";
+      console.log("initialization completed");
+    })();
+    //localStorage.setItem("account", JSON.stringify(account));
+  }, [status]);
+  //* UPLOAD CHANGES
+  useEffect(() => {
+    saveAccount(account);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account.profiles, locs]);
 
   useEffect(() => {
     //calculate all distance from center
@@ -254,8 +301,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       return a.vars?.distance! - b.vars?.distance!;
     });
     locsDispatch({ type: "setAll", locations: locs });
-    console.log(locs);
-  }, [searchOption.center, locs]);
+  }, [searchOption.center, locs, locsDispatch]);
 
   return (
     <AccountContext.Provider
