@@ -1,4 +1,4 @@
-import { Status } from "@googlemaps/react-wrapper";
+import { Status, Wrapper } from "@googlemaps/react-wrapper";
 import React, { useState, useRef, useEffect } from "react";
 
 import {
@@ -77,8 +77,13 @@ const MapPreview = ({ loc, setLoc }: MapPreviewProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, loc.lat, loc.lon]);
 
-  return <div ref={ref} className="h-[128px] w-full" />;
+  return (
+    <>
+      <div ref={ref} className="h-[128px] w-full" />
+    </>
+  );
 };
+
 export const LocPicker = ({ loc, setLoc }: LocPickerProps) => {
   const ref = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
@@ -106,7 +111,12 @@ export const LocPicker = ({ loc, setLoc }: LocPickerProps) => {
   return (
     <Dialog>
       <DialogTrigger>
-        <MapPreview loc={loc} setLoc={setLoc} />
+        <Wrapper
+          apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}
+          render={render as any}
+        >
+          <MapPreview loc={loc} setLoc={setLoc} />
+        </Wrapper>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -135,7 +145,13 @@ export const LocPicker = ({ loc, setLoc }: LocPickerProps) => {
             }
           />
         </div>
-        <MapPreview loc={loc} setLoc={setLoc} />
+        <Wrapper
+          apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}
+          render={render as any}
+        >
+          <MapPreview loc={loc} setLoc={setLoc} />
+        </Wrapper>
+
         {/* <div ref={ref} className="w-full h-[128px]" /> */}
       </DialogContent>
     </Dialog>

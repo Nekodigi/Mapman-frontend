@@ -28,7 +28,7 @@ export const LocCatDD = ({ lcat, setLcat, allowAll }: LocCatDDProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon">
+        <Button variant="outline" size="icon" className="shadow-lg">
           {/* <Landmark className="h-4 w-4" /> */}
           {/* display ptype with icon */}
           {lcat === "museum" ? (

@@ -6,9 +6,11 @@ import { AccountContext } from "../context/account";
 import { Spot } from "@/components/molecules/spot";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { useSearchParams } from "next/navigation";
 
 export const Spots = () => {
   const account = useContext(AccountContext);
+  const params = useSearchParams();
 
   //sort by distance when center location is available
   const locs = useMemo(() => {
@@ -34,6 +36,9 @@ export const Spots = () => {
           variant="ghost"
           size="icon"
           onClick={() => {
+            //change url without refresh just add query
+            window.history.pushState(null, "", "?open=true");
+
             account?.locEditor.setOpen(true);
             account?.locEditor.setId(-1);
           }}

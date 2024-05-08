@@ -56,6 +56,47 @@ const MyMapComponent = () => {
     scale: 2,
     anchor: new google.maps.Point(0, 20),
   };
+  const setBounds = useCallback(() => {
+    if (map) {
+      let filtered = account?.locs.filter((loc) =>
+        loc.vars?.distance ? loc.vars?.distance < 8 : true
+      );
+      filtered = filtered?.sort((a, b) => {
+        if (a.vars?.distance && b.vars?.distance) {
+          return a.vars?.distance - b.vars?.distance;
+        }
+        return 0;
+      });
+      //get first 10 items of filtered
+      filtered = filtered?.slice(0, N_NEARBY);
+      if (center.lat === 0 && center.lng === 0) {
+        filtered = account?.locs;
+      }
+      const bounds = new google.maps.LatLngBounds();
+
+      filtered?.forEach((loc) =>
+        bounds.extend(new google.maps.LatLng(loc.lat, loc.lon))
+      );
+      const b = bounds.toJSON();
+      //expand bound that it has proportional distance from center
+      if (!(center.lat === 0 && center.lng === 0)) {
+        bounds.extend(
+          new google.maps.LatLng(
+            center.lat + (center.lat - b.south),
+            center.lng + (center.lng - b.west)
+          )
+        );
+        bounds.extend(
+          new google.maps.LatLng(
+            center.lat + (center.lat - b.north),
+            center.lng + (center.lng - b.east)
+          )
+        );
+      }
+      // // consider search bar consume 64px of 360px height
+      map.fitBounds(bounds, { top: 64, bottom: 0, left: 0, right: 0 });
+    }
+  }, [account?.locs, center, map]);
 
   useEffect(() => {
     if (account?.locs && map) {
@@ -97,46 +138,7 @@ const MyMapComponent = () => {
         })
       );
     }
-    if (map) {
-      let filtered = account?.locs.filter((loc) =>
-        loc.vars?.distance ? loc.vars?.distance < 8 : true
-      );
-      filtered = filtered?.sort((a, b) => {
-        if (a.vars?.distance && b.vars?.distance) {
-          return a.vars?.distance - b.vars?.distance;
-        }
-        return 0;
-      });
-      //get first 10 items of filtered
-      filtered = filtered?.slice(0, N_NEARBY);
-      if (center.lat === 0 && center.lng === 0) {
-        filtered = account?.locs;
-      }
-      const bounds = new google.maps.LatLngBounds();
-
-      filtered?.forEach((loc) =>
-        bounds.extend(new google.maps.LatLng(loc.lat, loc.lon))
-      );
-      const b = bounds.toJSON();
-      //expand bound that it has proportional distance from center
-      if (!(center.lat === 0 && center.lng === 0)) {
-        bounds.extend(
-          new google.maps.LatLng(
-            center.lat + (center.lat - b.south),
-            center.lng + (center.lng - b.west)
-          )
-        );
-        bounds.extend(
-          new google.maps.LatLng(
-            center.lat + (center.lat - b.north),
-            center.lng + (center.lng - b.east)
-          )
-        );
-      }
-      // // consider search bar consume 64px of 360px height
-      map.fitBounds(bounds, { top: 64, bottom: 0, left: 0, right: 0 });
-    }
-
+    setBounds();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, account?.locs, center]); //
 
@@ -168,6 +170,18 @@ const MyMapComponent = () => {
   return (
     <>
       <div ref={ref} className="h-[360px] w-full" />
+      <div className="pointer-events-none absolute top-0 flex h-[360px] w-full items-end justify-end p-2">
+        <Button
+          variant="outline"
+          size="icon"
+          className=" pointer-events-auto shadow"
+          onClick={() => {
+            console.log("clicked");
+          }}
+        >
+          <Flag className="size-4" />
+        </Button>
+      </div>
     </>
   );
 };
@@ -208,9 +222,6 @@ const MapOverlay: React.FC = () => {
         <HoursFilterDD />
 
         <LocCatDD lcat={lcat} setLcat={setLcat} allowAll />
-        <Button variant="outline" size="icon">
-          <Flag className="size-4" />
-        </Button>
       </div>
     </div>
   );

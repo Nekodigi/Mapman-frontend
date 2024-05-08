@@ -25,7 +25,7 @@ export const HoursFilterDD = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline">
+        <Button variant="outline" className="shadow-lg">
           <Clock className="mr-2 size-4" />
           {type === "now" && "Now"}
           {type === "anytime" && "Anytime"}

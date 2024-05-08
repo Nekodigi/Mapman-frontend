@@ -55,7 +55,7 @@ export const Search = ({ finish, search }: SearchProps) => {
     setSearchResults(search(inputText) || []);
   }, [inputText, search]);
   return (
-    <div className="pointer-events-auto">
+    <div className="pointer-events-auto shadow-lg">
       <Command
         ref={commandRef}
         shouldFilter={false}

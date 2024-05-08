@@ -17,8 +17,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { LCategory, MapType } from "@/type/location";
+import { useSearchParams } from "next/navigation";
 
 export const EditLocation = () => {
+  const params = useSearchParams();
   const hours: number[][] = [
     [0, 0],
     [20, 34],
@@ -32,8 +34,21 @@ export const EditLocation = () => {
   const locEditor = useMemo(() => account?.locEditor, [account]);
   const loc = useMemo(() => locEditor?.loc, [locEditor]);
   const setLoc = useMemo(() => locEditor?.setLoc, [locEditor]);
-  const open = useMemo(() => locEditor?.open, [locEditor]);
-  const setOpen = useMemo(() => locEditor?.setOpen, [locEditor]);
+  //const open = useMemo(() => locEditor?.open, [locEditor]);
+  const open = useMemo(() => {
+    return params.get("open") === "true";
+  }, [params]);
+  //const setOpen = useMemo(() => locEditor?.setOpen, [locEditor]);
+  const setOpen = useMemo(() => {
+    return (open: boolean) => {
+      if (open) {
+        window.history.pushState(null, "", "?open=true");
+      } else {
+        window.history.pushState(null, "", "?open=false");
+      }
+      locEditor?.setOpen(open);
+    };
+  }, [locEditor]);
 
   if (!loc || !setLoc || !open || !setOpen) {
     return null;
@@ -121,7 +136,14 @@ export const EditLocation = () => {
             <ToggleGroupItem value="gaode">Gaode</ToggleGroupItem>
           </ToggleGroup>
         </div>
-        <Button onClick={locEditor?.finish}>Submit</Button>
+        <Button
+          onClick={() => {
+            setOpen(false);
+            locEditor?.finish();
+          }}
+        >
+          Submit
+        </Button>
       </DialogContent>
     </Dialog>
   );
