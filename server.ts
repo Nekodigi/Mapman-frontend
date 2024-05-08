@@ -21,15 +21,14 @@ app.prepare().then(() => {
       console.log("Recieved from CLIENT ::", data);
       //need email, socket.id
       fs_a.doc(data.email).onSnapshot((doc) => {
-        console.log("EMIT!!!");
         socket.emit("account", doc.data());
       });
     });
     // socket.broadcast.emit("hello", "world");
-    socket.on("hello", (data) => {
-      console.log("Recieved from CLIENT ::", data);
-      socket.emit("hello", "world");
-    });
+    // socket.on("hello", (data) => {
+    //   console.log("Recieved from CLIENT ::", data);
+    //   socket.emit("hello", "world");
+    // });
     // console.log("Client connected");
     // socket.on("message1", (data) => {
     //   console.log("Recieved from API ::", data);

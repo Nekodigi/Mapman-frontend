@@ -18,6 +18,7 @@ import { Search } from "@/components/molecules/search";
 import { HoursFilterDD } from "@/components/organisms/hoursFilterDD";
 import { Button } from "@/components/ui/button";
 import { LCategory, Location } from "@/type/location";
+import { almostZero } from "@/utils/location";
 
 const N_NEARBY = 3;
 interface MapState {
@@ -62,6 +63,7 @@ const MyMapComponent = () => {
 
       //add or remove changed markers
       // don't change marker if it not changed
+      console.log(account?.locs.map((loc) => loc.vars?.distance));
       setMarkers(
         account.locs.map((loc, i) => {
           //if marker include loc
@@ -72,7 +74,7 @@ const MyMapComponent = () => {
             return false;
           });
           if (exist) {
-            exist.setOpacity(loc.vars?.distance === 0 ? 1 : 0.3);
+            exist.setOpacity(almostZero(loc.vars?.distance) ? 1 : 0.3);
 
             return exist;
           } else {
@@ -81,7 +83,7 @@ const MyMapComponent = () => {
               position: { lat: loc.lat, lng: loc.lon },
               map: map,
               title: loc.name,
-              opacity: loc.vars?.distance === 0 ? 1 : 0.3,
+              opacity: almostZero(loc.vars?.distance) ? 1 : 0.3,
               clickable: true,
               // icon: svgMarker,
             });
@@ -136,7 +138,7 @@ const MyMapComponent = () => {
     }
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, account]); //
+  }, [map, account?.locs, center]); //
 
   useEffect(() => {
     if (ref.current && !map) {
@@ -146,6 +148,7 @@ const MyMapComponent = () => {
         scaleControl: true,
         disableDefaultUI: true,
         zoom,
+        renderingType: google.maps.RenderingType.VECTOR,
       });
       setMap(newMap);
     } else if (map) {
@@ -187,7 +190,7 @@ const MapOverlay: React.FC = () => {
       const locs = query === "" ? account?.locs : jss.search(query);
       return locs?.map((loc) => (loc as Location).name) || [];
     },
-    [jss]
+    [account?.locs, jss]
   );
 
   return (

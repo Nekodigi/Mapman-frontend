@@ -72,7 +72,6 @@ const DEFAULT_ACCOUNT: Account = {
     createdAt: new Date(),
   },
 };
-
 type LocationEditorContextType = {
   loc: Location;
   setLoc: (loc: Location) => void;
@@ -104,23 +103,20 @@ type AccountContextType = {
 type AccountProviderProps = {
   children: React.ReactNode;
 };
-
+type Action = {
+  type: "add" | "edit" | "delete" | "setAll";
+  location?: Location;
+  index?: number;
+  locations?: Location[];
+};
 export const AccountContext = createContext<AccountContextType | undefined>(
   undefined
 );
-
+// TODO DON'T WAIT FOR ACCOUNT TO BE READY
 export const AccountProvider = ({ children }: AccountProviderProps) => {
   const { data: session, status } = useSession();
-  const phase = useRef<"initializing" | "loading" | "ready" | "ignore_this">(
-    "initializing"
-  );
+  const phase = useRef<"initializing" | "loading" | "ready">("initializing");
 
-  type Action = {
-    type: "add" | "edit" | "delete" | "setAll";
-    location?: Location;
-    index?: number;
-    locations?: Location[];
-  };
   const [searchOption, setSearchOption] = useState<SearchOption>({
     center: undefined,
     hours: { type: "now" },
@@ -208,9 +204,8 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     finish,
   };
   const saveAccount = async (acc: Account) => {
-    console.log(phase.current);
+    //console.log(phase.current);
     if (phase.current !== "ready" || status === "loading") {
-      if (phase.current === "ignore_this") phase.current = "ready";
       return;
     }
     console.log("change saving...");
@@ -231,7 +226,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     const res = (await (
       await fetch(`/api/account/?email=${cache.email}`)
     ).json()) as Account;
-    console.log("initial synced account", res);
+    //console.log("initial synced account", res);
     if (!isEqual(cache, res)) {
       return res;
     }
@@ -250,11 +245,15 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     return account_cache;
   };
 
-  //* INITIAL: Load from localStorage
   useEffect(() => {
-    if (phase.current !== "initializing" || status === "loading") return;
-    phase.current = "loading";
+    if (phase.current !== "initializing") return;
+    console.time("cache");
     const account_cache = fetchAccountCache();
+    setAccount(account_cache);
+    console.timeEnd("cache");
+
+    if (status === "loading") return;
+    phase.current = "loading";
     const email = session?.user?.email || "";
     account_cache.email = email;
     if (email === undefined || email === "") {
@@ -265,9 +264,10 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     socket.emit("setAccount", { email: email });
     console.log("defined socket");
     socket.on("account", (data: Account) => {
-      console.log("socket account");
-      phase.current = "ignore_this";
-      setAccount(data);
+      if (!isEqual(data, account_cache)) {
+        setAccount(data);
+        console.log("changed by socket");
+      }
     });
 
     (async () => {
@@ -292,15 +292,17 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       return;
     }
     const center = searchOption.center;
-    locs.map((loc) => {
+    let newLocs = locs.map((loc) => {
       loc.vars = loc.vars || {};
       loc.vars.distance = distance(center, loc);
+      return loc;
     });
     // sort by distance
-    locs.sort((a, b) => {
+    newLocs = newLocs.sort((a, b) => {
       return a.vars?.distance! - b.vars?.distance!;
     });
-    locsDispatch({ type: "setAll", locations: locs });
+    if (isEqual(newLocs, locs)) return;
+    locsDispatch({ type: "setAll", locations: newLocs });
   }, [searchOption.center, locs, locsDispatch]);
 
   return (

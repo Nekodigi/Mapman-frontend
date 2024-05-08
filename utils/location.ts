@@ -17,6 +17,10 @@ import { periods2hours } from "@/utils/date";
 
 const client = new Client({});
 
+export const almostZero = (a: number | undefined, epsilon = 0.0001) => {
+  if (a === undefined) return false;
+  return Math.abs(a) < epsilon;
+};
 export const distance = (a: Location, b: Location) => {
   return gDistance({ lat: a.lat, lng: a.lon }, { lat: b.lat, lng: b.lon });
 };

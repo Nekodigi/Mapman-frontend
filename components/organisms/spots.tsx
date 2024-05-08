@@ -6,17 +6,16 @@ import { AccountContext } from "../context/account";
 import { Spot } from "@/components/molecules/spot";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
-import { distance } from "@/utils/location";
 
 export const Spots = () => {
   const account = useContext(AccountContext);
 
   //sort by distance when center location is available
   const locs = useMemo(() => {
-    const center = account?.searchOption.center
+    const center = account?.searchOption.center;
     if (center === undefined) {
       return account?.locs;
-    }else{
+    } else {
       //sort by distance
       return account?.locs.sort((a, b) => {
         if (a.vars?.distance === undefined || b.vars?.distance === undefined) {
@@ -25,7 +24,7 @@ export const Spots = () => {
         return a.vars?.distance - b.vars?.distance;
       });
     }
-  }, [account?.locs])
+  }, [account?.locs]);
 
   return (
     <div className="flex min-h-0 grow flex-col">

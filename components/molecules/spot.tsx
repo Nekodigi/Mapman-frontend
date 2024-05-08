@@ -15,6 +15,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Location } from "@/type/location";
 import Link from "next/link";
+import { almostZero } from "@/utils/location";
 
 type SpotProps = {
   loc: Location;
@@ -39,7 +40,7 @@ export const Spot = ({ loc }: SpotProps) => {
             <Stars stars={loc.importance} />
             {loc.vars?.distance !== undefined && (
               <p className="text-xs">
-                {loc.vars.distance === 0
+                {almostZero(loc.vars?.distance)
                   ? "Origin"
                   : `${loc.vars.distance.toFixed(1)}km`}
               </p>

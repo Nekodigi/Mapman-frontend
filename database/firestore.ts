@@ -4,10 +4,11 @@ import { accountConverter } from "./account";
 
 //TODO FIX HOURS SINCE WE CAN'T USE ARRAY or USE CONVERTER
 
-export const db = firestore();
 if (!getApps().length) {
   initializeApp();
 }
+
+export const db = firestore();
 
 export const fs_a = db
   .collection("mapman")

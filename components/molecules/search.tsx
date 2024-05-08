@@ -1,11 +1,5 @@
 "use client";
-import {
-  useCallback,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-} from "react";
+import { useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import { AccountContext } from "../context/account";
 
@@ -42,23 +36,26 @@ export const Search = ({ finish, search }: SearchProps) => {
   );
 
   const handleClickOutside = (event: MouseEvent) => {
-    if (commandRef.current && !commandRef.current.contains(event.target as any)) {
+    if (
+      commandRef.current &&
+      !commandRef.current.contains(event.target as any)
+    ) {
       setOpen(false);
     }
   };
 
   useEffect(() => {
-    document.addEventListener('mousedown', handleClickOutside);
+    document.addEventListener("mousedown", handleClickOutside);
     return () => {
-      document.removeEventListener('mousedown', handleClickOutside);
+      document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
 
   useEffect(() => {
     setSearchResults(search(inputText) || []);
-  }, [inputText]);
+  }, [inputText, search]);
   return (
-    <div className="pointer-events-auto" >
+    <div className="pointer-events-auto">
       <Command
         ref={commandRef}
         shouldFilter={false}
@@ -77,17 +74,17 @@ export const Search = ({ finish, search }: SearchProps) => {
               setSelected(undefined);
             }
           }}
-
           onFocus={() => {
             setOpen(true);
             if (selected) {
               setInputText("");
+              setSelected(undefined);
               //inputRef.current?.select(); // select all if selected when focus
             }
           }}
         />
         <div className="relative">
-          {(!selected && open) && (
+          {!selected && open && (
             <CommandList className="bg-background absolute left-0 top-0 w-full rounded shadow-md">
               <CommandEmpty className="text-muted-foreground px-4 py-2">
                 No Hit
@@ -100,6 +97,7 @@ export const Search = ({ finish, search }: SearchProps) => {
                     setInputText(v);
                     finish(v);
                     inputRef.current?.blur();
+                    setOpen(false);
                   }}
                   value={v}
                   key={v}
