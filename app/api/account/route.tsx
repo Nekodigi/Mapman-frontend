@@ -11,6 +11,7 @@ export async function GET(req: NextRequest) {
     const account = await fs_a.doc(email as string).get();
     return Response.json(account.data());
   } catch (error) {
+    console.log(error);
     return new Response("Error fetching account", { status: 500 });
   }
 }
