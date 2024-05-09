@@ -7,6 +7,7 @@ const Compass = () => {
   const [debugInfo, setDebugInfo] = useState<string[]>([]); // Store debug messages
 
   const handleOrientation = (event: DeviceOrientationEvent) => {
+    setDebugInfo((prev) => [...prev, JSON.stringify(event)]);
     if (event.absolute && event.alpha !== null) {
       setHeading(event.alpha);
       setDebugInfo((prev) => [...prev, `Heading: ${event.alpha}`]); // Log heading
