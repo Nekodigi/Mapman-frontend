@@ -8,8 +8,8 @@ type LocationInfosProps = {
 };
 export const LocationInfos = ({ loc }: LocationInfosProps) => {
   return (
-    <div className="flex flex-col gap-1">
-      <h3 className="font-medium">{loc.name}</h3>
+    <div className="flex flex-col gap-1 min-w-0 w-full">
+      <h3 className="font-medium truncate">{loc.name}</h3>
       <div className="flex items-center gap-2">
         <LCategoryIcon category={loc.category} />
         <Stars stars={loc.importance} />

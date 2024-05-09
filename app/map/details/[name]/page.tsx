@@ -39,12 +39,26 @@ export default function Page({ params }: { params: { name: string } }) {
         >
           <ArrowLeft />
         </Button>
-        <div className="flex justify-center">
+        <div className="flex justify-center gap-2  sm:p-2 sm:pb-0 max-w-[1200px] w-full self-center">
           <Image
             src={loc.imgs[0]}
             width={512}
             height={160}
-            className="w-full max-w-[512px] h-[160px] object-cover"
+            className="w-full h-[160px] object-cover sm:rounded-lg"
+            alt="thumbnail"
+          />
+          <Image
+            src={loc.imgs[1]}
+            width={512}
+            height={160}
+            className="w-full h-[160px] object-cover hidden  sm:block sm:rounded-lg"
+            alt="thumbnail"
+          />
+          <Image
+            src={loc.imgs[2]}
+            width={512}
+            height={160}
+            className="w-full h-[160px] object-cover hidden sm:block sm:rounded-lg"
             alt="thumbnail"
           />
         </div>

@@ -1340,6 +1340,13 @@
   resolved "https://registry.yarnpkg.com/@types/range-parser/-/range-parser-1.2.7.tgz#50ae4353eaaddc04044279812f52c8c65857dbcb"
   integrity sha512-hKormJbkJqzQGhziax5PItDUTMAM9uE2XXQmM37dyd4hVM+5aVl7oVxMVUiVQn2oCQFN/LKCZdvSM0pFRqbSmQ==
 
+"@types/react-compass@^0.1.3":
+  version "0.1.3"
+  resolved "https://registry.yarnpkg.com/@types/react-compass/-/react-compass-0.1.3.tgz#deba3a3f5966b429ae13b4aaac8fdc549c650ee1"
+  integrity sha512-i2p6nFfBzxRh4uEXHIWJWczee/bhZ7W+B1zv5VBgMD75EQRjAbx3q9CFssiirbdsg0PEO5l+zo2pWUO3bsoIwg==
+  dependencies:
+    "@types/react" "*"
+
 "@types/react-dom@^18":
   version "18.3.0"
   resolved "https://registry.yarnpkg.com/@types/react-dom/-/react-dom-18.3.0.tgz#0cbc818755d87066ab6ca74fbedb2547d74a82b0"

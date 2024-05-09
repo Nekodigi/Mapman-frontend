@@ -23,22 +23,22 @@ export const Spot = ({ loc }: SpotProps) => {
   const router = useRouter();
 
   return (
-    <div
-      className="flex w-full items-center justify-between pr-4"
-      onClick={() => {
-        account?.setSearchOption((prev) => ({
-          ...prev,
-          viewCenter: loc,
-        }));
-        router.push(`/map/details/${encodeURIComponent(loc.name)}`);
-      }}
-    >
-      <div className="flex h-[72px] gap-2 px-2 py-1">
+    <div className="flex w-full items-center justify-between pr-4">
+      <div
+        className="flex h-[72px] gap-2 px-2 py-1 min-w-0 w-full"
+        onClick={() => {
+          account?.setSearchOption((prev) => ({
+            ...prev,
+            viewCenter: loc,
+          }));
+          router.push(`/map/details/${encodeURIComponent(loc.name)}`);
+        }}
+      >
         <Image
           src={loc.imgs[0]}
           width={128}
           height={128}
-          className="w-16 rounded object-cover"
+          className="min-w-16 w-16 rounded object-cover"
           alt="thumbnail"
         />
         <LocationInfos loc={loc} />
