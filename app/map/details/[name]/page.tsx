@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { almostZero } from "@/utils/location";
 import { ArrowLeft, Compass } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useMemo } from "react";
 
@@ -34,7 +35,7 @@ export default function Page({ params }: { params: { name: string } }) {
         <Button
           variant="outline"
           size="icon"
-          onClick={() => router.back()}
+          onClick={() => router.push("/map")}
           className="absolute m-4"
         >
           <ArrowLeft />
@@ -65,8 +66,10 @@ export default function Page({ params }: { params: { name: string } }) {
         <div className="p-4">
           <LocationInfos loc={loc} />
           <div className="flex justify-between items-center h-16">
-            <Button variant="ghost" size="icon">
-              <Compass />
+            <Button variant="ghost" size="icon" asChild>
+              <Link href={`/compass/${encodeURIComponent(loc.name)}`} passHref>
+                <Compass />
+              </Link>
             </Button>
             <LocCtrlDD locName={loc.name} />
           </div>

@@ -12,6 +12,7 @@ import React, {
   useCallback,
 } from "react";
 
+import { useGeolocated } from "react-geolocated";
 import { AccountContext } from "@/components/context/account";
 import { LocCatDD } from "@/components/dropdown/locCatDD";
 import { Search } from "@/components/molecules/search";
@@ -19,6 +20,7 @@ import { HoursFilterDD } from "@/components/dropdown/hoursFilterDD";
 import { Button } from "@/components/ui/button";
 import { LCategory, Location } from "@/type/location";
 import { almostZero, distance } from "@/utils/location";
+import { useRouter } from "next/navigation";
 
 const N_NEARBY = 3;
 interface MapState {
@@ -37,32 +39,62 @@ const render = (status: Status): JSX.Element | null => {
   }
 };
 
+var monoStyle = [
+  {
+    featureType: "all",
+    elementType: "all",
+    stylers: [
+      { saturation: -100 }, // <-- THIS
+    ],
+  },
+];
+
 const MyMapComponent = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
   const [zoom, setZoom] = useState<number>(8);
   const account = useContext(AccountContext);
-  const svgMarker = {
+  const router = useRouter();
+
+  const { coords, isGeolocationAvailable, isGeolocationEnabled } =
+    useGeolocated({
+      positionOptions: {
+        enableHighAccuracy: false,
+      },
+      watchPosition: true,
+      userDecisionTimeout: 5000,
+    });
+
+  const arrowMarker = {
     path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
     scale: 10,
     fillColor: "red",
     fillOpacity: 1,
     rotation: 0,
-    strokeColor: "white",
-    strokeWeight: 1,
+    strokeColor: "#0f172a",
+    strokeWeight: 5,
   };
   const circleMarker: google.maps.Symbol = {
-    path: google.maps.SymbolPath.CIRCLE,
-    fillColor: "blue",
+    //circle path
+    path: "M 0,0 m -1,0 a 1,1 0 1,0 2,0 a 1,1 0 1,0 -2,0",
+    fillColor: "white",
     fillOpacity: 1,
     scale: 10,
-    strokeColor: "white",
-    strokeWeight: 1,
+    strokeColor: "#0f172a",
+    strokeWeight: 5,
+  };
+  const squareMarker: google.maps.Symbol = {
+    path: "M 0,0 0,2 2,2 2,0 z",
+    fillColor: "white",
+    fillOpacity: 1,
+    scale: 10,
+    strokeColor: "#0f172a",
+    strokeWeight: 5,
   };
 
   const setBounds = useCallback(() => {
-    if (map && account) {
+    if (map && account?.locs) {
       const center = account.searchOption.viewCenter || { lat: 0, lon: 0 };
       let filtered = account.locs.filter((loc) =>
         loc.vars?.distance ? loc.vars?.distance < 8 : true
@@ -111,9 +143,25 @@ const MyMapComponent = () => {
 
       //add or remove changed markers
       // don't change marker if it not changed
-      console.log(account?.locs.map((loc) => loc.vars?.distance));
+      //copy account.locs
+      const locs = [...account.locs];
+      //add current position
+      if (isGeolocationAvailable && isGeolocationEnabled && coords) {
+        locs.push({
+          name: "Current Position",
+          lat: coords.latitude,
+          lon: coords.longitude,
+          vars: {
+            distance: distance(
+              { lat: coords.latitude, lon: coords.longitude } as Location,
+              account.searchOption.viewCenter ||
+                ({ lat: 0, lon: 0 } as Location)
+            ),
+          },
+        } as Location);
+      }
       setMarkers(
-        account.locs.map((loc, i) => {
+        locs.map((loc, i) => {
           //if marker include loc
           const exist = markers.find((marker) => {
             if (marker.getTitle() === loc.name) {
@@ -122,17 +170,34 @@ const MyMapComponent = () => {
             return false;
           });
           if (exist) {
+            if (loc.name === "Current Position") {
+              exist.setIcon(arrowMarker);
+              exist.setOpacity(1);
+              return exist;
+            }
+
+            exist.setIcon(
+              almostZero(loc.vars?.distance) ? squareMarker : circleMarker
+            );
             if (
               account.searchOption.viewCenter &&
               almostZero(distance(account.searchOption.viewCenter, loc))
             ) {
-              exist.setOpacity(1);
+              //exist.setOpacity(1);
+              exist.setIcon({
+                ...(exist.getIcon() as google.maps.Icon),
+                scale: 20,
+                fillColor: "#22c55e",
+              });
             } else {
-              exist.setOpacity(0.3);
+              //exist.setOpacity(0.6);
+              exist.setIcon({
+                ...(exist.getIcon() as google.maps.Icon),
+                scale: 10,
+                fillColor: "white",
+              });
             }
-            exist.setIcon(
-              almostZero(loc.vars?.distance) ? svgMarker : circleMarker
-            );
+            exist.setOpacity(1);
 
             return exist;
           } else {
@@ -146,9 +211,15 @@ const MyMapComponent = () => {
               // icon: svgMarker,
             });
             marker.addListener("click", () => {
-              infoWindow.close();
-              infoWindow.setContent(marker.getTitle());
-              infoWindow.open(marker.getMap(), marker);
+              // infoWindow.close();
+              // infoWindow.setContent(marker.getTitle());
+              // infoWindow.open(marker.getMap(), marker);
+              account.setSearchOption((prev) => ({
+                ...prev,
+                viewCenter: loc,
+              }));
+              //open detail page
+              router.push(`/map/details/${loc.name}`);
             });
             return marker;
           }
@@ -170,6 +241,11 @@ const MyMapComponent = () => {
         zoom,
         renderingType: google.maps.RenderingType.VECTOR,
       });
+      var mapType = new google.maps.StyledMapType(monoStyle, {
+        name: "Grayscale",
+      });
+      newMap.mapTypes.set("tehgrayz", mapType);
+      newMap.setMapTypeId("tehgrayz");
       setMap(newMap);
     } else if (map) {
       //map.setZoom(zoom);
@@ -199,34 +275,73 @@ const MyMapComponent = () => {
 const MapOverlay: React.FC = () => {
   const [lcat, setLcat] = useState<LCategory>("museum");
   const account = useContext(AccountContext);
+  const { coords, isGeolocationAvailable, isGeolocationEnabled } =
+    useGeolocated({
+      positionOptions: {
+        enableHighAccuracy: false,
+      },
+      watchPosition: true,
+      userDecisionTimeout: 5000,
+    });
+
+  const locsAppend = useMemo(() => {
+    if (!account) return [];
+    const locs = [...account.locs];
+    if (isGeolocationAvailable && isGeolocationEnabled && coords) {
+      locs.push({
+        name: "Current Position",
+        lat: coords.latitude,
+        lon: coords.longitude,
+        vars: {
+          distance: distance(
+            { lat: coords.latitude, lon: coords.longitude } as Location,
+            account.searchOption.viewCenter || ({ lat: 0, lon: 0 } as Location)
+          ),
+        },
+      } as Location);
+    }
+    return locs;
+  }, [account, coords, isGeolocationAvailable, isGeolocationEnabled]);
 
   const jss = useMemo(() => {
     const s = new JSSearch("name");
     s.addIndex("name");
-    s.addDocuments(account?.locs || []);
+    if (!account) return s;
+    s.addDocuments(locsAppend || []);
 
     return s;
   }, [account]);
 
   const search = useCallback(
     (query: string) => {
-      const locs = query === "" ? account?.locs : jss.search(query);
+      const locs = query === "" ? locsAppend : jss.search(query);
       return locs?.map((loc) => (loc as Location).name) || [];
     },
-    [account?.locs, jss]
+    [locsAppend, jss]
   );
 
   return (
     <div className="pointer-events-none absolute inset-x-0 top-0 flex h-[360px] flex-col justify-between p-2">
       <Search
         search={search}
-        finish={(loc) =>
-          account?.setSearchOption((prev) => ({
-            ...prev,
-            center: jss.search(loc)[0] as Location,
-            viewCenter: jss.search(loc)[0] as Location,
-          }))
-        }
+        finish={(loc: string) => {
+          if (loc === "Current Position") {
+            coords &&
+              account?.setSearchOption((prev) => ({
+                ...prev,
+                viewCenter: {
+                  lat: coords.latitude,
+                  lon: coords.longitude,
+                } as Location,
+              }));
+          } else {
+            account?.setSearchOption((prev) => ({
+              ...prev,
+              center: jss.search(loc)[0] as Location,
+              viewCenter: jss.search(loc)[0] as Location,
+            }));
+          }
+        }}
       />
       <div className="self-start pointer-events-auto flex gap-4">
         <HoursFilterDD />

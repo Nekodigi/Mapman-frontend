@@ -9,6 +9,7 @@ import { EllipsisVertical, ExternalLink } from "lucide-react";
 import { useContext } from "react";
 import { AccountContext } from "../context/account";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 
 type LocCtrlDDProps = {
   locName: string;
@@ -25,7 +26,9 @@ export const LocCtrlDD = ({ locName }: LocCtrlDDProps) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="">
-        <DropdownMenuItem>Compass</DropdownMenuItem>
+        <Link href={`/compass/${encodeURIComponent(locName)}`} passHref>
+          <DropdownMenuItem>Compass</DropdownMenuItem>
+        </Link>
         <DropdownMenuItem>Archive</DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
