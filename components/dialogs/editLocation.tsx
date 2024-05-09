@@ -1,9 +1,11 @@
+"use client";
+
 import { useContext, useMemo } from "react";
 
 import { AccountContext } from "../context/account";
-import { LocCatDD } from "../molecules/locCatDD";
+import { LocCatDD } from "../dropdown/locCatDD";
 import { StarsToggle } from "../molecules/starsToggle";
-import { HoursDD } from "../organisms/hoursDD";
+import { HoursDD } from "../dropdown/hoursDD";
 import { LocPicker } from "../organisms/locPicker";
 
 import { Button } from "@/components/ui/button";
@@ -17,7 +19,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { LCategory, MapType } from "@/type/location";
-import { useSearchParams } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
 export const EditLocation = () => {
   const params = useSearchParams();
@@ -31,6 +33,7 @@ export const EditLocation = () => {
     [0, 0],
   ];
   const account = useContext(AccountContext);
+  const router = useRouter();
   const locEditor = useMemo(() => account?.locEditor, [account]);
   const loc = useMemo(() => locEditor?.loc, [locEditor]);
   const setLoc = useMemo(() => locEditor?.setLoc, [locEditor]);
@@ -42,9 +45,10 @@ export const EditLocation = () => {
   const setOpen = useMemo(() => {
     return (open: boolean) => {
       if (open) {
+        //router.push({ search: "open=true" });
         window.history.pushState(null, "", "?open=true");
       } else {
-        window.history.pushState(null, "", "?open=false");
+        router.back();
       }
       locEditor?.setOpen(open);
     };

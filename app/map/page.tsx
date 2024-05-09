@@ -12,10 +12,8 @@ function App() {
 
   return (
     <div className="flex min-h-0 grow flex-col">
-      <MapUI />
       <Suspense>
         <Spots />
-        <EditLocation />
       </Suspense>
     </div>
   );

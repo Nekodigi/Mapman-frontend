@@ -13,12 +13,12 @@ import React, {
 } from "react";
 
 import { AccountContext } from "@/components/context/account";
-import { LocCatDD } from "@/components/molecules/locCatDD";
+import { LocCatDD } from "@/components/dropdown/locCatDD";
 import { Search } from "@/components/molecules/search";
-import { HoursFilterDD } from "@/components/organisms/hoursFilterDD";
+import { HoursFilterDD } from "@/components/dropdown/hoursFilterDD";
 import { Button } from "@/components/ui/button";
 import { LCategory, Location } from "@/type/location";
-import { almostZero } from "@/utils/location";
+import { almostZero, distance } from "@/utils/location";
 
 const N_NEARBY = 3;
 interface MapState {
@@ -41,24 +41,30 @@ const MyMapComponent = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
-  const [center, setCenter] = useState<google.maps.LatLngLiteral>({
-    lat: 0,
-    lng: 0,
-  });
   const [zoom, setZoom] = useState<number>(8);
   const account = useContext(AccountContext);
   const svgMarker = {
-    path: "M-1.547 12l6.563-6.609-1.406-1.406-5.156 5.203-2.063-2.109-1.406 1.406zM0 0q2.906 0 4.945 2.039t2.039 4.945q0 1.453-0.727 3.328t-1.758 3.516-2.039 3.070-1.711 2.273l-0.75 0.797q-0.281-0.328-0.75-0.867t-1.688-2.156-2.133-3.141-1.664-3.445-0.75-3.375q0-2.906 2.039-4.945t4.945-2.039z",
-    fillColor: "blue",
-    fillOpacity: 0.6,
-    strokeWeight: 0,
+    path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+    scale: 10,
+    fillColor: "red",
+    fillOpacity: 1,
     rotation: 0,
-    scale: 2,
-    anchor: new google.maps.Point(0, 20),
+    strokeColor: "white",
+    strokeWeight: 1,
   };
+  const circleMarker: google.maps.Symbol = {
+    path: google.maps.SymbolPath.CIRCLE,
+    fillColor: "blue",
+    fillOpacity: 1,
+    scale: 10,
+    strokeColor: "white",
+    strokeWeight: 1,
+  };
+
   const setBounds = useCallback(() => {
-    if (map) {
-      let filtered = account?.locs.filter((loc) =>
+    if (map && account) {
+      const center = account.searchOption.viewCenter || { lat: 0, lon: 0 };
+      let filtered = account.locs.filter((loc) =>
         loc.vars?.distance ? loc.vars?.distance < 8 : true
       );
       filtered = filtered?.sort((a, b) => {
@@ -69,7 +75,8 @@ const MyMapComponent = () => {
       });
       //get first 10 items of filtered
       filtered = filtered?.slice(0, N_NEARBY);
-      if (center.lat === 0 && center.lng === 0) {
+
+      if (center.lat === 0 && center.lon === 0) {
         filtered = account?.locs;
       }
       const bounds = new google.maps.LatLngBounds();
@@ -79,24 +86,24 @@ const MyMapComponent = () => {
       );
       const b = bounds.toJSON();
       //expand bound that it has proportional distance from center
-      if (!(center.lat === 0 && center.lng === 0)) {
+      if (!(center.lat === 0 && center.lon === 0)) {
         bounds.extend(
           new google.maps.LatLng(
             center.lat + (center.lat - b.south),
-            center.lng + (center.lng - b.west)
+            center.lon + (center.lon - b.west)
           )
         );
         bounds.extend(
           new google.maps.LatLng(
             center.lat + (center.lat - b.north),
-            center.lng + (center.lng - b.east)
+            center.lon + (center.lon - b.east)
           )
         );
       }
       // // consider search bar consume 64px of 360px height
       map.fitBounds(bounds, { top: 64, bottom: 0, left: 0, right: 0 });
     }
-  }, [account?.locs, center, map]);
+  }, [account?.locs, account?.searchOption.viewCenter, map]);
 
   useEffect(() => {
     if (account?.locs && map) {
@@ -115,7 +122,17 @@ const MyMapComponent = () => {
             return false;
           });
           if (exist) {
-            exist.setOpacity(almostZero(loc.vars?.distance) ? 1 : 0.3);
+            if (
+              account.searchOption.viewCenter &&
+              almostZero(distance(account.searchOption.viewCenter, loc))
+            ) {
+              exist.setOpacity(1);
+            } else {
+              exist.setOpacity(0.3);
+            }
+            exist.setIcon(
+              almostZero(loc.vars?.distance) ? svgMarker : circleMarker
+            );
 
             return exist;
           } else {
@@ -140,13 +157,14 @@ const MyMapComponent = () => {
     }
     setBounds();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, account?.locs, center]); //
+  }, [map, account?.locs, account?.searchOption.viewCenter]); //
 
   useEffect(() => {
     if (ref.current && !map) {
       // Ensure the div ref exists and map is not initialized
+      const center = account?.searchOption.viewCenter || { lat: 0, lon: 0 };
       const newMap = new google.maps.Map(ref.current, {
-        center,
+        center: { lat: center.lat, lng: center.lon },
         scaleControl: true,
         disableDefaultUI: true,
         zoom,
@@ -156,16 +174,7 @@ const MyMapComponent = () => {
     } else if (map) {
       //map.setZoom(zoom);
     }
-  }, [map, center, zoom]);
-
-  useEffect(() => {
-    if (account?.searchOption.center) {
-      setCenter({
-        lat: account.searchOption.center.lat,
-        lng: account.searchOption.center.lon,
-      });
-    }
-  }, [account?.searchOption]);
+  }, [map, account?.searchOption.viewCenter, zoom]);
 
   return (
     <>
@@ -215,6 +224,7 @@ const MapOverlay: React.FC = () => {
           account?.setSearchOption((prev) => ({
             ...prev,
             center: jss.search(loc)[0] as Location,
+            viewCenter: jss.search(loc)[0] as Location,
           }))
         }
       />

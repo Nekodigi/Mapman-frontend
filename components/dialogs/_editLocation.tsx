@@ -3,9 +3,9 @@ import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
 
-import { LocCatDD } from "../molecules/locCatDD";
+import { LocCatDD } from "../dropdown/locCatDD";
 import { StarsToggle } from "../molecules/starsToggle";
-import { HoursDD } from "../organisms/hoursDD";
+import { HoursDD } from "../dropdown/hoursDD";
 
 import { Button } from "@/components/ui/button";
 import {

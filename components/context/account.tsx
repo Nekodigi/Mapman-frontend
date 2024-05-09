@@ -87,6 +87,7 @@ type HoursFilter = {
 };
 export type SearchOption = {
   center?: Location;
+  viewCenter?: Location;
   hours: HoursFilter;
   lcat: LCategory;
 };
@@ -287,21 +288,20 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
 
   useEffect(() => {
     //calculate all distance from center
-    if (searchOption.center === undefined) {
-      return;
+    if (searchOption.center !== undefined) {
+      const center = searchOption.center;
+      let newLocs = locs.map((loc) => {
+        loc.vars = loc.vars || {};
+        loc.vars.distance = distance(center, loc);
+        return loc;
+      });
+      // sort by distance
+      newLocs = newLocs.sort((a, b) => {
+        return a.vars?.distance! - b.vars?.distance!;
+      });
+      if (isEqual(newLocs, locs)) return;
+      locsDispatch({ type: "setAll", locations: newLocs });
     }
-    const center = searchOption.center;
-    let newLocs = locs.map((loc) => {
-      loc.vars = loc.vars || {};
-      loc.vars.distance = distance(center, loc);
-      return loc;
-    });
-    // sort by distance
-    newLocs = newLocs.sort((a, b) => {
-      return a.vars?.distance! - b.vars?.distance!;
-    });
-    if (isEqual(newLocs, locs)) return;
-    locsDispatch({ type: "setAll", locations: newLocs });
   }, [searchOption.center, locs, locsDispatch]);
 
   return (
