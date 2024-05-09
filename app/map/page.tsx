@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext } from "react";
+import React, { Suspense, useContext } from "react";
 
 import MapUI from "./MapUI"; // Import the map component
 
@@ -13,8 +13,10 @@ function App() {
   return (
     <div className="flex min-h-0 grow flex-col">
       <MapUI />
-      <Spots />
-      <EditLocation />
+      <Suspense>
+        <Spots />
+        <EditLocation />
+      </Suspense>
     </div>
   );
 }

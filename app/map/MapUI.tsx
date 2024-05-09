@@ -2,7 +2,7 @@
 
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
 import { Search as JSSearch } from "js-search";
-import { Flag } from "lucide-react";
+import { Flag, Focus } from "lucide-react";
 import React, {
   useState,
   useRef,
@@ -174,12 +174,12 @@ const MyMapComponent = () => {
         <Button
           variant="outline"
           size="icon"
-          className=" pointer-events-auto shadow"
+          className="pointer-events-auto shadow"
           onClick={() => {
-            console.log("clicked");
+            setBounds();
           }}
         >
-          <Flag className="size-4" />
+          <Focus className="size-4" />
         </Button>
       </div>
     </>
@@ -218,9 +218,8 @@ const MapOverlay: React.FC = () => {
           }))
         }
       />
-      <div className="pointer-events-auto flex gap-4">
+      <div className="self-start pointer-events-auto flex gap-4">
         <HoursFilterDD />
-
         <LocCatDD lcat={lcat} setLcat={setLcat} allowAll />
       </div>
     </div>
