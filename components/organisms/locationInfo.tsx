@@ -2,11 +2,22 @@ import { Location } from "@/type/location";
 import { LCategoryIcon } from "../atoms/lcategory";
 import { Stars } from "@/components/atoms/stars";
 import { almostZero } from "@/utils/location";
+import { renderHour, renderHourRange, renderHours } from "@/utils/date";
+import { AccountContext } from "../context/account";
+import { useContext, useMemo } from "react";
 
 type LocationInfosProps = {
   loc: Location;
 };
 export const LocationInfos = ({ loc }: LocationInfosProps) => {
+  const account = useContext(AccountContext);
+  const week = useMemo(() => {
+    const w = account?.searchOption.hours.week;
+    console.log(w);
+    if (w === undefined) return new Date().getDay();
+    return w;
+  }, [account?.searchOption.hours.week]);
+
   return (
     <div className="flex flex-col gap-1 min-w-0 w-full">
       <h3 className="font-medium truncate">{loc.name}</h3>
@@ -24,7 +35,9 @@ export const LocationInfos = ({ loc }: LocationInfosProps) => {
             <p className="text-xs">10min</p> */}
       </div>
       <div className="flex items-center gap-2">
-        <p className="text-xs">10:00~23:00</p>
+        <p className="text-xs">
+          {loc.hours && renderHourRange(loc.hours[week])}
+        </p>
         <p className="text-xs">{loc.price}</p>
       </div>
     </div>

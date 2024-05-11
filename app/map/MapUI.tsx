@@ -22,7 +22,7 @@ import { LCategory, Location } from "@/type/location";
 import { almostZero, distance } from "@/utils/location";
 import { useRouter } from "next/navigation";
 
-const N_NEARBY = 3;
+const N_NEARBY = 5;
 interface MapState {
   center: google.maps.LatLngLiteral;
   zoom: number;
@@ -68,7 +68,7 @@ const MyMapComponent = () => {
 
   const arrowMarker = {
     path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
-    scale: 10,
+    scale: 8,
     fillColor: "red",
     fillOpacity: 1,
     rotation: 0,
@@ -136,6 +136,14 @@ const MyMapComponent = () => {
       map.fitBounds(bounds, { top: 64, bottom: 0, left: 0, right: 0 });
     }
   }, [account?.locs, account?.searchOption.viewCenter, map]);
+  // jump to current position
+  const jumpToCurrent = useCallback(() => {
+    if (isGeolocationAvailable && isGeolocationEnabled && coords && map) {
+      map.panTo({ lat: coords.latitude, lng: coords.longitude });
+      //set zoom
+      map.setZoom(10);
+    }
+  }, [coords, isGeolocationAvailable, isGeolocationEnabled, map]);
 
   useEffect(() => {
     if (account?.locs && map) {
@@ -171,8 +179,11 @@ const MyMapComponent = () => {
           });
           if (exist) {
             if (loc.name === "Current Position") {
-              exist.setIcon(arrowMarker);
               exist.setOpacity(1);
+              exist.setIcon({
+                ...(exist.getIcon() as google.maps.Icon),
+                rotation: account.vars?.heading || 0,
+              });
               return exist;
             }
 
@@ -190,10 +201,9 @@ const MyMapComponent = () => {
                 fillColor: "#22c55e",
               });
             } else {
-              //exist.setOpacity(0.6);
               exist.setIcon({
                 ...(exist.getIcon() as google.maps.Icon),
-                scale: 10,
+                scale: almostZero(loc.vars?.distance) ? 15 : 5 * loc.importance,
                 fillColor: "white",
               });
             }
@@ -230,6 +240,49 @@ const MyMapComponent = () => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, account?.locs, account?.searchOption.viewCenter]); //
 
+  //update current Position marker every update
+  useEffect(() => {
+    if (markers.length > 0 && isGeolocationAvailable && isGeolocationEnabled) {
+      const currentPos = markers.find(
+        (marker) => marker.getTitle() === "Current Position"
+      );
+      if (currentPos) {
+        currentPos.setPosition({
+          lat: coords?.latitude || 0,
+          lng: coords?.longitude || 0,
+        });
+      } else {
+        const marker = new google.maps.Marker({
+          position: { lat: coords?.latitude || 0, lng: coords?.longitude || 0 },
+          map: map,
+          title: "Current Position",
+          opacity: 1,
+          clickable: true,
+          icon: arrowMarker,
+        });
+        // marker.addListener("click", () => {
+        //   account.setSearchOption((prev) => ({
+        //     ...prev,
+        //     viewCenter: {
+        //       lat: coords?.latitude || 0,
+        //       lon: coords?.longitude || 0,
+        //     },
+        //   }));
+        //   //open detail page
+        //   router.push(`/map/details/Current%20Position`);
+        // });
+        setMarkers([...markers, marker]);
+      }
+    }
+  }, [
+    arrowMarker,
+    coords,
+    isGeolocationAvailable,
+    isGeolocationEnabled,
+    map,
+    markers,
+  ]);
+
   useEffect(() => {
     if (ref.current && !map) {
       // Ensure the div ref exists and map is not initialized
@@ -240,6 +293,7 @@ const MyMapComponent = () => {
         disableDefaultUI: true,
         zoom,
         renderingType: google.maps.RenderingType.VECTOR,
+        gestureHandling: "greedy",
       });
       var mapType = new google.maps.StyledMapType(monoStyle, {
         name: "Grayscale",
@@ -261,7 +315,7 @@ const MyMapComponent = () => {
           size="icon"
           className="pointer-events-auto shadow"
           onClick={() => {
-            setBounds();
+            jumpToCurrent();
           }}
         >
           <Focus className="size-4" />

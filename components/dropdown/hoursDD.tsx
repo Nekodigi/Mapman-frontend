@@ -12,21 +12,16 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
-import { Week, WeekLUT } from "@/type/date";
+import { WeekLUT } from "@/type/date";
 import { renderHourRange, renderHours } from "@/utils/date";
-import { capFirst } from "@/utils/str";
 
 type HoursDDProps = {
   hours: number[][];
   setHours: (hours: number[][]) => void;
 };
 export const HoursDD = ({ hours, setHours }: HoursDDProps) => {
-  const [week, setWeek] = useState<Week | undefined | "">();
+  const [week, setWeek] = useState<number>(new Date().getDay());
   // const [type, setType] = useState<"now" | "anytime" | "select">("now");
-
-  const wid = useMemo(() => {
-    return week ? WeekLUT.indexOf(week) : new Date().getDay();
-  }, [week]);
 
   return (
     <DropdownMenu>
@@ -42,32 +37,27 @@ export const HoursDD = ({ hours, setHours }: HoursDDProps) => {
         </div>
 
         <DropdownMenuSeparator />
-        {/* <ToggleGroup value={type} onValueChange={setType as any} type="single">
-          <ToggleGroupItem value="now">Now</ToggleGroupItem>
-          <ToggleGroupItem value="anytime">Anytime</ToggleGroupItem>
-          <ToggleGroupItem value="select">Select</ToggleGroupItem>
-        </ToggleGroup> */}
-        <WeekToggle week={week as Week} setWeek={setWeek} />
+        <WeekToggle week={week} setWeek={setWeek} />
         <Slider
           className=" px-4 pb-4 pt-2"
-          value={hours[wid]}
+          value={hours[week]}
           max={48}
           step={1}
           onValueChange={(value) => {
             const newHours = [...hours];
-            if (week === undefined || week === "") {
+            if (week === undefined) {
               newHours.forEach((_, i) => {
                 newHours[i] = value;
               });
             } else {
-              newHours[wid] = value;
+              newHours[week] = value;
             }
             setHours(newHours);
           }}
         />
         {[0, 1, 2, 3, 4, 5, 6].map((i) => (
           <div key={i} className="flex justify-between">
-            <DropdownMenuLabel>{capFirst(WeekLUT[i])}</DropdownMenuLabel>
+            <DropdownMenuLabel>{WeekLUT[i]}</DropdownMenuLabel>
             <DropdownMenuLabel>{renderHourRange(hours[i])}</DropdownMenuLabel>
           </div>
         ))}

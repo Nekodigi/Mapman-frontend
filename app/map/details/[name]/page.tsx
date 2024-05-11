@@ -12,7 +12,14 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useContext, useMemo } from "react";
-
+import { Card, CardContent } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 export default function Page({ params }: { params: { name: string } }) {
   const account = useContext(AccountContext);
   const router = useRouter();
@@ -36,12 +43,41 @@ export default function Page({ params }: { params: { name: string } }) {
           variant="outline"
           size="icon"
           onClick={() => router.push("/map")}
-          className="absolute m-4"
+          className="absolute m-4 z-10"
         >
           <ArrowLeft />
         </Button>
-        <div className="flex justify-center gap-2  sm:p-2 sm:pb-0 max-w-[1200px] w-full self-center">
-          <Image
+
+        <div className="flex  justify-center gap-2  sm:p-2 sm:pb-0  w-full self-center">
+          <Carousel
+            opts={{
+              align: "start",
+            }}
+            className="w-full "
+          >
+            {" "}
+            <CarouselContent>
+              {loc.imgs.map((_, index) => (
+                <CarouselItem
+                  key={index}
+                  className="sm:basis-1/2 md:basis-1/3 lg:basis-1/5"
+                >
+                  <Card>
+                    <Image
+                      src={loc.imgs[index]}
+                      width={512}
+                      height={160}
+                      className="w-full h-[160px] object-cover sm:rounded-lg"
+                      alt="thumbnail"
+                    />
+                  </Card>
+                </CarouselItem>
+              ))}
+            </CarouselContent>
+            <CarouselPrevious />
+            <CarouselNext />
+          </Carousel>
+          {/* <Image
             src={loc.imgs[0]}
             width={512}
             height={160}
@@ -61,7 +97,7 @@ export default function Page({ params }: { params: { name: string } }) {
             height={160}
             className="w-full h-[160px] object-cover hidden sm:block sm:rounded-lg"
             alt="thumbnail"
-          />
+          /> */}
         </div>
         <div className="p-4">
           <LocationInfos loc={loc} />

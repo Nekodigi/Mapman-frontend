@@ -1,3 +1,4 @@
+//region IMPORTS
 "use client";
 //context to provide acocount info
 
@@ -11,12 +12,15 @@ import {
 } from "react";
 
 import { Account } from "@/type/account";
-import { Week } from "@/type/date";
 import { LCategory, Location } from "@/type/location";
 import { distance } from "@/utils/location";
 import { useSession } from "next-auth/react";
 import { isEqual } from "lodash";
+import { useGeolocated } from "react-geolocated";
+//endregion
 
+//region CONSTANT
+const MINUTE_MS = 60000;
 const DEFAULT_LOC: Location = {
   name: "",
   category: "museum",
@@ -71,6 +75,9 @@ const DEFAULT_ACCOUNT: Account = {
     createdAt: new Date(),
   },
 };
+//endregion
+
+//region TYPE
 type LocationEditorContextType = {
   loc: Location;
   setLoc: (loc: Location) => void;
@@ -82,7 +89,7 @@ type LocationEditorContextType = {
 };
 type HoursFilter = {
   type: "now" | "anytime" | "select";
-  week?: Week;
+  week?: number;
   time?: number;
 };
 export type SearchOption = {
@@ -90,6 +97,10 @@ export type SearchOption = {
   viewCenter?: Location;
   hours: HoursFilter;
   lcat: LCategory;
+};
+export type Vars = {
+  heading?: number;
+  coords?: GeolocationCoordinates;
 };
 type AccountContextType = {
   account: Account;
@@ -99,6 +110,7 @@ type AccountContextType = {
   locEditor: LocationEditorContextType;
   searchOption: SearchOption;
   setSearchOption: React.Dispatch<React.SetStateAction<SearchOption>>;
+  vars?: Vars;
 };
 type AccountProviderProps = {
   children: React.ReactNode;
@@ -109,14 +121,17 @@ type Action = {
   index?: number;
   locations?: Location[];
 };
+//endregion
+
 export const AccountContext = createContext<AccountContextType | undefined>(
   undefined
 );
+
 // TODO DON'T WAIT FOR ACCOUNT TO BE READY
 export const AccountProvider = ({ children }: AccountProviderProps) => {
+  //region STATE
   const { data: session, status } = useSession();
   const phase = useRef<"initializing" | "loading" | "ready">("initializing");
-
   const [searchOption, setSearchOption] = useState<SearchOption>({
     center: undefined,
     hours: { type: "now" },
@@ -177,6 +192,37 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   };
   const [id, _setId] = useState<number>(-1);
   const [open, setOpen] = useState<boolean>(false);
+  const locs = useMemo(() => {
+    const index = account.profiles.findIndex(
+      (profile) => profile.name === account.currentProfile
+    );
+    return account.profiles[index].locations;
+  }, [account]);
+  const [heading, setHeading] = useState<number | null>(null);
+  const { coords, isGeolocationAvailable, isGeolocationEnabled } =
+    useGeolocated({
+      positionOptions: {
+        enableHighAccuracy: false,
+      },
+      watchPosition: true,
+      userDecisionTimeout: 5000,
+    });
+  const vars: Vars = { heading: heading ? heading : undefined, coords };
+  //endregion
+
+  //region FUNCTION
+  const everyMinute = () => {
+    if (searchOption.hours.type === "now") {
+      setSearchOption((prev) => ({
+        ...prev,
+        hours: {
+          type: "now",
+          week: new Date().getDay(),
+          time: new Date().getHours() * 2 + new Date().getMinutes() / 30,
+        },
+      }));
+    }
+  };
   const setId = (id: number) => {
     _setId(id);
     if (id === -1) {
@@ -188,21 +234,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       setLoc(account.profiles[index].locations[id]);
     }
   };
-  const locs = useMemo(() => {
-    const index = account.profiles.findIndex(
-      (profile) => profile.name === account.currentProfile
-    );
-    return account.profiles[index].locations;
-  }, [account]);
-  const locEditor: LocationEditorContextType = {
-    loc,
-    setLoc,
-    id,
-    setId,
-    open,
-    setOpen,
-    finish,
-  };
+
   const saveAccount = async (acc: Account) => {
     //console.log(phase.current);
     if (phase.current !== "ready" || status === "loading") {
@@ -233,7 +265,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   };
   const fetchAccountCache = () => {
     let account_cache = DEFAULT_ACCOUNT;
-    // load account
     try {
       const cache = localStorage.getItem("account");
       if (cache !== null) account_cache = JSON.parse(cache) as Account;
@@ -244,6 +275,12 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     setAccount(account_cache);
     return account_cache;
   };
+  //endregion
+
+  //region EFFECTS
+  useEffect(() => {
+    if (searchOption.hours.type !== "now") return;
+  }, [searchOption.hours.type]);
 
   useEffect(() => {
     if (phase.current !== "initializing") return;
@@ -254,6 +291,10 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
 
     if (status === "loading") return;
     phase.current = "loading";
+    const interval = setInterval(() => {
+      everyMinute();
+    }, MINUTE_MS);
+
     const email = session?.user?.email || "";
     account_cache.email = email;
     if (email === undefined || email === "") {
@@ -261,15 +302,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       console.log("initialization completed(not registered)");
       return;
     }
-    //socket.emit("setAccount", { email: email });
-    // console.log("defined socket");
-    // socket.on("account", (data: Account) => {
-    //   if (!isEqual(data, account_cache)) {
-    //     setAccount(data);
-    //     console.log("changed by socket");
-    //   }
-    // });
-
     (async () => {
       const remote = await fetchAccount(account_cache);
       if (remote) {
@@ -278,7 +310,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       phase.current = "ready";
       console.log("initialization completed");
     })();
-    //localStorage.setItem("account", JSON.stringify(account));
+    return () => clearInterval(interval);
   }, [status]);
   //* UPLOAD CHANGES
   useEffect(() => {
@@ -303,7 +335,29 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       locsDispatch({ type: "setAll", locations: newLocs });
     }
   }, [searchOption.center, locs, locsDispatch]);
+  useEffect(() => {
+    const handleOrientation = (event: DeviceOrientationEvent) => {
+      if (event.alpha !== null) {
+        setHeading(event.alpha);
+      }
+    };
+    window.addEventListener("deviceorientation", handleOrientation);
+    return () => {
+      window.removeEventListener("deviceorientation", handleOrientation);
+    };
+  }, []);
 
+  //endregion
+
+  const locEditor: LocationEditorContextType = {
+    loc,
+    setLoc,
+    id,
+    setId,
+    open,
+    setOpen,
+    finish,
+  };
   return (
     <AccountContext.Provider
       value={{
@@ -314,6 +368,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
         locEditor,
         searchOption,
         setSearchOption,
+        vars,
       }}
     >
       {children}

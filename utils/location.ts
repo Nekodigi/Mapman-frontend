@@ -17,7 +17,7 @@ import { periods2hours } from "@/utils/date";
 
 const client = new Client({});
 
-export const almostZero = (a: number | undefined, epsilon = 0.0001) => {
+export const almostZero = (a: number | undefined, epsilon = 0.01) => {
   if (a === undefined) return false;
   return Math.abs(a) < epsilon;
 };

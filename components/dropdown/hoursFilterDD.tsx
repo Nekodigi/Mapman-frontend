@@ -1,5 +1,5 @@
 import { Clock } from "lucide-react";
-import { useState } from "react";
+import { useContext, useMemo, useState } from "react";
 
 import { WeekToggle } from "../molecules/weekToggle";
 
@@ -13,14 +13,41 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { Week } from "@/type/date";
 import { renderHour } from "@/utils/date";
-import { capFirst } from "@/utils/str";
+import { WeekLUT } from "@/type/date";
+import { AccountContext } from "../context/account";
 
 export const HoursFilterDD = () => {
-  const [time, setTime] = useState<number>(24);
-  const [week, setWeek] = useState<Week>("mon");
-  const [type, setType] = useState<"now" | "anytime" | "select">("now");
+  const account = useContext(AccountContext);
+  const week = useMemo(() => {
+    const w = account?.searchOption.hours.week;
+    if (w === undefined) return new Date().getDay();
+    return w;
+  }, [account?.searchOption.hours.week]);
+  const time = useMemo(() => {
+    const h = account?.searchOption.hours.time;
+    if (h === undefined) return new Date().getHours();
+    return h;
+  }, [account?.searchOption.hours.time]);
+  const type = account?.searchOption.hours.type;
+  const setTime = (value: number) => {
+    account?.setSearchOption((prev) => ({
+      ...prev,
+      hours: { ...prev.hours, time: value },
+    }));
+  };
+  const setWeek = (value: number | undefined) => {
+    account?.setSearchOption((prev) => ({
+      ...prev,
+      hours: { ...prev.hours, week: value },
+    }));
+  };
+  const setType = (value: "now" | "anytime" | "select") => {
+    account?.setSearchOption((prev) => ({
+      ...prev,
+      hours: { ...prev.hours, type: value },
+    }));
+  };
 
   return (
     <DropdownMenu>
@@ -29,7 +56,7 @@ export const HoursFilterDD = () => {
           <Clock className="mr-2 size-4" />
           {type === "now" && "Now"}
           {type === "anytime" && "Anytime"}
-          {type === "select" && `${capFirst(week)} ${renderHour(time)}`}
+          {type === "select" && `${WeekLUT[week]} ${renderHour(time)}`}
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="w-[300px]">
@@ -46,7 +73,7 @@ export const HoursFilterDD = () => {
         {type === "select" && (
           <div>
             <WeekToggle
-              week={week as Week}
+              week={week}
               setWeek={(value) => {
                 value !== undefined && setWeek(value);
               }}

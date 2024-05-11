@@ -1,6 +1,4 @@
-import {
-  Clock,
-} from "lucide-react";
+import { Clock } from "lucide-react";
 
 import { WeekToggle } from "../molecules/weekToggle";
 
@@ -13,16 +11,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Slider } from "@/components/ui/slider";
-import { Week } from "@/type/date";
-
-
-const capFirst = (str: string) => {
-  return str.charAt(0).toUpperCase() + str.slice(1);
-};
+import { WeekLUT } from "@/type/date";
 
 type WeekHourDDProps = {
-  week: Week | undefined;
-  setWeek: (week: Week | undefined) => void;
+  week: number;
+  setWeek: (week: number) => void;
   hour: number[];
   setHour: (hour: number[]) => void;
 };
@@ -37,7 +30,7 @@ export const WeekHourDD = ({
       <DropdownMenuTrigger asChild>
         <Button variant="outline">
           <Clock className="mr-2 size-4" />
-          {week ? capFirst(week) : "Today"} {Math.floor(hour[0] / 2)}:
+          {week ? WeekLUT[week] : "Today"} {Math.floor(hour[0] / 2)}:
           {hour[0] % 2 === 0 ? "00" : "30"}
         </Button>
       </DropdownMenuTrigger>
@@ -45,7 +38,7 @@ export const WeekHourDD = ({
         <div className="flex justify-between">
           <DropdownMenuLabel>Open on</DropdownMenuLabel>
           <DropdownMenuLabel>
-            {week ? capFirst(week) : "Today"} {Math.floor(hour[0] / 2)}:
+            {week ? WeekLUT[week] : "Today"} {Math.floor(hour[0] / 2)}:
             {hour[0] % 2 === 0 ? "00" : "30"}
           </DropdownMenuLabel>
         </div>

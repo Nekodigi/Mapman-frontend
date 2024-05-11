@@ -38,6 +38,7 @@
     "clsx": "^2.1.1",
     "cmdk": "0.2.0",
     "core-js": "3.37.0",
+    "embla-carousel-react": "^8.0.4",
     "express": "^4.19.2",
     "fast-equals": "^5.0.1",
     "firebase-admin": "^12.1.0",

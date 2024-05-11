@@ -69,8 +69,9 @@ export const period2hour = (period: OpeningPeriod): number[] => {
 export const periods2hours = (
   periods: OpeningPeriod[] | undefined
 ): number[][] => {
-  const hours: number[][] = Array.from({ length: 7 }, () => [0, 0]);
+  let hours: number[][] = Array.from({ length: 7 }, () => [0, 0]);
   if (periods === undefined) {
+    hours = Array.from({ length: 7 }, () => [0, 48]);
     return hours;
   }
   for (const period of periods) {
