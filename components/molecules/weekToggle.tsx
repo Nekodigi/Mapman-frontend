@@ -7,8 +7,8 @@ type WeekToggleProps = {
 export const WeekToggle = ({ week, setWeek }: WeekToggleProps) => {
   return (
     <ToggleGroup
-      value={week?.toString()}
-      onValueChange={(v) => setWeek(parseInt(v))}
+      value={week.toString()}
+      onValueChange={(v) => v && setWeek(parseInt(v))}
       type="single"
     >
       <ToggleGroupItem value="0">S</ToggleGroupItem>

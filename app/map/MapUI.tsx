@@ -19,7 +19,7 @@ import { Search } from "@/components/molecules/search";
 import { HoursFilterDD } from "@/components/dropdown/hoursFilterDD";
 import { Button } from "@/components/ui/button";
 import { LCategory, Location } from "@/type/location";
-import { almostZero, distance } from "@/utils/location";
+import { almostZero, distance, filter } from "@/utils/location";
 import { useRouter } from "next/navigation";
 
 const N_NEARBY = 5;
@@ -74,6 +74,8 @@ const MyMapComponent = () => {
     rotation: 0,
     strokeColor: "#0f172a",
     strokeWeight: 5,
+    //origin center
+    anchor: new google.maps.Point(0, 2),
   };
   const circleMarker: google.maps.Symbol = {
     //circle path
@@ -177,42 +179,9 @@ const MyMapComponent = () => {
             }
             return false;
           });
-          if (exist) {
-            if (loc.name === "Current Position") {
-              exist.setOpacity(1);
-              exist.setIcon({
-                ...(exist.getIcon() as google.maps.Icon),
-                rotation: account.vars?.heading || 0,
-              });
-              return exist;
-            }
-
-            exist.setIcon(
-              almostZero(loc.vars?.distance) ? squareMarker : circleMarker
-            );
-            if (
-              account.searchOption.viewCenter &&
-              almostZero(distance(account.searchOption.viewCenter, loc))
-            ) {
-              //exist.setOpacity(1);
-              exist.setIcon({
-                ...(exist.getIcon() as google.maps.Icon),
-                scale: 20,
-                fillColor: "#22c55e",
-              });
-            } else {
-              exist.setIcon({
-                ...(exist.getIcon() as google.maps.Icon),
-                scale: almostZero(loc.vars?.distance) ? 15 : 5 * loc.importance,
-                fillColor: "white",
-              });
-            }
-            exist.setOpacity(1);
-
-            return exist;
-          } else {
-            //create marker
-            const marker = new google.maps.Marker({
+          let marker = exist as google.maps.Marker;
+          if (!exist) {
+            marker = new google.maps.Marker({
               position: { lat: loc.lat, lng: loc.lon },
               map: map,
               title: loc.name,
@@ -221,24 +190,75 @@ const MyMapComponent = () => {
               // icon: svgMarker,
             });
             marker.addListener("click", () => {
-              // infoWindow.close();
-              // infoWindow.setContent(marker.getTitle());
-              // infoWindow.open(marker.getMap(), marker);
               account.setSearchOption((prev) => ({
                 ...prev,
                 viewCenter: loc,
               }));
-              //open detail page
               router.push(`/map/details/${loc.name}`);
             });
+          }
+          marker.setOpacity(filter(loc, account.searchOption) ? 1 : 0.3);
+          if (loc.name === "Current Position") {
             return marker;
           }
+          marker.setIcon(
+            almostZero(loc.vars?.distance) ? squareMarker : circleMarker
+          );
+          if (
+            account.searchOption.viewCenter &&
+            almostZero(distance(account.searchOption.viewCenter, loc))
+          ) {
+            marker.setIcon({
+              ...(marker.getIcon() as google.maps.Icon),
+              scale: 20,
+              fillColor: "#22c55e",
+            });
+          } else {
+            marker.setIcon({
+              ...(marker.getIcon() as google.maps.Icon),
+              scale: almostZero(loc.vars?.distance) ? 15 : 5 * loc.importance,
+              fillColor: "white",
+            });
+          }
+          return marker;
         })
       );
     }
     setBounds();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, account?.locs, account?.searchOption.viewCenter]); //
+
+  // change opacity when filter
+  useEffect(() => {
+    if (!account?.searchOption) return;
+    setMarkers((prev) => {
+      return prev.map((marker) => {
+        const loc = account.locs.find((loc) => loc.name === marker.getTitle());
+        if (!loc) return marker;
+        const visible = filter(loc, account.searchOption);
+        marker.setOpacity(visible ? 1 : 0.3);
+        return marker;
+      });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [account?.locs, account?.searchOption.hours, account?.searchOption.lcat]);
+
+  //rotate and move current
+  useEffect(() => {
+    const current = markers.find(
+      (marker) => marker.getTitle() === "Current Position"
+    );
+    if (current) {
+      current.setIcon({
+        ...(current.getIcon() as google.maps.Icon),
+        rotation: -(account?.vars?.heading || 0),
+      });
+      current.setPosition({
+        lat: coords?.latitude || 0,
+        lng: coords?.longitude || 0,
+      });
+    }
+  }, [account?.vars, markers, map, coords]);
 
   //update current Position marker every update
   useEffect(() => {
@@ -327,7 +347,6 @@ const MyMapComponent = () => {
 
 // TODO * as CONTEXT!
 const MapOverlay: React.FC = () => {
-  const [lcat, setLcat] = useState<LCategory>("museum");
   const account = useContext(AccountContext);
   const { coords, isGeolocationAvailable, isGeolocationEnabled } =
     useGeolocated({
@@ -399,7 +418,19 @@ const MapOverlay: React.FC = () => {
       />
       <div className="self-start pointer-events-auto flex gap-4">
         <HoursFilterDD />
-        <LocCatDD lcat={lcat} setLcat={setLcat} allowAll />
+        {account && (
+          <LocCatDD
+            lcat={account.searchOption.lcat}
+            setLcat={(v) =>
+              v &&
+              account.setSearchOption((prev) => ({
+                ...prev,
+                lcat: v,
+              }))
+            }
+            allowAll
+          />
+        )}
       </div>
     </div>
   );

@@ -54,7 +54,7 @@ const Demo = ({ params }: { params: { name: string } }) => {
                 <div
                   className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  w-0 h-0 "
                   style={{
-                    transform: `translate(-50%, -50%) rotate(${(account?.vars?.heading || 0) + (dir || 0) + 90}deg)`,
+                    transform: `translate(-50%, -50%) rotate(${(account?.vars?.heading || 0) + (dir || 0)}deg)`,
                   }}
                 >
                   <div

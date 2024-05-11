@@ -27,12 +27,9 @@ export default function Page({ params }: { params: { name: string } }) {
   const loc = useMemo(() => {
     const name = decodeURIComponent(params.name);
     let l = account?.locs.find((l) => l.name === name);
-    //console.log(l, name);
-    //change maxwidth of image
     l?.imgs.forEach((img, i) => {
       l.imgs[i] = img.replace("maxwidth=128", "maxwidth=512");
     });
-    console.log(l?.imgs[0]);
     return l;
   }, [account?.locs, params.name]);
 
@@ -66,7 +63,7 @@ export default function Page({ params }: { params: { name: string } }) {
                     <Image
                       src={loc.imgs[index]}
                       width={512}
-                      height={160}
+                      height={0}
                       className="w-full h-[160px] object-cover sm:rounded-lg"
                       alt="thumbnail"
                     />

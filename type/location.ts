@@ -1,7 +1,7 @@
 import { Status } from "./status";
 
 export type LCategory =
-  | ""
+  | "all"
   | "museum"
   | "park"
   | "landmark"

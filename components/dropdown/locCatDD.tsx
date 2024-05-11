@@ -51,7 +51,7 @@ export const LocCatDD = ({ lcat, setLcat, allowAll }: LocCatDDProps) => {
         <DropdownMenuSeparator />
         <DropdownMenuRadioGroup value={lcat} onValueChange={setLcat as any}>
           {allowAll && (
-            <DropdownMenuRadioItem value="">
+            <DropdownMenuRadioItem value="all">
               <Circle className="mr-2 size-4" /> All
             </DropdownMenuRadioItem>
           )}

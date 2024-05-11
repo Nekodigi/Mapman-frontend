@@ -89,8 +89,8 @@ type LocationEditorContextType = {
 };
 type HoursFilter = {
   type: "now" | "anytime" | "select";
-  week?: number;
-  time?: number;
+  week: number;
+  time: number;
 };
 export type SearchOption = {
   center?: Location;
@@ -134,8 +134,12 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   const phase = useRef<"initializing" | "loading" | "ready">("initializing");
   const [searchOption, setSearchOption] = useState<SearchOption>({
     center: undefined,
-    hours: { type: "now" },
-    lcat: "museum",
+    hours: {
+      type: "now",
+      week: new Date().getDay(),
+      time: new Date().getHours() * 2 + new Date().getMinutes() / 30,
+    },
+    lcat: "all",
   });
   const [account, setAccount] = useState<Account>(DEFAULT_ACCOUNT);
   const locsDispatch = useCallback(
@@ -236,7 +240,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   };
 
   const saveAccount = async (acc: Account) => {
-    //console.log(phase.current);
     if (phase.current !== "ready" || status === "loading") {
       return;
     }
@@ -250,7 +253,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       method: "POST",
       body: JSON.stringify(acc),
     });
-    console.log(acc.profiles[0].locations);
     console.log("change saved!");
   };
   //* return undefined when identical
@@ -337,13 +339,17 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   }, [searchOption.center, locs, locsDispatch]);
   useEffect(() => {
     const handleOrientation = (event: DeviceOrientationEvent) => {
-      if (event.alpha !== null) {
-        setHeading(event.alpha);
+      if (event.alpha !== null && event.absolute) {
+        const mult = event.absolute ? 1 : -1;
+        setHeading(event.alpha * mult);
       }
     };
-    window.addEventListener("deviceorientation", handleOrientation);
+    window.addEventListener("deviceorientationabsolute", handleOrientation);
     return () => {
-      window.removeEventListener("deviceorientation", handleOrientation);
+      window.removeEventListener(
+        "deviceorientationabsolute",
+        handleOrientation
+      );
     };
   }, []);
 

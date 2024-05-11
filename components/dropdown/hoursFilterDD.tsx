@@ -36,7 +36,7 @@ export const HoursFilterDD = () => {
       hours: { ...prev.hours, time: value },
     }));
   };
-  const setWeek = (value: number | undefined) => {
+  const setWeek = (value: number) => {
     account?.setSearchOption((prev) => ({
       ...prev,
       hours: { ...prev.hours, week: value },
@@ -65,11 +65,19 @@ export const HoursFilterDD = () => {
         </div>
 
         <DropdownMenuSeparator />
-        <ToggleGroup value={type} onValueChange={setType as any} type="single">
-          <ToggleGroupItem value="now">Now</ToggleGroupItem>
-          <ToggleGroupItem value="anytime">Anytime</ToggleGroupItem>
-          <ToggleGroupItem value="select">Select</ToggleGroupItem>
-        </ToggleGroup>
+        {type && (
+          <ToggleGroup
+            value={type}
+            onValueChange={(v) =>
+              v && setType(v as "now" | "anytime" | "select")
+            }
+            type="single"
+          >
+            <ToggleGroupItem value="now">Now</ToggleGroupItem>
+            <ToggleGroupItem value="anytime">Anytime</ToggleGroupItem>
+            <ToggleGroupItem value="select">Select</ToggleGroupItem>
+          </ToggleGroup>
+        )}
         {type === "select" && (
           <div>
             <WeekToggle

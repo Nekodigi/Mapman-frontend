@@ -14,8 +14,39 @@ import {
   Location,
 } from "@/type/location";
 import { periods2hours } from "@/utils/date";
+import { SearchOption } from "@/components/context/account";
 
 const client = new Client({});
+
+export const filter = (loc: Location, so: SearchOption) => {
+  let visible = true;
+  const hour = so.hours;
+  if (so.lcat !== "all") {
+    visible = visible && loc.category === so.lcat;
+  }
+  if (hour.type === "anytime") {
+  } else if (hour.type === "now") {
+    if (!loc.hours) return true;
+    const now = new Date();
+    const day = now.getDay();
+    const hour = now.getHours();
+    const min = now.getMinutes();
+    const time = hour * 2 + min / 30;
+    visible = visible && loc.hours[day][0] <= time && loc.hours[day][1] >= time;
+  } else if (hour.type === "select") {
+    const time = hour.time;
+    if (!loc.hours || time === undefined) return true;
+    if (hour.week === undefined) {
+      visible = visible && loc.hours.some((h) => h[0] <= time && h[1] >= time);
+    } else {
+      visible =
+        visible &&
+        loc.hours[hour.week][0] <= time &&
+        loc.hours[hour.week][1] >= time;
+    }
+  }
+  return visible;
+};
 
 export const almostZero = (a: number | undefined, epsilon = 0.01) => {
   if (a === undefined) return false;

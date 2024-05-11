@@ -5,6 +5,7 @@ import { almostZero } from "@/utils/location";
 import { renderHour, renderHourRange, renderHours } from "@/utils/date";
 import { AccountContext } from "../context/account";
 import { useContext, useMemo } from "react";
+import { WeekLUT } from "@/type/date";
 
 type LocationInfosProps = {
   loc: Location;
@@ -13,7 +14,6 @@ export const LocationInfos = ({ loc }: LocationInfosProps) => {
   const account = useContext(AccountContext);
   const week = useMemo(() => {
     const w = account?.searchOption.hours.week;
-    console.log(w);
     if (w === undefined) return new Date().getDay();
     return w;
   }, [account?.searchOption.hours.week]);
@@ -36,6 +36,7 @@ export const LocationInfos = ({ loc }: LocationInfosProps) => {
       </div>
       <div className="flex items-center gap-2">
         <p className="text-xs">
+          {week !== new Date().getDay() ? `${WeekLUT[week]} ` : ""}
           {loc.hours && renderHourRange(loc.hours[week])}
         </p>
         <p className="text-xs">{loc.price}</p>
