@@ -23,6 +23,11 @@ import { almostZero, distance, filter } from "@/utils/location";
 import { useRouter } from "next/navigation";
 
 const N_NEARBY = 5;
+const DIST_LIMIT = 20;
+const initCenter = {
+  lat: 35.6764,
+  lon: 139.65,
+};
 interface MapState {
   center: google.maps.LatLngLiteral;
   zoom: number;
@@ -53,7 +58,7 @@ const MyMapComponent = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
-  const [zoom, setZoom] = useState<number>(8);
+  const [zoom, setZoom] = useState<number>(10);
   const account = useContext(AccountContext);
   const router = useRouter();
 
@@ -97,9 +102,9 @@ const MyMapComponent = () => {
 
   const setBounds = useCallback(() => {
     if (map && account?.locs) {
-      const center = account.searchOption.viewCenter || { lat: 0, lon: 0 };
+      const center = account.searchOption.viewCenter || initCenter;
       let filtered = account.locs.filter((loc) =>
-        loc.vars?.distance ? loc.vars?.distance < 8 : true
+        loc.vars?.distance ? loc.vars?.distance < DIST_LIMIT : true
       );
       filtered = filtered?.sort((a, b) => {
         if (a.vars?.distance && b.vars?.distance) {
@@ -110,7 +115,7 @@ const MyMapComponent = () => {
       //get first 10 items of filtered
       filtered = filtered?.slice(0, N_NEARBY);
 
-      if (center.lat === 0 && center.lon === 0) {
+      if (center.lat === initCenter.lat && center.lon === initCenter.lon) {
         filtered = account?.locs;
       }
       const bounds = new google.maps.LatLngBounds();
@@ -120,7 +125,7 @@ const MyMapComponent = () => {
       );
       const b = bounds.toJSON();
       //expand bound that it has proportional distance from center
-      if (!(center.lat === 0 && center.lon === 0)) {
+      if (!(center.lat === initCenter.lat && center.lon === initCenter.lon)) {
         bounds.extend(
           new google.maps.LatLng(
             center.lat + (center.lat - b.south),
@@ -135,7 +140,7 @@ const MyMapComponent = () => {
         );
       }
       // // consider search bar consume 64px of 360px height
-      map.fitBounds(bounds, { top: 64, bottom: 0, left: 0, right: 0 });
+      map.fitBounds(bounds, { top: 64, bottom: 64, left: 0, right: 0 });
     }
   }, [account?.locs, account?.searchOption.viewCenter, map]);
   // jump to current position
@@ -164,8 +169,7 @@ const MyMapComponent = () => {
           vars: {
             distance: distance(
               { lat: coords.latitude, lon: coords.longitude } as Location,
-              account.searchOption.viewCenter ||
-                ({ lat: 0, lon: 0 } as Location)
+              account.searchOption.viewCenter || (initCenter as Location)
             ),
           },
         } as Location);
@@ -185,9 +189,10 @@ const MyMapComponent = () => {
               position: { lat: loc.lat, lng: loc.lon },
               map: map,
               title: loc.name,
-              opacity: almostZero(loc.vars?.distance) ? 1 : 0.3,
+              opacity: 1,
               clickable: true,
-              // icon: svgMarker,
+              icon:
+                loc.name === "Current Position" ? arrowMarker : circleMarker,
             });
             marker.addListener("click", () => {
               account.setSearchOption((prev) => ({
@@ -245,6 +250,14 @@ const MyMapComponent = () => {
 
   //rotate and move current
   useEffect(() => {
+    if (
+      coords &&
+      map &&
+      (account?.locs === undefined || account?.locs.length === 0)
+    ) {
+      map.setCenter({ lat: coords.latitude, lng: coords.longitude });
+      map.setZoom(10);
+    }
     const current = markers.find(
       (marker) => marker.getTitle() === "Current Position"
     );
@@ -306,12 +319,12 @@ const MyMapComponent = () => {
   useEffect(() => {
     if (ref.current && !map) {
       // Ensure the div ref exists and map is not initialized
-      const center = account?.searchOption.viewCenter || { lat: 0, lon: 0 };
+      const center = account?.searchOption.viewCenter || initCenter;
       const newMap = new google.maps.Map(ref.current, {
         center: { lat: center.lat, lng: center.lon },
         scaleControl: true,
         disableDefaultUI: true,
-        zoom,
+        zoom: 10,
         renderingType: google.maps.RenderingType.VECTOR,
         gestureHandling: "greedy",
       });
@@ -322,7 +335,6 @@ const MyMapComponent = () => {
       newMap.setMapTypeId("tehgrayz");
       setMap(newMap);
     } else if (map) {
-      //map.setZoom(zoom);
     }
   }, [map, account?.searchOption.viewCenter, zoom]);
 
@@ -429,6 +441,7 @@ const MapOverlay: React.FC = () => {
               }))
             }
             allowAll
+            shadow
           />
         )}
       </div>

@@ -9,6 +9,7 @@ import { Footer } from "@/components/organisms/footer";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
+import { TooltipProvider } from "@/components/plate-ui/tooltip";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -102,9 +103,15 @@ export default function RootLayout({
               enableSystem
               disableTransitionOnChange
             >
-              {children}
-              <Footer />
-              <Toaster />
+              <TooltipProvider
+                disableHoverableContent
+                delayDuration={500}
+                skipDelayDuration={0}
+              >
+                {children}
+                <Footer />
+                <Toaster />
+              </TooltipProvider>
             </ThemeProvider>
           </AccountProvider>
         </AuthProvider>

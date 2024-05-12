@@ -23,12 +23,22 @@ type LocCatDDProps = {
   lcat: LCategory;
   setLcat: (lcat: LCategory) => void;
   allowAll?: boolean;
+  shadow?: boolean;
 };
-export const LocCatDD = ({ lcat, setLcat, allowAll }: LocCatDDProps) => {
+export const LocCatDD = ({
+  lcat,
+  setLcat,
+  allowAll,
+  shadow,
+}: LocCatDDProps) => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" size="icon" className="shadow-lg">
+        <Button
+          variant="outline"
+          size="icon"
+          className={`${shadow && "shadow-lg"}`}
+        >
           {/* <Landmark className="h-4 w-4" /> */}
           {/* display ptype with icon */}
           {lcat === "museum" ? (

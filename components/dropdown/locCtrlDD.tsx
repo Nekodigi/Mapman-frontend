@@ -26,10 +26,6 @@ export const LocCtrlDD = ({ locName }: LocCtrlDDProps) => {
         </Button>
       </DropdownMenuTrigger>
       <DropdownMenuContent className="">
-        <Link href={`/compass/${encodeURIComponent(locName)}`} passHref>
-          <DropdownMenuItem>Compass</DropdownMenuItem>
-        </Link>
-        <DropdownMenuItem>Archive</DropdownMenuItem>
         <DropdownMenuItem
           onClick={() => {
             const id = account?.locs.findIndex((l) => l.name === locName)!;
@@ -40,6 +36,8 @@ export const LocCtrlDD = ({ locName }: LocCtrlDDProps) => {
         >
           Edit
         </DropdownMenuItem>
+        <DropdownMenuItem>Archive</DropdownMenuItem>
+
         <DropdownMenuItem
           className="text-red-500"
           onClick={() => {

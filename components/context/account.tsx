@@ -135,7 +135,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   const [searchOption, setSearchOption] = useState<SearchOption>({
     center: undefined,
     hours: {
-      type: "now",
+      type: "anytime",
       week: new Date().getDay(),
       time: new Date().getHours() * 2 + new Date().getMinutes() / 30,
     },

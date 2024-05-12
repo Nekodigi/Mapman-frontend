@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useRef } from "react";
 
 import { AccountContext } from "../context/account";
 import { LocCatDD } from "../dropdown/locCatDD";
@@ -8,12 +8,30 @@ import { StarsToggle } from "../molecules/starsToggle";
 import { HoursDD } from "../dropdown/hoursDD";
 import { LocPicker } from "../organisms/locPicker";
 import {
+  createPlugins,
+  Plate,
+  PlateContent,
+  PlatePlugin,
+} from "@udecode/plate-common";
+
+import {
   Carousel,
   CarouselContent,
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 
@@ -31,6 +49,10 @@ import { LCategory, MapType } from "@/type/location";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { Uploader } from "uploader"; // Installed by "react-uploader".
+import { ImageIcon, Trash2, Upload } from "lucide-react";
+import { DeleteAlert } from "../molecules/deleteAlert";
+import { createAutoformatPlugin } from "@udecode/plate-autoformat";
+import { PlateEditor } from "../molecules/plateEditor";
 
 const uploader = Uploader({
   apiKey: process.env.NEXT_PUBLIC_BYTE_SCALE_KEY!,
@@ -38,6 +60,7 @@ const uploader = Uploader({
 
 export const EditLocation = () => {
   const { toast } = useToast();
+  const hiddenFileInput = useRef<HTMLInputElement>(null);
 
   const params = useSearchParams();
   const hours: number[][] = [
@@ -166,35 +189,17 @@ export const EditLocation = () => {
           >
             {" "}
             <CarouselContent>
-              {loc.imgs.map((_, index) => (
-                <CarouselItem
-                  key={index}
-                  className="basis-1/3 sm:basis-1/3 md:basis-1/5 lg:basis-1/7"
+              <CarouselItem className="basis-1/3 ">
+                <Card
+                  onClick={() => {
+                    hiddenFileInput.current && hiddenFileInput.current.click();
+                  }}
+                  className=" flex flex-col gap-2 h-[80px] items-center justify-center"
                 >
-                  <Card>
-                    <Image
-                      src={loc.imgs[index]}
-                      width={512}
-                      height={0}
-                      className="w-full h-[80px] object-cover sm:rounded-lg"
-                      alt="thumbnail"
-                      onClick={() => {
-                        window.history.pushState(
-                          null,
-                          "",
-                          `?openImage=true&loc=${loc.name}&imgId=${index}`
-                        );
-                      }}
-                    />
-                  </Card>
-                </CarouselItem>
-              ))}
-
-              <CarouselItem className="basis-1/3 sm:basis-1/3 md:basis-1/5 lg:basis-1/7">
-                <Card className="">
                   <Input
                     type="file"
                     title="Upload File"
+                    ref={hiddenFileInput}
                     onChange={async (e) => {
                       if (e.target.files) {
                         toast({
@@ -208,13 +213,48 @@ export const EditLocation = () => {
                         setLoc(loc);
                       }
                     }}
-                    className="h-[80px] text-transparent"
+                    className="h-[80px] text-transparent hidden"
                   />
+                  <ImageIcon className="size-8" />
+                  <p className="text-[10px] ">Upload image</p>
                 </Card>
               </CarouselItem>
+              {loc.imgs.map((_, index) => (
+                <CarouselItem key={index} className="relative basis-1/3 ">
+                  <DeleteAlert
+                    title="Delete Image"
+                    description="Are you sure you want to delete this image?"
+                    onConfirm={() => {
+                      setLoc({
+                        ...loc,
+                        imgs: loc.imgs.filter((_, i) => i !== index),
+                      });
+                    }}
+                  >
+                    <Card>
+                      <Image
+                        src={loc.imgs[index]}
+                        width={512}
+                        height={0}
+                        className="w-full h-[80px] object-cover rounded-lg"
+                        alt="thumbnail"
+                      />
+                    </Card>
+                  </DeleteAlert>
+                </CarouselItem>
+              ))}
             </CarouselContent>
           </Carousel>
         </div>
+        <PlateEditor
+          text={loc.note}
+          setText={(text: string) => {
+            setLoc({
+              ...loc,
+              note: text,
+            });
+          }}
+        />
         <Button
           onClick={() => {
             setOpen(false);
