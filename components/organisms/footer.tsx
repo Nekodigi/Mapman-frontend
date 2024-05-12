@@ -12,6 +12,7 @@ import {
   NavigationMenuList,
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
+import { ImageDL } from "../dialogs/imageDL";
 
 type ButtonProps = {
   url: string;
@@ -46,6 +47,7 @@ export const Footer = () => {
           <MessageSquareMore />
         </Button>
         <SettingsDL />
+        <ImageDL />
       </NavigationMenu>
     </footer>
   );

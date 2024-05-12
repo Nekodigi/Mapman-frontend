@@ -10,6 +10,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { useRouter } from "next/navigation";
 
 type SearchProps = {
   finish: (name: string) => void;
@@ -22,6 +23,7 @@ export const Search = ({ finish, search }: SearchProps) => {
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string>();
   const [searchResults, setSearchResults] = useState<string[]>([]);
+  const router = useRouter();
   const account = useContext(AccountContext);
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent<HTMLDivElement>) => {
@@ -73,6 +75,9 @@ export const Search = ({ finish, search }: SearchProps) => {
             if (selected) {
               setSelected(undefined);
             }
+          }}
+          onClick={() => {
+            router.push("/map");
           }}
           onFocus={() => {
             setOpen(true);

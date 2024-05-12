@@ -8,6 +8,7 @@ import AuthProvider from "@/components/context/auth";
 import { Footer } from "@/components/organisms/footer";
 import { ThemeProvider } from "@/components/theme-provider";
 import { cn } from "@/lib/utils";
+import { Toaster } from "@/components/ui/toaster";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -103,6 +104,7 @@ export default function RootLayout({
             >
               {children}
               <Footer />
+              <Toaster />
             </ThemeProvider>
           </AccountProvider>
         </AuthProvider>

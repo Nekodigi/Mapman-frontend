@@ -1,4 +1,4 @@
-import { EllipsisVertical, ExternalLink } from "lucide-react";
+import { Compass, EllipsisVertical, ExternalLink } from "lucide-react";
 import Image from "next/image";
 import { useContext, useMemo } from "react";
 
@@ -50,6 +50,11 @@ export const Spot = ({ loc }: SpotProps) => {
           <LocationInfos loc={loc} />
         </div>
         <div className="flex gap-2">
+          <Button variant="ghost" size="icon" asChild>
+            <Link href={`/compass/${encodeURIComponent(loc.name)}`}>
+              <Compass className="size-4" />
+            </Link>
+          </Button>
           <Button variant="ghost" size="icon" asChild>
             <Link
               href={`https://www.google.com/maps/search/?api=1&query=${loc.name}&query_place_id=${loc.id}`}

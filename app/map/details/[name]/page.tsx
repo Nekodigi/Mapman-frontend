@@ -7,12 +7,17 @@ import { LocCtrlDD } from "@/components/dropdown/locCtrlDD";
 import { LocationInfos } from "@/components/organisms/locationInfo";
 import { Button } from "@/components/ui/button";
 import { almostZero } from "@/utils/location";
-import { ArrowLeft, Compass } from "lucide-react";
+import { ArrowLeft, Compass, ExternalLink, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useContext, useMemo } from "react";
+import { useCallback, useContext, useMemo } from "react";
 import { Card, CardContent } from "@/components/ui/card";
+import { UploadButton, UploadDropzone } from "react-uploader";
+
+import { Uploader } from "uploader"; // Installed by "react-uploader".
+import { useToast } from "@/components/ui/use-toast";
+
 import {
   Carousel,
   CarouselContent,
@@ -20,9 +25,17 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import { Input } from "@/components/ui/input";
+import { Location } from "@/type/location";
+
+const uploader = Uploader({
+  apiKey: process.env.NEXT_PUBLIC_BYTE_SCALE_KEY!,
+});
+
 export default function Page({ params }: { params: { name: string } }) {
   const account = useContext(AccountContext);
   const router = useRouter();
+  const { toast } = useToast();
 
   const loc = useMemo(() => {
     const name = decodeURIComponent(params.name);
@@ -32,6 +45,16 @@ export default function Page({ params }: { params: { name: string } }) {
     });
     return l;
   }, [account?.locs, params.name]);
+  const setLoc = useCallback(
+    (loc: Location) => {
+      account?.locsDispatch({
+        type: "edit",
+        index: account.locs.findIndex((l) => l.name === loc.name),
+        location: loc,
+      });
+    },
+    [account]
+  );
 
   return (
     loc && (
@@ -66,35 +89,42 @@ export default function Page({ params }: { params: { name: string } }) {
                       height={0}
                       className="w-full h-[160px] object-cover sm:rounded-lg"
                       alt="thumbnail"
+                      onClick={() => {
+                        window.history.pushState(
+                          null,
+                          "",
+                          `?openImage=true&loc=${loc.name}&imgId=${index}`
+                        );
+                      }}
                     />
                   </Card>
                 </CarouselItem>
               ))}
+
+              <CarouselItem className="sm:basis-1/2 md:basis-1/3 lg:basis-1/5">
+                <Card className="">
+                  <Input
+                    type="file"
+                    title="Upload File"
+                    onChange={async (e) => {
+                      if (e.target.files) {
+                        toast({
+                          title: "Uploading image...",
+                          description: "It may take a few seconds.",
+                        });
+                        const res = await uploader.uploadFile(
+                          e.target.files[0]
+                        );
+                        loc.imgs.push(res.fileUrl);
+                        setLoc(loc);
+                      }
+                    }}
+                    className="h-[160px] text-transparent"
+                  />
+                </Card>
+              </CarouselItem>
             </CarouselContent>
-            <CarouselPrevious />
-            <CarouselNext />
           </Carousel>
-          {/* <Image
-            src={loc.imgs[0]}
-            width={512}
-            height={160}
-            className="w-full h-[160px] object-cover sm:rounded-lg"
-            alt="thumbnail"
-          />
-          <Image
-            src={loc.imgs[1]}
-            width={512}
-            height={160}
-            className="w-full h-[160px] object-cover hidden  sm:block sm:rounded-lg"
-            alt="thumbnail"
-          />
-          <Image
-            src={loc.imgs[2]}
-            width={512}
-            height={160}
-            className="w-full h-[160px] object-cover hidden sm:block sm:rounded-lg"
-            alt="thumbnail"
-          /> */}
         </div>
         <div className="p-4">
           <LocationInfos loc={loc} />
@@ -102,6 +132,22 @@ export default function Page({ params }: { params: { name: string } }) {
             <Button variant="ghost" size="icon" asChild>
               <Link href={`/compass/${encodeURIComponent(loc.name)}`} passHref>
                 <Compass />
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon" asChild>
+              <Link
+                href={`https://www.google.com/search?q=${loc.name}`}
+                target="_blank"
+              >
+                <Search />
+              </Link>
+            </Button>
+            <Button variant="ghost" size="icon" asChild>
+              <Link
+                href={`https://www.google.com/maps/search/?api=1&query=${loc.name}&query_place_id=${loc.id}`}
+                target="_blank"
+              >
+                <ExternalLink />
               </Link>
             </Button>
             <LocCtrlDD locName={loc.name} />

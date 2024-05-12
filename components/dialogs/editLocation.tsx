@@ -7,6 +7,15 @@ import { LocCatDD } from "../dropdown/locCatDD";
 import { StarsToggle } from "../molecules/starsToggle";
 import { HoursDD } from "../dropdown/hoursDD";
 import { LocPicker } from "../organisms/locPicker";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
+import Image from "next/image";
+import { Card, CardContent } from "@/components/ui/card";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -20,8 +29,16 @@ import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { LCategory, MapType } from "@/type/location";
 import { useRouter, useSearchParams } from "next/navigation";
+import { useToast } from "@/components/ui/use-toast";
+import { Uploader } from "uploader"; // Installed by "react-uploader".
+
+const uploader = Uploader({
+  apiKey: process.env.NEXT_PUBLIC_BYTE_SCALE_KEY!,
+});
 
 export const EditLocation = () => {
+  const { toast } = useToast();
+
   const params = useSearchParams();
   const hours: number[][] = [
     [0, 0],
@@ -139,6 +156,64 @@ export const EditLocation = () => {
             <ToggleGroupItem value="google">Google</ToggleGroupItem>
             <ToggleGroupItem value="gaode">Gaode</ToggleGroupItem>
           </ToggleGroup>
+        </div>
+        <div className="flex  justify-center gap-2  sm:p-2 sm:pb-0  w-full self-center">
+          <Carousel
+            opts={{
+              align: "start",
+            }}
+            className="w-full "
+          >
+            {" "}
+            <CarouselContent>
+              {loc.imgs.map((_, index) => (
+                <CarouselItem
+                  key={index}
+                  className="basis-1/3 sm:basis-1/3 md:basis-1/5 lg:basis-1/7"
+                >
+                  <Card>
+                    <Image
+                      src={loc.imgs[index]}
+                      width={512}
+                      height={0}
+                      className="w-full h-[80px] object-cover sm:rounded-lg"
+                      alt="thumbnail"
+                      onClick={() => {
+                        window.history.pushState(
+                          null,
+                          "",
+                          `?openImage=true&loc=${loc.name}&imgId=${index}`
+                        );
+                      }}
+                    />
+                  </Card>
+                </CarouselItem>
+              ))}
+
+              <CarouselItem className="basis-1/3 sm:basis-1/3 md:basis-1/5 lg:basis-1/7">
+                <Card className="">
+                  <Input
+                    type="file"
+                    title="Upload File"
+                    onChange={async (e) => {
+                      if (e.target.files) {
+                        toast({
+                          title: "Uploading image...",
+                          description: "It may take a few seconds.",
+                        });
+                        const res = await uploader.uploadFile(
+                          e.target.files[0]
+                        );
+                        loc.imgs.push(res.fileUrl);
+                        setLoc(loc);
+                      }
+                    }}
+                    className="h-[80px] text-transparent"
+                  />
+                </Card>
+              </CarouselItem>
+            </CarouselContent>
+          </Carousel>
         </div>
         <Button
           onClick={() => {

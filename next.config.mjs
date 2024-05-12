@@ -11,6 +11,7 @@ const nextConfig = {
       "mapman-frontend.vercel.app",
       "lh3.googleusercontent.com",
       "maps.googleapis.com",
+      "upcdn.io",
     ],
   },
 };
