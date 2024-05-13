@@ -256,7 +256,7 @@ export default function ImageUpload() {
                           </span>
                         </div>
                         <Progress
-                          progress={fileUploadProgress.progress}
+                          value={fileUploadProgress.progress}
                           className={
                             getFileIconAndColor(fileUploadProgress.File).color
                           }

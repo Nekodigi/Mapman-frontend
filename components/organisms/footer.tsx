@@ -13,6 +13,7 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { ImageDL } from "../dialogs/imageDL";
+import { Suspense } from "react";
 
 type ButtonProps = {
   url: string;
@@ -47,7 +48,9 @@ export const Footer = () => {
           <MessageSquareMore />
         </Button>
         <SettingsDL />
-        <ImageDL />
+        <Suspense>
+          <ImageDL />
+        </Suspense>
       </NavigationMenu>
     </footer>
   );
