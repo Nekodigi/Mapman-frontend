@@ -100,6 +100,7 @@ export type SearchOption = {
 };
 export type Vars = {
   heading?: number;
+  orient?: DeviceOrientationEvent;
   coords?: GeolocationCoordinates;
 };
 type AccountContextType = {
@@ -202,7 +203,10 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     );
     return account.profiles[index].locations;
   }, [account]);
-  const [heading, setHeading] = useState<number | null>(null);
+  const [heading, setHeading] = useState<number | undefined>(undefined);
+  const [orient, setOrient] = useState<DeviceOrientationEvent | undefined>(
+    undefined
+  );
   const { coords, isGeolocationAvailable, isGeolocationEnabled } =
     useGeolocated({
       positionOptions: {
@@ -211,7 +215,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       watchPosition: true,
       userDecisionTimeout: 5000,
     });
-  const vars: Vars = { heading: heading ? heading : undefined, coords };
+  const vars: Vars = { heading, coords, orient };
   //endregion
 
   //region FUNCTION
@@ -342,6 +346,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       if (event.alpha !== null && event.absolute) {
         const mult = event.absolute ? 1 : -1;
         setHeading(event.alpha * mult);
+        setOrient(event);
       }
     };
     window.addEventListener("deviceorientationabsolute", handleOrientation);

@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useMemo, useRef } from "react";
+import { useContext, useMemo, useRef, useState } from "react";
 
 import { AccountContext } from "../context/account";
 import { LocCatDD } from "../dropdown/locCatDD";
@@ -62,7 +62,7 @@ const uploader = Uploader({
 export const EditLocation = () => {
   const { toast } = useToast();
   const hiddenFileInput = useRef<HTMLInputElement>(null);
-
+  const [lastFetchName, setLastFetchName] = useState<string>("");
   const params = useSearchParams();
   const hours: number[][] = [
     [0, 0],
@@ -78,6 +78,7 @@ export const EditLocation = () => {
   const locEditor = useMemo(() => account?.locEditor, [account]);
   const loc = useMemo(() => locEditor?.loc, [locEditor]);
   const setLoc = useMemo(() => locEditor?.setLoc, [locEditor]);
+
   //const open = useMemo(() => locEditor?.open, [locEditor]);
   const open = useMemo(() => {
     return params.get("open") === "true";
@@ -98,6 +99,17 @@ export const EditLocation = () => {
   if (!loc || !setLoc || !open || !setOpen) {
     return null;
   }
+
+  const fetchLocation = async () => {
+    if (lastFetchName === loc.name) return;
+    const location = await fetch(`/api/location?name=${loc.name}`, {
+      method: "POST",
+    }).then((res) => res.json());
+    if (location) {
+      setLoc(location);
+      setLastFetchName(loc.name);
+    }
+  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -121,13 +133,11 @@ export const EditLocation = () => {
             //trigger when finish hit enter
             onKeyDown={async (e) => {
               if (e.key === "Enter") {
-                const location = await fetch(`/api/location?name=${loc.name}`, {
-                  method: "POST",
-                }).then((res) => res.json());
-                if (location) {
-                  setLoc(location);
-                }
+                fetchLocation();
               }
+            }}
+            onBlur={async () => {
+              fetchLocation();
             }}
           />
         </div>
