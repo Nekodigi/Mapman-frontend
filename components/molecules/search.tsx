@@ -1,5 +1,12 @@
 "use client";
-import { useCallback, useContext, useEffect, useRef, useState } from "react";
+import {
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 import { AccountContext } from "../context/account";
 import {
@@ -32,7 +39,6 @@ export const Search = ({ finish, search }: SearchProps) => {
   const commandRef = useRef<HTMLDivElement>(null);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<string>();
-  const [searchResults, setSearchResults] = useState<string[]>([]);
   const router = useRouter();
   const account = useContext(AccountContext);
   const handleKeyDown = useCallback(
@@ -63,9 +69,10 @@ export const Search = ({ finish, search }: SearchProps) => {
     };
   }, []);
 
-  useEffect(() => {
-    setSearchResults(search(inputText) || []);
-  }, [inputText, search]);
+  const searchResults = useMemo(
+    () => search(inputText) || [],
+    [inputText, search]
+  );
   return (
     <div className="pointer-events-auto shadow-lg">
       <Command
@@ -108,11 +115,14 @@ export const Search = ({ finish, search }: SearchProps) => {
                 <CommandItem
                   className="flex items-center gap-2"
                   onSelect={() => {
-                    setSelected(v);
-                    setInputText(v);
-                    finish(v);
+                    if (!v) return;
                     inputRef.current?.blur();
+                    console.log(v);
+                    finish(v);
+                    setSelected(v);
                     setOpen(false);
+                    //setInputText("");
+                    //setInputText(v);
                   }}
                   value={v}
                   key={v}
