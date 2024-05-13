@@ -53,6 +53,7 @@ import { ImageIcon, Trash2, Upload } from "lucide-react";
 import { DeleteAlert } from "../molecules/deleteAlert";
 import { createAutoformatPlugin } from "@udecode/plate-autoformat";
 import { PlateEditor } from "../molecules/plateEditor";
+import { ScrollArea } from "../ui/scroll-area";
 
 const uploader = Uploader({
   apiKey: process.env.NEXT_PUBLIC_BYTE_SCALE_KEY!,
@@ -101,10 +102,12 @@ export const EditLocation = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       {/* <DialogTrigger>Edit</DialogTrigger> */}
-      <DialogContent>
+
+      <DialogContent className="flex flex-col max-h-screen">
         <DialogHeader>
           <DialogTitle>Edit Spot</DialogTitle>
         </DialogHeader>
+
         <div className="flex items-center gap-4">
           <Label className="min-w-20 text-right">Name</Label>
           <Input
@@ -162,7 +165,6 @@ export const EditLocation = () => {
             }
           />
         </div>
-        <LocPicker loc={loc} setLoc={setLoc} />
         <div className="flex items-center gap-4">
           <Label className="min-w-20 text-right">Map</Label>
           <ToggleGroup
@@ -180,7 +182,7 @@ export const EditLocation = () => {
             <ToggleGroupItem value="gaode">Gaode</ToggleGroupItem>
           </ToggleGroup>
         </div>
-        <div className="flex  justify-center gap-2  sm:p-2 sm:pb-0  w-full self-center">
+        <div className="flex  justify-center gap-2   w-full self-center">
           <Carousel
             opts={{
               align: "start",
@@ -246,15 +248,18 @@ export const EditLocation = () => {
             </CarouselContent>
           </Carousel>
         </div>
-        <PlateEditor
-          text={loc.note}
-          setText={(text: string) => {
-            setLoc({
-              ...loc,
-              note: text,
-            });
-          }}
-        />
+        <LocPicker loc={loc} setLoc={setLoc} />
+        <ScrollArea className="flex flex-col max-h-full min-h-0">
+          <PlateEditor
+            text={loc.note}
+            setText={(text: string) => {
+              setLoc({
+                ...loc,
+                note: text,
+              });
+            }}
+          />
+        </ScrollArea>
         <Button
           onClick={() => {
             setOpen(false);

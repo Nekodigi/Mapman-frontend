@@ -1,3 +1,5 @@
+"use client";
+
 import { Suspense } from "react";
 import MapUI from "./MapUI";
 import { EditLocation } from "@/components/dialogs/editLocation";
@@ -20,7 +22,7 @@ export default function RootLayout({
           <MapUI />
         </ResizablePanel>
         <ResizableHandle />
-        <ResizablePanel>{children}</ResizablePanel>
+        <ResizablePanel className="flex flex-col">{children}</ResizablePanel>
       </ResizablePanelGroup>
       <Suspense>
         <EditLocation />

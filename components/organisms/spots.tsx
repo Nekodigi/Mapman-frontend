@@ -7,6 +7,7 @@ import { Spot } from "@/components/molecules/spot";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { useSearchParams } from "next/navigation";
+import { ScrollArea } from "../ui/scroll-area";
 
 export const Spots = () => {
   const account = useContext(AccountContext);
@@ -29,7 +30,7 @@ export const Spots = () => {
   }, [account?.locs]);
 
   return (
-    <div className="flex min-h-0 grow flex-col">
+    <div className="flex min-h-0 grow h-full flex-col">
       <div className="flex min-h-12 items-center justify-between pl-3">
         <h2 className="text-base font-medium">Nearby Spots</h2>
         <Button
@@ -47,9 +48,9 @@ export const Spots = () => {
         </Button>
       </div>
       <Separator />
-      <div className="flex min-h-0 flex-col overflow-auto">
+      <ScrollArea>
         {locs?.map((loc) => <Spot key={loc.name} loc={loc} />)}
-      </div>
+      </ScrollArea>
     </div>
   );
 };

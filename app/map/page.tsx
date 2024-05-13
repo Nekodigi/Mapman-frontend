@@ -12,7 +12,7 @@ function App() {
   const context = useContext(AccountContext);
 
   return (
-    <div className="flex min-h-0 grow flex-col">
+    <div className="flex min-h-0 h-full grow flex-col">
       <Suspense>
         <Spots />
       </Suspense>
