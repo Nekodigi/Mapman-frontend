@@ -113,6 +113,7 @@
     "react-geolocated": "^4.1.2",
     "react-hook-form": "^7.51.4",
     "react-lite-youtube-embed": "^2.4.0",
+    "react-resizable-panels": "^2.0.19",
     "react-tweet": "^3.2.1",
     "react-uploader": "^3.43.0",
     "slate": "^0.103.0",

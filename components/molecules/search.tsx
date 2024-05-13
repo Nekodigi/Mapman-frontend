@@ -2,13 +2,23 @@
 import { useCallback, useContext, useEffect, useRef, useState } from "react";
 
 import { AccountContext } from "../context/account";
-
+import {
+  Calculator,
+  Calendar,
+  CreditCard,
+  Settings,
+  Smile,
+  User,
+} from "lucide-react";
 import {
   Command,
   CommandEmpty,
+  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
+  CommandSeparator,
+  CommandShortcut,
 } from "@/components/ui/command";
 import { useRouter } from "next/navigation";
 

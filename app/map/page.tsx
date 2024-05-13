@@ -6,6 +6,7 @@ import MapUI from "./MapUI"; // Import the map component
 import { AccountContext } from "@/components/context/account";
 import { EditLocation } from "@/components/dialogs/editLocation";
 import { Spots } from "@/components/organisms/spots";
+import { Search } from "@/components/molecules/search";
 
 function App() {
   const context = useContext(AccountContext);

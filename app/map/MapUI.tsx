@@ -21,9 +21,11 @@ import { Button } from "@/components/ui/button";
 import { LCategory, Location } from "@/type/location";
 import { almostZero, distance, filter } from "@/utils/location";
 import { useRouter } from "next/navigation";
+import { Skeleton } from "@/components/ui/skeleton";
+import { Spinner } from "@/components/ui/spinner";
 
 const N_NEARBY = 5;
-const DIST_LIMIT = 20;
+const DIST_LIMIT = 12;
 const initCenter = {
   lat: 35.6764,
   lon: 139.65,
@@ -36,7 +38,13 @@ interface MapState {
 const render = (status: Status): JSX.Element | null => {
   switch (status) {
     case Status.LOADING:
-      return <h1>Loading Map</h1>;
+      return (
+        <div className="h-full flex justify-center items-center">
+          <Spinner size="large" show>
+            <p>Loading map...</p>
+          </Spinner>
+        </div>
+      );
     case Status.FAILURE:
       return <h1>Error loading maps</h1>;
     default:
@@ -340,8 +348,8 @@ const MyMapComponent = () => {
 
   return (
     <>
-      <div ref={ref} className="h-[360px] w-full" />
-      <div className="pointer-events-none absolute top-0 flex h-[360px] w-full items-end justify-end p-2">
+      <div ref={ref} className="h-full w-full" />
+      <div className="pointer-events-none absolute top-0 flex h-full w-full items-end justify-end p-2">
         <Button
           variant="outline"
           size="icon"
@@ -406,7 +414,7 @@ const MapOverlay: React.FC = () => {
   );
 
   return (
-    <div className="pointer-events-none absolute inset-x-0 top-0 flex h-[360px] flex-col justify-between p-2">
+    <div className="pointer-events-none absolute inset-x-0 top-0 flex h-full flex-col justify-between p-2">
       <Search
         search={search}
         finish={(loc: string) => {
@@ -451,7 +459,7 @@ const MapOverlay: React.FC = () => {
 
 const MapUI = () => {
   return (
-    <div className="h-[360px]">
+    <div className="h-full relative">
       <Wrapper
         apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}
         render={render as any}
