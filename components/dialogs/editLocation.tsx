@@ -7,33 +7,18 @@ import { LocCatDD } from "../dropdown/locCatDD";
 import { StarsToggle } from "../molecules/starsToggle";
 import { HoursDD } from "../dropdown/hoursDD";
 import { LocPicker } from "../organisms/locPicker";
-import {
-  createPlugins,
-  Plate,
-  PlateContent,
-  PlatePlugin,
-} from "@udecode/plate-common";
+
+
 
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
-import {
-  AlertDialog,
-  AlertDialogAction,
-  AlertDialogCancel,
-  AlertDialogContent,
-  AlertDialogDescription,
-  AlertDialogFooter,
-  AlertDialogHeader,
-  AlertDialogTitle,
-  AlertDialogTrigger,
-} from "@/components/ui/alert-dialog";
+
+
 import Image from "next/image";
-import { Card, CardContent } from "@/components/ui/card";
+import { Card } from "@/components/ui/card";
 
 import { Button } from "@/components/ui/button";
 import {
@@ -49,9 +34,8 @@ import { LCategory, MapType } from "@/type/location";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { Uploader } from "uploader"; // Installed by "react-uploader".
-import { ImageIcon, Search, Trash2, Upload } from "lucide-react";
+import { ImageIcon, Search } from "lucide-react";
 import { DeleteAlert } from "../molecules/deleteAlert";
-import { createAutoformatPlugin } from "@udecode/plate-autoformat";
 import { PlateEditor } from "../molecules/plateEditor";
 import { ScrollArea } from "../ui/scroll-area";
 
@@ -115,7 +99,7 @@ export const EditLocation = () => {
     <Dialog open={open} onOpenChange={setOpen}>
       {/* <DialogTrigger>Edit</DialogTrigger> */}
 
-      <DialogContent className="flex flex-col max-h-screen">
+      <DialogContent className="flex max-h-screen flex-col">
         <DialogHeader>
           <DialogTitle>Edit Spot</DialogTitle>
         </DialogHeader>
@@ -198,7 +182,7 @@ export const EditLocation = () => {
             <ToggleGroupItem value="gaode">Gaode</ToggleGroupItem>
           </ToggleGroup>
         </div>
-        <div className="flex  justify-center gap-2   w-full self-center">
+        <div className="flex  w-full justify-center   gap-2 self-center">
           <Carousel
             opts={{
               align: "start",
@@ -212,7 +196,7 @@ export const EditLocation = () => {
                   onClick={() => {
                     hiddenFileInput.current && hiddenFileInput.current.click();
                   }}
-                  className=" flex flex-col gap-2 h-[80px] items-center justify-center"
+                  className=" flex h-[80px] flex-col items-center justify-center gap-2"
                 >
                   <Input
                     type="file"
@@ -231,7 +215,7 @@ export const EditLocation = () => {
                         setLoc(loc);
                       }
                     }}
-                    className="h-[80px] text-transparent hidden"
+                    className="hidden h-[80px] text-transparent"
                   />
                   <ImageIcon className="size-8" />
                   <p className="text-[10px] ">Upload image</p>
@@ -254,7 +238,7 @@ export const EditLocation = () => {
                         src={loc.imgs[index]}
                         width={512}
                         height={0}
-                        className="w-full h-[80px] object-cover rounded-lg"
+                        className="h-[80px] w-full rounded-lg object-cover"
                         alt="thumbnail"
                       />
                     </Card>
@@ -265,7 +249,7 @@ export const EditLocation = () => {
           </Carousel>
         </div>
         <LocPicker loc={loc} setLoc={setLoc} />
-        <ScrollArea className="flex flex-col max-h-full min-h-0">
+        <ScrollArea className="flex max-h-full min-h-0 flex-col">
           <PlateEditor
             text={loc.note}
             setText={(text: string) => {

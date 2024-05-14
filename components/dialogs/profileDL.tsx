@@ -5,7 +5,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Download, Import, Plus, Settings, Trash2, Upload } from "lucide-react";
+import { Download, Plus, Settings, Trash2, Upload } from "lucide-react";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -54,7 +54,6 @@ export const ProfileMenu = () => {
   const upload = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (!e.target.files) return;
     const file = e.target.files[0];
-    console.log(file);
     //read file as json
     const reader = new FileReader();
     const raw = reader.readAsText(file);
@@ -141,7 +140,6 @@ export const ProfileMenu = () => {
           title={`Delete "${account?.account.currentProfile}" Profile`}
           description="This action cannot be undone. Are you sure?"
           onConfirm={() => {
-            console.log("onconfirm");
             account?.setAccount((prev) => {
               const newAccount = { ...prev };
               const index = newAccount.profiles.findIndex(

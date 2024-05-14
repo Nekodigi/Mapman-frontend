@@ -1,24 +1,14 @@
 "use client";
-import React, { useContext, useMemo } from "react";
-import { useGeolocated } from "react-geolocated";
-import { useEffect, useState } from "react";
+import React, { useContext, useMemo, useState } from "react";
+
 import { AccountContext } from "@/components/context/account";
 import { distance } from "@/utils/location";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardFooter,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+import { Card, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import dynamic from "next/dynamic";
 import {
   GyroscopePlugin,
   GyroscopePluginConfig,
 } from "@photo-sphere-viewer/gyroscope-plugin";
-import { CompassPlugin } from "@photo-sphere-viewer/compass-plugin";
-import { LensflarePlugin } from "react-photo-sphere-viewer";
 import {
   MarkersPlugin,
   MarkersPluginConfig,
@@ -90,11 +80,11 @@ const Demo = ({ params }: { params: { name: string } }) => {
 
   const handleReady = (instance: Viewer) => {
     setH(account?.vars?.heading || 0);
-    const gyroPlugs = instance.getPlugin(GyroscopePlugin);
+    const gyroPlugs: any = instance.getPlugin(GyroscopePlugin);
     if (!gyroPlugs) return;
     gyroPlugs.start("fast");
 
-    const markersPlugs = instance.getPlugin(MarkersPlugin);
+    const markersPlugs: any = instance.getPlugin(MarkersPlugin);
     if (!markersPlugs) return;
     markersPlugs.addMarker({
       id: "imageLayer2",
@@ -111,7 +101,7 @@ const Demo = ({ params }: { params: { name: string } }) => {
 
   return (
     loc && (
-      <div className="flex flex-col justify-center h-full p-4">
+      <div className="flex h-full flex-col justify-center p-4">
         {/* {account?.vars?.orient?.alpha && (
           
         )} */}
@@ -138,16 +128,16 @@ const Demo = ({ params }: { params: { name: string } }) => {
             <CardTitle>{dist?.toFixed(2)} km</CardTitle>
           </CardHeader>
           <CardFooter>
-            <div className="w-full aspect-square p-8">
-              <div className="w-full h-full bg-gray-200 rounded-full relative">
+            <div className="aspect-square w-full p-8">
+              <div className="relative size-full rounded-full bg-gray-200">
                 <div
-                  className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2  w-0 h-0 "
+                  className="absolute left-1/2 top-1/2 size-0 -translate-x-1/2  -translate-y-1/2 "
                   style={{
                     transform: `translate(-50%, -50%) rotate(${(account?.vars?.heading || 0) + (dir || 0)}deg)`,
                   }}
                 >
                   <div
-                    className="absolute top-1/2 left-1/2 w-0 h-0 border-4 border-solid "
+                    className="absolute left-1/2 top-1/2 size-0 border-4 border-solid "
                     style={{
                       borderLeft: "50px solid transparent",
                       borderRight: "50px solid transparent",

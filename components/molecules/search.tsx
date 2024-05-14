@@ -9,23 +9,13 @@ import {
 } from "react";
 
 import { AccountContext } from "../context/account";
-import {
-  Calculator,
-  Calendar,
-  CreditCard,
-  Settings,
-  Smile,
-  User,
-} from "lucide-react";
+
 import {
   Command,
   CommandEmpty,
-  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
-  CommandSeparator,
-  CommandShortcut,
 } from "@/components/ui/command";
 import { useRouter } from "next/navigation";
 
@@ -117,7 +107,6 @@ export const Search = ({ finish, search }: SearchProps) => {
                   onSelect={() => {
                     if (!v) return;
                     inputRef.current?.blur();
-                    console.log(v);
                     finish(v);
                     setSelected(v);
                     setOpen(false);

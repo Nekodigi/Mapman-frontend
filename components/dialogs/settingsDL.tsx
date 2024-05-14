@@ -1,4 +1,4 @@
-import { Plus, Settings, Trash2 } from "lucide-react";
+import { Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
@@ -16,17 +16,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-import {
-  Sheet,
-  SheetContent,
-  SheetDescription,
-  SheetHeader,
-  SheetTitle,
-  SheetTrigger,
-} from "@/components/ui/sheet";
+
+
 
 import { Label } from "@/components/ui/label";
-import { DeleteAlert } from "../molecules/deleteAlert";
 import { ProfileMenu } from "./profileDL";
 
 export const SettingsDL = () => {

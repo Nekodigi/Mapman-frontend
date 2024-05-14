@@ -115,7 +115,7 @@ const viewer = new Viewer({
   ],
 });
 
-const markersPlugin = viewer.getPlugin(MarkersPlugin);
+const markersPlugin: any = viewer.getPlugin(MarkersPlugin);
 
 /**
  * Create a new marker when the user clicks somewhere
@@ -140,21 +140,21 @@ viewer.addEventListener("click", ({ data }) => {
  * Delete a generated marker when the user double-clicks on it
  * Or change the image if the user right-clicks on it
  */
-markersPlugin.addEventListener(
-  "select-marker",
-  ({ marker, doubleClick, rightClick }) => {
-    if (marker.data?.generated) {
-      if (doubleClick) {
-        markersPlugin.removeMarker(marker);
-      } else if (rightClick) {
-        markersPlugin.updateMarker({
-          id: marker.id,
-          image: baseUrl + "pictos/pin-blue.png",
-        });
-      }
-    }
-  }
-);
+// markersPlugin.addEventListener(
+//   "select-marker",
+//   ({ marker, doubleClick, rightClick }) => {
+//     if (marker.data?.generated) {
+//       if (doubleClick) {
+//         markersPlugin.removeMarker(marker);
+//       } else if (rightClick) {
+//         markersPlugin.updateMarker({
+//           id: marker.id,
+//           image: baseUrl + "pictos/pin-blue.png",
+//         });
+//       }
+//     }
+//   }
+// );
 
 export default function Demo() {
   return <div id="viewer"></div>;

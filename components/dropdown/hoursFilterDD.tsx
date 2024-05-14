@@ -1,5 +1,5 @@
 import { Clock } from "lucide-react";
-import { useContext, useMemo, useState } from "react";
+import { useContext, useMemo } from "react";
 
 import { WeekToggle } from "../molecules/weekToggle";
 

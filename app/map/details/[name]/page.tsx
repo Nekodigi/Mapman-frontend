@@ -1,35 +1,21 @@
 "use client";
 
-import { LCategoryIcon } from "@/components/atoms/lcategory";
-import { Stars } from "@/components/atoms/stars";
 import { AccountContext } from "@/components/context/account";
 import { LocCtrlDD } from "@/components/dropdown/locCtrlDD";
 import { LocationInfos } from "@/components/organisms/locationInfo";
 import { Button } from "@/components/ui/button";
-import { almostZero } from "@/utils/location";
 import { ArrowLeft, Compass, ExternalLink, Search } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useCallback, useContext, useMemo } from "react";
-import { Card, CardContent } from "@/components/ui/card";
-import { UploadButton, UploadDropzone } from "react-uploader";
+import React, { useCallback, useContext, useMemo } from "react";
+import { Card } from "@/components/ui/card";
 
-import React, { useRef } from "react";
 import { CommentsProvider } from "@udecode/plate-comments";
-import { ELEMENT_PARAGRAPH } from "@udecode/plate-paragraph";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { commentsUsers, myUserId } from "@/lib/plate/comments";
-import { MENTIONABLES } from "@/lib/plate/mentionables";
-import { CommentsPopover } from "@/components/plate-ui/comments-popover";
-import { CursorOverlay } from "@/components/plate-ui/cursor-overlay";
-import { FixedToolbar } from "@/components/plate-ui/fixed-toolbar";
-import { FixedToolbarButtons } from "@/components/plate-ui/fixed-toolbar-buttons";
-import { FloatingToolbar } from "@/components/plate-ui/floating-toolbar";
-import { FloatingToolbarButtons } from "@/components/plate-ui/floating-toolbar-buttons";
-import { MentionCombobox } from "@/components/plate-ui/mention-combobox";
 import { Uploader } from "uploader"; // Installed by "react-uploader".
 import { useToast } from "@/components/ui/use-toast";
 
@@ -37,8 +23,6 @@ import {
   Carousel,
   CarouselContent,
   CarouselItem,
-  CarouselNext,
-  CarouselPrevious,
 } from "@/components/ui/carousel";
 import { Input } from "@/components/ui/input";
 import { Location } from "@/type/location";
@@ -76,25 +60,21 @@ export default function Page({ params }: { params: { name: string } }) {
   );
 
   return (
-    loc && (
-      <ScrollArea className="h-full min-h-0">
+    <ScrollArea className="h-full min-h-0">
+      {loc && (
         <div className="flex min-h-0 grow flex-col overflow-auto">
           <Button
             variant="outline"
             size="icon"
             onClick={() => {
-              account?.setSearchOption((prev) => ({
-                ...prev,
-                viewCenter: undefined,
-              }));
               router.push("/map");
             }}
-            className="absolute m-4 z-10"
+            className="absolute z-10 m-4"
           >
             <ArrowLeft />
           </Button>
 
-          <div className="flex  justify-center gap-2  sm:p-2 sm:pb-0  w-full self-center">
+          <div className="flex  w-full justify-center  gap-2 self-center  sm:p-2 sm:pb-0">
             <Carousel
               opts={{
                 align: "start",
@@ -113,8 +93,15 @@ export default function Page({ params }: { params: { name: string } }) {
                         src={loc.imgs[index]}
                         width={512}
                         height={0}
-                        className="w-full h-[160px] object-cover sm:rounded-lg"
+                        className="h-[160px] w-full object-cover opacity-100 duration-300  data-[loaded=false]:opacity-0 sm:rounded-lg"
                         alt="thumbnail"
+                        data-loaded="false"
+                        onLoad={(event) => {
+                          event.currentTarget.setAttribute(
+                            "data-loaded",
+                            "true"
+                          );
+                        }}
                         onClick={() => {
                           window.history.pushState(
                             null,
@@ -154,7 +141,7 @@ export default function Page({ params }: { params: { name: string } }) {
           </div>
           <div className="p-4">
             <LocationInfos loc={loc} />
-            <div className="flex justify-between items-center h-16">
+            <div className="flex h-16 items-center justify-between">
               <Button variant="ghost" size="icon" asChild>
                 <Link
                   href={`/compass/${encodeURIComponent(loc.name)}`}
@@ -192,7 +179,7 @@ export default function Page({ params }: { params: { name: string } }) {
             )}
           </div>
         </div>
-      </ScrollArea>
-    )
+      )}
+    </ScrollArea>
   );
 }

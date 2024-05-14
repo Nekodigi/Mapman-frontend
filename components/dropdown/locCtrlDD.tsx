@@ -5,11 +5,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Button } from "@/components/ui/button";
-import { EllipsisVertical, ExternalLink } from "lucide-react";
+import { EllipsisVertical } from "lucide-react";
 import { useContext } from "react";
 import { AccountContext } from "../context/account";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 
 type LocCtrlDDProps = {
   locName: string;

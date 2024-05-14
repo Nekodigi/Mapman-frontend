@@ -32,16 +32,16 @@ export const ToolbarSeparator = withCn(
 
 const toolbarButtonVariants = cva(
   cn(
-    'inline-flex items-center justify-center rounded-md text-sm font-medium ring-offset-background transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
+    'ring-offset-background focus-visible:ring-ring inline-flex items-center justify-center rounded-md text-sm font-medium transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50',
     '[&_svg:not([data-icon])]:size-5'
   ),
   {
     variants: {
       variant: {
         default:
-          'bg-transparent hover:bg-muted hover:text-muted-foreground aria-checked:bg-accent aria-checked:text-accent-foreground',
+          'hover:bg-muted hover:text-muted-foreground aria-checked:bg-accent aria-checked:text-accent-foreground bg-transparent',
         outline:
-          'border border-input bg-transparent hover:bg-accent hover:text-accent-foreground',
+          'border-input hover:bg-accent hover:text-accent-foreground border bg-transparent',
       },
       size: {
         default: 'h-10 px-3',

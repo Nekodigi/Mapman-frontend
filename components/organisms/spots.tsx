@@ -30,7 +30,7 @@ export const Spots = () => {
   }, [account?.locs]);
 
   return (
-    <div className="flex min-h-0 grow h-full flex-col">
+    <div className="flex h-full min-h-0 grow flex-col">
       <div className="flex min-h-12 items-center justify-between pl-3">
         <h2 className="text-base font-medium">Nearby Spots</h2>
         <Button

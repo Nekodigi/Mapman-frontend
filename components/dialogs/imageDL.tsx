@@ -1,19 +1,16 @@
-import { Delete, Settings, Trash, Trash2 } from "lucide-react";
+import { Trash2 } from "lucide-react";
 import Image from "next/image";
-import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { useContext, useMemo } from "react";
 
 import { AccountContext } from "../context/account";
 import { Button } from "../ui/button";
 
-import { ThemeToggle } from "@/components/atoms/themeToggle";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogTrigger,
 } from "@/components/ui/dialog";
 import {
   AlertDialog,
@@ -26,7 +23,6 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { Label } from "@/components/ui/label";
 import { useRouter, useSearchParams } from "next/navigation";
 
 export const ImageDL = () => {
@@ -45,7 +41,6 @@ export const ImageDL = () => {
     const locId = account.locs.findIndex(
       (loc) => loc.name === decodeURIComponent(params.get("loc") || "")
     );
-    console.log(decodeURIComponent(params.get("loc") || ""), locId);
     const imgId = parseInt(params.get("imgId") || "-1", 10);
     //to int
     return { locId, imgId };
@@ -62,7 +57,6 @@ export const ImageDL = () => {
 
   const img = useMemo(() => {
     if (imgInfo.locId === -1 || imgInfo.imgId === -1) return null;
-    console.log(imgInfo.locId, imgInfo.imgId);
     return account?.locs[imgInfo.locId].imgs[imgInfo.imgId];
   }, [account?.locs, imgInfo.imgId, imgInfo.locId]);
 
@@ -87,7 +81,7 @@ export const ImageDL = () => {
             width={1920}
             height={1920}
             alt="Image"
-            className="h-full min-h-0 aspect-auto object-contain"
+            className="aspect-auto h-full min-h-0 object-contain"
           />
         )}
         <div className="flex justify-end">

@@ -4,11 +4,11 @@ import * as SeparatorPrimitive from '@radix-ui/react-separator';
 import { withProps, withVariants } from '@udecode/cn';
 import { cva } from 'class-variance-authority';
 
-const separatorVariants = cva('shrink-0 bg-border', {
+const separatorVariants = cva('bg-border shrink-0', {
   variants: {
     orientation: {
-      horizontal: 'h-[1px] w-full',
-      vertical: 'h-full w-[1px]',
+      horizontal: 'h-px w-full',
+      vertical: 'h-full w-px',
     },
   },
   defaultVariants: {
