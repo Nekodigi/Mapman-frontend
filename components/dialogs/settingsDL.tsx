@@ -1,8 +1,8 @@
-import { Settings } from "lucide-react";
+import { Plus, Settings, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useContext, useMemo } from "react";
+import { useContext, useMemo, useState } from "react";
 
 import { AccountContext } from "../context/account";
 import { Button } from "../ui/button";
@@ -15,20 +15,24 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+
 import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuLabel,
-  DropdownMenuRadioGroup,
-  DropdownMenuRadioItem,
-  DropdownMenuSeparator,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
+  Sheet,
+  SheetContent,
+  SheetDescription,
+  SheetHeader,
+  SheetTitle,
+  SheetTrigger,
+} from "@/components/ui/sheet";
+
 import { Label } from "@/components/ui/label";
+import { DeleteAlert } from "../molecules/deleteAlert";
+import { ProfileMenu } from "./profileDL";
 
 export const SettingsDL = () => {
   const account = useContext(AccountContext);
   const { data: session, status } = useSession();
+  const [open, setOpen] = useState(false);
 
   const profiles = useMemo(
     () => account?.account.profiles.map((profile) => profile.name),
@@ -39,7 +43,7 @@ export const SettingsDL = () => {
   return (
     <Dialog>
       <DialogTrigger className="px-4">
-        <Settings />
+        <Settings strokeWidth={1.5} />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -49,31 +53,7 @@ export const SettingsDL = () => {
           <Label className="min-w-20 text-right">Theme</Label>
           <ThemeToggle />
         </div>
-        <div className="flex items-center gap-4">
-          <Label className="min-w-20 text-right">Profile</Label>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
-              <Button variant="outline">
-                {account?.account.currentProfile || "select profile"}
-              </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent align="end">
-              <DropdownMenuLabel>Profile</DropdownMenuLabel>
-              <DropdownMenuSeparator />
-
-              <DropdownMenuRadioGroup
-                value={account?.account.currentProfile}
-                onValueChange={() => {}}
-              >
-                {profiles?.map((profile) => (
-                  <DropdownMenuRadioItem value={profile} key={profile}>
-                    {profile}
-                  </DropdownMenuRadioItem>
-                ))}
-              </DropdownMenuRadioGroup>
-            </DropdownMenuContent>
-          </DropdownMenu>
-        </div>
+        <ProfileMenu />
         <div className="flex items-center gap-4">
           <Label className="min-w-20 text-right">Account</Label>
           {status === "authenticated" ? (

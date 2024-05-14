@@ -49,7 +49,7 @@ import { LCategory, MapType } from "@/type/location";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { Uploader } from "uploader"; // Installed by "react-uploader".
-import { ImageIcon, Trash2, Upload } from "lucide-react";
+import { ImageIcon, Search, Trash2, Upload } from "lucide-react";
 import { DeleteAlert } from "../molecules/deleteAlert";
 import { createAutoformatPlugin } from "@udecode/plate-autoformat";
 import { PlateEditor } from "../molecules/plateEditor";
@@ -136,10 +136,16 @@ export const EditLocation = () => {
                 fetchLocation();
               }
             }}
-            onBlur={async () => {
+          />
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => {
               fetchLocation();
             }}
-          />
+          >
+            <Search />
+          </Button>
         </div>
         <div className="flex items-center gap-4">
           <div className="min-w-20 text-right">

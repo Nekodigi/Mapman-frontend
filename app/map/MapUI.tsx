@@ -86,7 +86,7 @@ const MyMapComponent = () => {
     fillOpacity: 1,
     rotation: 0,
     strokeColor: "#0f172a",
-    strokeWeight: 5,
+    strokeWeight: 3,
     //origin center
     anchor: new google.maps.Point(0, 2),
   };
@@ -97,7 +97,7 @@ const MyMapComponent = () => {
     fillOpacity: 1,
     scale: 10,
     strokeColor: "#0f172a",
-    strokeWeight: 5,
+    strokeWeight: 3,
   };
   const squareMarker: google.maps.Symbol = {
     path: "M 0,0 0,2 2,2 2,0 z",
@@ -105,7 +105,7 @@ const MyMapComponent = () => {
     fillOpacity: 1,
     scale: 10,
     strokeColor: "#0f172a",
-    strokeWeight: 5,
+    strokeWeight: 3,
   };
 
   const setBounds = useCallback(() => {
@@ -199,6 +199,7 @@ const MyMapComponent = () => {
               title: loc.name,
               opacity: 1,
               clickable: true,
+              draggable: true,
               icon:
                 loc.name === "Current Position" ? arrowMarker : circleMarker,
             });

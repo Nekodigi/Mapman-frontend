@@ -34,7 +34,11 @@ export const DeleteAlert = ({
         <AlertDialogDescription>{description}</AlertDialogDescription>
         <AlertDialogFooter>
           <AlertDialogCancel>Cancel</AlertDialogCancel>
-          <AlertDialogAction onClick={onConfirm}>
+          <AlertDialogAction
+            onClick={() => {
+              onConfirm();
+            }}
+          >
             {confirmText || "Delete"}
           </AlertDialogAction>
         </AlertDialogFooter>

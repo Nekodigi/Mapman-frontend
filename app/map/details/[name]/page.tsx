@@ -82,7 +82,13 @@ export default function Page({ params }: { params: { name: string } }) {
           <Button
             variant="outline"
             size="icon"
-            onClick={() => router.push("/map")}
+            onClick={() => {
+              account?.setSearchOption((prev) => ({
+                ...prev,
+                viewCenter: undefined,
+              }));
+              router.push("/map");
+            }}
             className="absolute m-4 z-10"
           >
             <ArrowLeft />

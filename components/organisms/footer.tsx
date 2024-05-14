@@ -39,13 +39,13 @@ export const Footer = () => {
     <footer className="">
       <NavigationMenu className="max-w-full">
         <Button url="/map">
-          <Map />
+          <Map strokeWidth={1.5} />
         </Button>
         <Button url="/document">
-          <FileText />
+          <FileText strokeWidth={1.5} />
         </Button>
         <Button url="/ask">
-          <MessageSquareMore />
+          <MessageSquareMore strokeWidth={1.5} />
         </Button>
         <SettingsDL />
         <Suspense>

@@ -51,10 +51,10 @@ const DEFAULT_LOC: Location = {
 const DEFAULT_ACCOUNT: Account = {
   name: "mapman",
   email: "",
-  currentProfile: "default",
+  currentProfile: "Default",
   profiles: [
     {
-      name: "default",
+      name: "Default",
       locations: [],
       documents: [],
       cover: "",
@@ -105,7 +105,7 @@ export type Vars = {
 };
 type AccountContextType = {
   account: Account;
-  setAccount: (account: Account) => void;
+  setAccount: React.Dispatch<React.SetStateAction<Account>>;
   locs: Location[];
   locsDispatch: React.Dispatch<any>;
   locEditor: LocationEditorContextType;
