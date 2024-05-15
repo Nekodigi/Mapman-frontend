@@ -149,6 +149,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       const index = account.profiles.findIndex(
         (profile) => profile.name === account.currentProfile
       );
+      console.log("locs dispatch");
       switch (action.type) {
         case "add":
           setAccount((prev) => {
@@ -200,11 +201,12 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   const [id, _setId] = useState<number>(-1);
   const [open, setOpen] = useState<boolean>(false);
   const locs = useMemo(() => {
+    console.log("locs memo");
     const index = account.profiles.findIndex(
       (profile) => profile.name === account.currentProfile
     );
     return account.profiles[index].locations;
-  }, [account.profiles, account.currentProfile]);
+  }, [account, account.profiles, account.currentProfile]);
   const [heading, setHeading] = useState<number | undefined>(undefined);
   const [orient, setOrient] = useState<DeviceOrientationEvent | undefined>(
     undefined

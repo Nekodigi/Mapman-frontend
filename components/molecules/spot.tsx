@@ -33,7 +33,7 @@ export const Spot = ({ loc, passive, className }: SpotProps) => {
     visible && (
       <div className={cn("flex  items-center justify-between pr-4", className)}>
         <div
-          className="flex h-[72px] min-w-0 gap-2 px-2 py-1"
+          className="flex h-[72px] w-full  gap-2 px-2 py-1 "
           onClick={() => {
             account?.setSearchOption((prev) => ({
               ...prev,

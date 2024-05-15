@@ -1,5 +1,5 @@
 "use client";
-import React, { useContext, useMemo, useState } from "react";
+import React, { useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import { AccountContext } from "@/components/context/account";
 import { distance } from "@/utils/location";
@@ -27,6 +27,7 @@ const ReactPhotoSphereViewer = dynamic(
 
 const Demo = ({ params }: { params: { name: string } }) => {
   const account = useContext(AccountContext);
+  const prevHeading = useRef(0);
   const loc = useMemo(() => {
     if (!account?.locs) return undefined;
     const name = decodeURIComponent(params.name);
@@ -98,6 +99,24 @@ const Demo = ({ params }: { params: { name: string } }) => {
     // });
   };
   const [h, setH] = useState(0);
+
+  useEffect(() => {
+    //when heading change
+    if (account?.vars?.heading === undefined) return;
+    const heading = ((account.vars.heading + (dir || 0)) % 360) - 180;
+    //if (heading < 10) navigator.vibrate(1);
+
+    console.log(heading, prevHeading.current);
+    if (
+      heading * prevHeading.current > 0 ||
+      Math.abs(heading - prevHeading.current) < 10
+    ) {
+      prevHeading.current = heading;
+      return;
+    }
+    navigator.vibrate(1);
+    prevHeading.current = heading;
+  }, [account?.vars?.heading, dir]);
 
   return (
     loc && (

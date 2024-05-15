@@ -53,6 +53,10 @@ export const almostZero = (a: number | undefined, epsilon = 0.01) => {
   return Math.abs(a) < epsilon;
 };
 export const distance = (a: Location, b: Location) => {
+  // is any of them invalid return infinity
+  if (a === undefined || b === undefined) {
+    return 10000000000;
+  }
   return gDistance({ lat: a.lat, lng: a.lon }, { lat: b.lat, lng: b.lon });
 };
 export const gDistance = (a: LatLngLiteral, b: LatLngLiteral) => {

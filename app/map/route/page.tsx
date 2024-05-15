@@ -6,6 +6,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowLeft } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
 
 export default function Page() {
   const account = useContext(AccountContext);
@@ -86,12 +87,23 @@ export default function Page() {
               {/* <LocationInfos loc={start} /> */}
             </div>
           )}
-          <div className="flex flex-col items-center gap-2 p-8">
-            <ArrowDown opacity={0.5} strokeWidth={1} />
-            <h3 className="truncate text-xl font-medium">{route?.duration}</h3>
-            <h3 className="truncate text-xl font-medium">{route?.distance}</h3>
-            <ArrowDown opacity={0.5} strokeWidth={1} />
-          </div>
+          {start && end && (
+            <Link
+              href={`https://www.google.com/maps/dir/?api=1&origin=${start.name}&origin_place_id=${start.id}&destination=${end.name}&destination_place_id=${end.id}&travelmode=transit`}
+              target="_blank"
+            >
+              <div className="flex flex-col items-center gap-2 p-8">
+                <ArrowDown opacity={0.5} strokeWidth={1} />
+                <h3 className="truncate text-xl font-medium">
+                  {route?.duration}
+                </h3>
+                <h3 className="truncate text-xl font-medium">
+                  {route?.distance}
+                </h3>
+                <ArrowDown opacity={0.5} strokeWidth={1} />
+              </div>
+            </Link>
+          )}
           {end && (
             <div className="flex h-[72px] min-w-0 gap-2 px-2 py-1">
               <Image

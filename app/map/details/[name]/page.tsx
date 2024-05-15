@@ -69,16 +69,16 @@ export default function Page({ params }: { params: { name: string } }) {
     <ScrollArea className="h-full min-h-0">
       {loc && (
         <div className="flex min-h-0 grow flex-col overflow-auto">
-          <Button
-            variant="outline"
-            size="icon"
+          <div
+            className="absolute z-10 p-4 h-[168px]"
             onClick={() => {
               router.push("/map");
             }}
-            className="absolute z-10 m-4"
           >
-            <ArrowLeft />
-          </Button>
+            <Button variant="outline" size="icon" className="">
+              <ArrowLeft />
+            </Button>
+          </div>
 
           <div className="flex  w-full justify-center  gap-2 self-center  sm:p-2 sm:pb-0">
             <Carousel

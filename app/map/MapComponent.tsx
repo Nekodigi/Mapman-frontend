@@ -147,7 +147,10 @@ export const MapComponent = () => {
       if (!account?.locs) return;
       const p = e.latLng.toJSON() as google.maps.LatLngLiteral;
       const pos = { lat: p.lat, lon: p.lng } as Location;
-      const closest = account.locs.reduce((prev, curr) =>
+      const candidate = account.locs.filter(
+        (l) => l.name !== loc.name && filter(l, account.searchOption)
+      );
+      const closest = candidate.reduce((prev, curr) =>
         distance(curr, pos) < distance(prev, pos) ? curr : prev
       );
       router.push(`/map/route?start=${loc.name}&end=${closest.name}`);
@@ -160,6 +163,8 @@ export const MapComponent = () => {
           strokeOpacity: 1,
           strokeWeight: 5,
         },
+        map: map,
+        preserveViewport: true,
       };
 
       directionsRenderer.setOptions(option);
@@ -186,17 +191,20 @@ export const MapComponent = () => {
                 return res;
               }
             );
-            directionsRenderer.unbindAll();
-            directionsRenderer.setOptions({
-              map: map,
-              preserveViewport: true,
-            });
+
             directionsRenderer.setDirections(result);
           }
         }
       );
     },
-    [account?.locs, directionsRenderer, directionsService, map]
+    [
+      account?.locs,
+      account?.searchOption,
+      directionsRenderer,
+      directionsService,
+      map,
+      router,
+    ]
   );
 
   const applyMarkerStyle = (
@@ -245,7 +253,7 @@ export const MapComponent = () => {
         circle.bindTo("center", marker, "position");
       });
     }
-    if (searchOption.viewCenter && almostZero(loc.vars?.viewDistance)) {
+    if (almostZero(loc.vars?.viewDistance) || almostZero(loc.vars?.distance)) {
       icon = {
         ...icon,
         scale: 0.01 + 0.01 * loc.importance,
@@ -272,10 +280,13 @@ export const MapComponent = () => {
       strokeWeight: visible ? icon.strokeWeight : 0,
     };
     marker.setIcon(icon);
+    marker.setDraggable(visible);
+    marker.setClickable(visible);
     return marker;
   };
 
   useEffect(() => {
+    console.log("locs! change");
     if (account?.locs && map) {
       const infoWindow = new google.maps.InfoWindow();
 
@@ -323,9 +334,14 @@ export const MapComponent = () => {
                 ...prev,
                 viewCenter: loc,
               }));
+              navigator.vibrate(1);
               router.push(`/map/details/${loc.name}`);
             });
+            marker.addListener("dragstart", () => {
+              navigator.vibrate(1);
+            });
             marker.addListener("dragend", (e: any) => {
+              navigator.vibrate(1);
               dragend(marker, loc, e);
             });
           }
@@ -341,6 +357,10 @@ export const MapComponent = () => {
     setBounds();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, account?.locs]); //, account?.searchOption.viewCenter
+
+  useEffect(() => {
+    console.log("loc update by component");
+  }, [account?.locs]);
 
   // change opacity when filter
   useEffect(() => {
