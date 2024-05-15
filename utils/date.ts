@@ -1,8 +1,19 @@
+import { HoursFilter } from "@/components/context/account";
+import { WeekLUT } from "@/type/date";
 import { OpeningPeriod } from "@googlemaps/google-maps-services-js";
 
 export const renderHour = (hour: number) => {
   return `${Math.floor(hour / 2)}:${hour % 2 === 0 ? "00" : "30"}`;
 };
+export const renderFilterHourRange = (
+  filter: HoursFilter,
+  hours: number[][]
+) => {
+  let week = new Date().getDay();
+  if (filter.week !== undefined && filter.type === "select") week = filter.week;
+  return `${week !== new Date().getDay() ? `${WeekLUT[week]} ` : ""} ${hours && renderHourRange(hours[week])}`;
+};
+
 export const renderHourRange = (hours: number[]) => {
   if (hours[0] === 0 && hours[1] === 48) {
     return "Open 24 hours";

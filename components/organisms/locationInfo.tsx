@@ -2,7 +2,7 @@ import { Location } from "@/type/location";
 import { LCategoryIcon } from "../atoms/lcategory";
 import { Stars } from "@/components/atoms/stars";
 import { almostZero } from "@/utils/location";
-import { renderHourRange } from "@/utils/date";
+import { renderFilterHourRange, renderHourRange } from "@/utils/date";
 import { AccountContext } from "../context/account";
 import { useContext, useMemo } from "react";
 import { WeekLUT } from "@/type/date";
@@ -20,7 +20,7 @@ export const LocationInfos = ({ loc }: LocationInfosProps) => {
 
   return (
     <div className="flex min-w-0 flex-col gap-1">
-      <h3 className="truncate font-medium">{loc.name}</h3>
+      <h3 className="truncate font-medium min-w-0">{loc.name}</h3>
       <div className="flex items-center gap-2">
         <LCategoryIcon category={loc.category} />
         <Stars stars={loc.importance} />
@@ -36,8 +36,9 @@ export const LocationInfos = ({ loc }: LocationInfosProps) => {
       </div>
       <div className="flex items-center gap-2">
         <p className="text-xs">
-          {week !== new Date().getDay() ? `${WeekLUT[week]} ` : ""}
-          {loc.hours && renderHourRange(loc.hours[week])}
+          {account &&
+            loc.hours &&
+            renderFilterHourRange(account.searchOption.hours, loc.hours)}
         </p>
         <p className="text-xs">{loc.price}</p>
       </div>

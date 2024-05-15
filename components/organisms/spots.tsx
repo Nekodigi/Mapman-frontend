@@ -38,8 +38,6 @@ export const Spots = () => {
           size="icon"
           onClick={() => {
             //change url without refresh just add query
-            window.history.pushState(null, "", "?open=true");
-
             account?.locEditor.setOpen(true);
             account?.locEditor.setId(-1);
           }}
@@ -48,7 +46,7 @@ export const Spots = () => {
         </Button>
       </div>
       <Separator />
-      <ScrollArea>
+      <ScrollArea className="flex flex-col min-w-0">
         {locs?.map((loc) => <Spot key={loc.name} loc={loc} />)}
       </ScrollArea>
     </div>

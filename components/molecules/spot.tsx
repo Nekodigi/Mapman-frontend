@@ -31,9 +31,14 @@ export const Spot = ({ loc, passive, className }: SpotProps) => {
 
   return (
     visible && (
-      <div className={cn("flex  items-center justify-between pr-4", className)}>
+      <div
+        className={cn(
+          "flex w-screen items-center justify-between pr-4",
+          className
+        )}
+      >
         <div
-          className="flex h-[72px] w-full  gap-2 px-2 py-1 "
+          className="flex h-[72px] min-w-0 w-full  gap-2 px-2 py-1 "
           onClick={() => {
             account?.setSearchOption((prev) => ({
               ...prev,
@@ -56,14 +61,6 @@ export const Spot = ({ loc, passive, className }: SpotProps) => {
             <Button variant="ghost" size="icon" asChild>
               <Link href={`/compass/${encodeURIComponent(loc.name)}`}>
                 <Compass className="size-4" />
-              </Link>
-            </Button>
-            <Button variant="ghost" size="icon" asChild>
-              <Link
-                href={`https://www.google.com/maps/search/?api=1&query=${loc.name}&query_place_id=${loc.id}`}
-                target="_blank"
-              >
-                <ExternalLink className="size-4" />
               </Link>
             </Button>
 

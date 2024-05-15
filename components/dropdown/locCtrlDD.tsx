@@ -28,7 +28,6 @@ export const LocCtrlDD = ({ locName }: LocCtrlDDProps) => {
         <DropdownMenuItem
           onClick={() => {
             const id = account?.locs.findIndex((l) => l.name === locName)!;
-            window.history.pushState(null, "", "?open=true");
             account?.locEditor.setOpen(true);
             account?.locEditor.setId(id);
           }}

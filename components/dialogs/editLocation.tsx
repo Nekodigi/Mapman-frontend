@@ -8,14 +8,11 @@ import { StarsToggle } from "../molecules/starsToggle";
 import { HoursDD } from "../dropdown/hoursDD";
 import { LocPicker } from "../organisms/locPicker";
 
-
-
 import {
   Carousel,
   CarouselContent,
   CarouselItem,
 } from "@/components/ui/carousel";
-
 
 import Image from "next/image";
 import { Card } from "@/components/ui/card";
@@ -46,7 +43,7 @@ const uploader = Uploader({
 export const EditLocation = () => {
   const { toast } = useToast();
   const hiddenFileInput = useRef<HTMLInputElement>(null);
-  const [lastFetchName, setLastFetchName] = useState<string>("");
+
   const params = useSearchParams();
   const hours: number[][] = [
     [0, 0],
@@ -70,10 +67,7 @@ export const EditLocation = () => {
   //const setOpen = useMemo(() => locEditor?.setOpen, [locEditor]);
   const setOpen = useMemo(() => {
     return (open: boolean) => {
-      if (open) {
-        //router.push({ search: "open=true" });
-        window.history.pushState(null, "", "?open=true");
-      } else {
+      if (!open) {
         router.back();
       }
       locEditor?.setOpen(open);
@@ -83,17 +77,6 @@ export const EditLocation = () => {
   if (!loc || !setLoc || !open || !setOpen) {
     return null;
   }
-
-  const fetchLocation = async () => {
-    if (lastFetchName === loc.name) return;
-    const location = await fetch(`/api/location?name=${loc.name}`, {
-      method: "POST",
-    }).then((res) => res.json());
-    if (location) {
-      setLoc(location);
-      setLastFetchName(loc.name);
-    }
-  };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -117,7 +100,7 @@ export const EditLocation = () => {
             //trigger when finish hit enter
             onKeyDown={async (e) => {
               if (e.key === "Enter") {
-                fetchLocation();
+                locEditor?.fetchLocation();
               }
             }}
           />
@@ -125,7 +108,7 @@ export const EditLocation = () => {
             variant="ghost"
             size="icon"
             onClick={() => {
-              fetchLocation();
+              locEditor?.fetchLocation();
             }}
           >
             <Search />

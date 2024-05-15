@@ -81,13 +81,14 @@ const DEFAULT_ACCOUNT: Account = {
 type LocationEditorContextType = {
   loc: Location;
   setLoc: (loc: Location) => void;
+  fetchLocation: () => void;
   id: number; // -1 add
   setId: (id: number) => void;
   open: boolean;
   setOpen: (open: boolean) => void;
   finish: () => void;
 };
-type HoursFilter = {
+export type HoursFilter = {
   type: "now" | "anytime" | "select";
   week: number;
   time: number;
@@ -190,6 +191,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     [account]
   );
   const [loc, setLoc] = useState<Location>(DEFAULT_LOC);
+  const [lastFetchName, setLastFetchName] = useState<string>("");
   const finish = () => {
     setOpen(false);
     if (id === -1) {
@@ -199,7 +201,14 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     }
   };
   const [id, _setId] = useState<number>(-1);
-  const [open, setOpen] = useState<boolean>(false);
+  const [open, _setOpen] = useState<boolean>(false);
+  const setOpen = (open: boolean) => {
+    if (open) {
+      window.history.pushState(null, "", "?open=true");
+      if (loc.name !== "" && loc.name !== lastFetchName) fetchLocation();
+    }
+    _setOpen(open);
+  };
   const locs = useMemo(() => {
     console.log("locs memo");
     const index = account.profiles.findIndex(
@@ -284,6 +293,17 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     // render account
     setAccount(account_cache);
     return account_cache;
+  };
+
+  const fetchLocation = async () => {
+    if (lastFetchName === loc.name) return;
+    const location = await fetch(`/api/location?name=${loc.name}`, {
+      method: "POST",
+    }).then((res) => res.json());
+    if (location) {
+      setLoc(location);
+      setLastFetchName(loc.name);
+    }
   };
   //endregion
 
@@ -384,6 +404,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     open,
     setOpen,
     finish,
+    fetchLocation,
   };
   return (
     <AccountContext.Provider

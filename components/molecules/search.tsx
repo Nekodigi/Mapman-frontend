@@ -18,6 +18,7 @@ import {
   CommandList,
 } from "@/components/ui/command";
 import { useRouter } from "next/navigation";
+import { Button } from "../ui/button";
 
 type SearchProps = {
   finish: (name: string) => void;
@@ -49,6 +50,18 @@ export const Search = ({ finish, search }: SearchProps) => {
       !commandRef.current.contains(event.target as any)
     ) {
       setOpen(false);
+    }
+  };
+
+  const createNew = () => {
+    if (inputText) {
+      account?.locEditor.setOpen(true);
+      account?.locEditor.setId(-1);
+      account?.locEditor.setLoc({
+        ...account.locEditor.loc,
+        name: inputText,
+      });
+      inputRef.current?.blur();
     }
   };
 
@@ -98,8 +111,14 @@ export const Search = ({ finish, search }: SearchProps) => {
         <div className="relative">
           {!selected && open && (
             <CommandList className="bg-background absolute left-0 top-0 w-full rounded shadow-md">
-              <CommandEmpty className="text-muted-foreground px-4 py-2">
-                No Hit
+              <CommandEmpty className="text-muted-foreground ">
+                <Button
+                  variant="outline"
+                  className="w-full justify-start"
+                  onClick={() => {
+                    createNew();
+                  }}
+                >{`Create "${inputText}"...`}</Button>
               </CommandEmpty>
               {searchResults?.map((v) => (
                 <CommandItem
