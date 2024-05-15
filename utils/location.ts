@@ -65,9 +65,13 @@ export const gDistance = (a: LatLngLiteral, b: LatLngLiteral) => {
 
   const ref =
     Math.acos(
-      Math.sin(lat1) * Math.sin(lat2) +
-        Math.cos(lat1) * Math.cos(lat2) * Math.cos(dlon)
+      Math.min(
+        Math.sin(lat1) * Math.sin(lat2) +
+          Math.cos(lat1) * Math.cos(lat2) * Math.cos(dlon),
+        1
+      )
     ) * 6371;
+
   if (isNaN(ref)) return 10000000000;
   return ref;
 };

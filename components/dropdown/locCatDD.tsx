@@ -1,5 +1,6 @@
 import {
   Circle,
+  CircleDashed,
   Flag,
   Landmark,
   ShoppingBag,
@@ -79,6 +80,9 @@ export const LocCatDD = ({
           </DropdownMenuRadioItem>
           <DropdownMenuRadioItem value="restaurant">
             <Utensils className="mr-2 size-4" /> Restaurant
+          </DropdownMenuRadioItem>
+          <DropdownMenuRadioItem value="other">
+            <CircleDashed className="mr-2 size-4" /> Other
           </DropdownMenuRadioItem>
         </DropdownMenuRadioGroup>
       </DropdownMenuContent>

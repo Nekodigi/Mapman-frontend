@@ -4,7 +4,13 @@ import { AccountContext } from "@/components/context/account";
 import { LocCtrlDD } from "@/components/dropdown/locCtrlDD";
 import { LocationInfos } from "@/components/organisms/locationInfo";
 import { Button } from "@/components/ui/button";
-import { ArrowLeft, Compass, ExternalLink, Search } from "lucide-react";
+import {
+  ArrowLeft,
+  Compass,
+  ExternalLink,
+  LocateFixed,
+  Search,
+} from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -149,6 +155,18 @@ export default function Page({ params }: { params: { name: string } }) {
                 >
                   <Compass />
                 </Link>
+              </Button>
+              <Button
+                variant="ghost"
+                size="icon"
+                onClick={() => {
+                  account?.setSearchOption((prev) => ({
+                    ...prev,
+                    center: loc,
+                  }));
+                }}
+              >
+                <LocateFixed />
               </Button>
               <Button variant="ghost" size="icon" asChild>
                 <Link

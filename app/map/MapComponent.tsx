@@ -10,7 +10,7 @@ import React, {
 } from "react";
 
 import { useGeolocated } from "react-geolocated";
-import { AccountContext } from "@/components/context/account";
+import { AccountContext, SearchOption } from "@/components/context/account";
 import { Button } from "@/components/ui/button";
 import { Location } from "@/type/location";
 import { almostZero, distance, filter } from "@/utils/location";
@@ -37,6 +37,7 @@ export const MapComponent = () => {
   const ref = useRef<HTMLDivElement>(null);
   const [map, setMap] = useState<google.maps.Map>();
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
+  const [circles, setCircles] = useState<google.maps.Circle[]>([]);
   const [zoom, setZoom] = useState<number>(10);
   const account = useContext(AccountContext);
   const router = useRouter();
@@ -59,38 +60,46 @@ export const MapComponent = () => {
     fillOpacity: 1,
     rotation: 0,
     strokeColor: "#0f172a",
-    strokeWeight: 3,
+    strokeWeight: 1,
     //origin center
     anchor: new google.maps.Point(0, 2),
   };
   const circleMarker: google.maps.Symbol = {
     //circle path
-    path: "M 0,0 m -1,0 a 1,1 0 1,0 2,0 a 1,1 0 1,0 -2,0",
+    path: "M256 512A256 256 0 1 0 256 0a256 256 0 1 0 0 512z",
+    //path: "M 0,0 m -1,0 a 1,1 0 1,0 2,0 a 1,1 0 1,0 -2,0",
     fillColor: "#0ea5e9",
     fillOpacity: 1,
-    scale: 10,
+    scale: 0.01,
     strokeColor: "#0f172a",
-    strokeWeight: 3,
+    strokeWeight: 1,
+    anchor: new google.maps.Point(256, 256),
   };
 
   const squareMarker: google.maps.Symbol = {
-    path: "M 0,0 0,2 2,2 2,0 z",
+    //path: "M 0,0 0,2 2,2 2,0 z",
+    path: "M256 0c17.7 0 32 14.3 32 32V66.7C368.4 80.1 431.9 143.6 445.3 224H480c17.7 0 32 14.3 32 32s-14.3 32-32 32H445.3C431.9 368.4 368.4 431.9 288 445.3V480c0 17.7-14.3 32-32 32s-32-14.3-32-32V445.3C143.6 431.9 80.1 368.4 66.7 288H32c-17.7 0-32-14.3-32-32s14.3-32 32-32H66.7C80.1 143.6 143.6 80.1 224 66.7V32c0-17.7 14.3-32 32-32zM128 256a128 128 0 1 0 256 0 128 128 0 1 0 -256 0zm128-80a80 80 0 1 1 0 160 80 80 0 1 1 0-160z",
+    //    path: "M448 256A192 192 0 1 0 64 256a192 192 0 1 0 384 0zM0 256a256 256 0 1 1 512 0A256 256 0 1 1 0 256zm256 80a80 80 0 1 0 0-160 80 80 0 1 0 0 160zm0-224a144 144 0 1 1 0 288 144 144 0 1 1 0-288zM224 256a32 32 0 1 1 64 0 32 32 0 1 1 -64 0z",
     fillColor: "#0ea5e9",
     fillOpacity: 1,
-    scale: 10,
+    scale: 0.01,
     strokeColor: "#0f172a",
-    strokeWeight: 3,
+    strokeWeight: 1,
+    anchor: new google.maps.Point(256, 256),
   };
 
   const setBounds = useCallback(() => {
     if (map && account?.locs) {
-      const center = account.searchOption.viewCenter || initCenter;
+      const center =
+        account.searchOption.viewCenter || (initCenter as Location);
+      if (!center) return;
+
       let filtered = account.locs.filter((loc) =>
-        loc.vars?.distance ? loc.vars?.distance < DIST_LIMIT : true
+        loc.vars?.viewDistance ? loc.vars?.viewDistance < DIST_LIMIT : true
       );
       filtered = filtered?.sort((a, b) => {
-        if (a.vars?.distance && b.vars?.distance) {
-          return a.vars?.distance - b.vars?.distance;
+        if (a.vars?.viewDistance && b.vars?.viewDistance) {
+          return a.vars?.viewDistance - b.vars?.viewDistance;
         }
         return 0;
       });
@@ -106,7 +115,6 @@ export const MapComponent = () => {
         bounds.extend(new google.maps.LatLng(loc.lat, loc.lon))
       );
       const b = bounds.toJSON();
-      //expand bound that it has proportional distance from center
       if (!(center.lat === initCenter.lat && center.lon === initCenter.lon)) {
         bounds.extend(
           new google.maps.LatLng(
@@ -178,19 +186,6 @@ export const MapComponent = () => {
                 return res;
               }
             );
-            // account.setSearchOption((prev) => ({
-            //   ...prev,
-            //   route: {
-            //     duration: parseFloat(
-            //       result.routes[0].legs[0].duration?.text.split(" ")[0] || "0"
-            //     ),
-            //     distance: parseFloat(
-            //       result.routes[0].legs[0].distance?.text.split(" ")[0] || "0"
-            //     ),
-            //     arrive: result.routes[0].legs[0].departure_time?.text,
-            //     depart: result.routes[0].legs[0].arrival_time?.text,
-            //   },
-            // }));
             directionsRenderer.unbindAll();
             directionsRenderer.setOptions({
               map: map,
@@ -203,6 +198,82 @@ export const MapComponent = () => {
     },
     [account?.locs, directionsRenderer, directionsService, map]
   );
+
+  const applyMarkerStyle = (
+    marker: google.maps.Marker,
+    loc: Location,
+    searchOption: SearchOption
+  ) => {
+    let icon = circleMarker;
+    if (almostZero(loc.vars?.distance)) {
+      icon = squareMarker;
+      if (circles.length === 0) {
+        circles.push(
+          new google.maps.Circle({
+            strokeColor: "#0ea5e9",
+            strokeOpacity: 0.5,
+            strokeWeight: 2,
+            fillOpacity: 0,
+            map: map,
+            radius: 1000,
+          })
+        );
+        circles.push(
+          new google.maps.Circle({
+            strokeColor: "#0ea5e9",
+            strokeOpacity: 0.5,
+            strokeWeight: 2,
+            fillOpacity: 0,
+            map: map,
+            radius: 10000,
+          })
+        );
+        circles.push(
+          new google.maps.Circle({
+            strokeColor: "#0ea5e9",
+            strokeOpacity: 0.5,
+            strokeWeight: 2,
+            fillOpacity: 0,
+            map: map,
+            radius: 100000,
+          })
+        );
+
+        setCircles(circles);
+      }
+      circles.forEach((circle) => {
+        circle.bindTo("center", marker, "position");
+      });
+    }
+    if (searchOption.viewCenter && almostZero(loc.vars?.viewDistance)) {
+      icon = {
+        ...icon,
+        scale: 0.01 + 0.01 * loc.importance,
+        fillColor: "#ef4444",
+      };
+    } else {
+      icon = {
+        ...icon,
+        scale: 0.01 + 0.01 * loc.importance,
+        fillColor: ["#bfdbfe", "#93c5fd", "#60a5fa", "#3b82f6"][loc.importance],
+      };
+    }
+    if (almostZero(loc.vars?.distance)) {
+      icon = {
+        ...icon,
+        scale: 0.1,
+        strokeWeight: 0,
+      };
+    }
+    const visible = filter(loc, searchOption);
+    marker.setOpacity(visible ? 1 : 0.3);
+    icon = {
+      ...icon,
+      strokeWeight: visible ? icon.strokeWeight : 0,
+    };
+    marker.setIcon(icon);
+    return marker;
+  };
 
   useEffect(() => {
     if (account?.locs && map) {
@@ -258,38 +329,18 @@ export const MapComponent = () => {
               dragend(marker, loc, e);
             });
           }
-          marker.setOpacity(filter(loc, account.searchOption) ? 1 : 0.3);
+
           if (loc.name === "Current Position") {
             return marker;
           }
-          marker.setIcon(
-            almostZero(loc.vars?.distance) ? squareMarker : circleMarker
-          );
-          if (
-            account.searchOption.viewCenter &&
-            almostZero(distance(account.searchOption.viewCenter, loc))
-          ) {
-            marker.setIcon({
-              ...(marker.getIcon() as google.maps.Icon),
-              scale: 15,
-              fillColor: "#22c55e",
-            });
-          } else {
-            marker.setIcon({
-              ...(marker.getIcon() as google.maps.Icon),
-              scale: almostZero(loc.vars?.distance)
-                ? 15
-                : 2 + 4 * loc.importance,
-              fillColor: "#f8fafc",
-            });
-          }
+          marker = applyMarkerStyle(marker, loc, account.searchOption);
           return marker;
         })
       );
     }
     setBounds();
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [map, account?.locs, account?.searchOption.viewCenter]); //
+  }, [map, account?.locs]); //, account?.searchOption.viewCenter
 
   // change opacity when filter
   useEffect(() => {
@@ -298,8 +349,7 @@ export const MapComponent = () => {
       return prev.map((marker) => {
         const loc = account.locs.find((loc) => loc.name === marker.getTitle());
         if (!loc) return marker;
-        const visible = filter(loc, account.searchOption);
-        marker.setOpacity(visible ? 1 : 0.3);
+        marker = applyMarkerStyle(marker, loc, account.searchOption);
         return marker;
       });
     });

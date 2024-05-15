@@ -93,9 +93,9 @@ const Demo = ({ params }: { params: { name: string } }) => {
       position: { yaw: "130.5deg", pitch: "-0.1deg" },
       tooltip: "Image embedded in the scene",
     });
-    markersPlugs.addEventListener("select-marker", () => {
-      console.log("asd");
-    });
+    // markersPlugs.addEventListener("select-marker", () => {
+    //   console.log("asd");
+    // });
   };
   const [h, setH] = useState(0);
 

@@ -180,6 +180,8 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
           break;
         case "setAll":
           newAccount.profiles[index].locations = action.locations!;
+          newAccount.profiles = [...newAccount.profiles];
+          console.log(newAccount.profiles);
           setAccount(newAccount);
           break;
       }
@@ -202,7 +204,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       (profile) => profile.name === account.currentProfile
     );
     return account.profiles[index].locations;
-  }, [account]);
+  }, [account.profiles, account.currentProfile]);
   const [heading, setHeading] = useState<number | undefined>(undefined);
   const [orient, setOrient] = useState<DeviceOrientationEvent | undefined>(
     undefined
@@ -326,21 +328,33 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
 
   useEffect(() => {
     //calculate all distance from center
-    if (searchOption.center !== undefined) {
-      const center = searchOption.center;
-      let newLocs = locs.map((loc) => {
-        loc.vars = loc.vars || {};
-        loc.vars.distance = distance(center, loc);
-        return loc;
-      });
-      // sort by distance
-      newLocs = newLocs.sort((a, b) => {
-        return a.vars?.distance! - b.vars?.distance!;
-      });
-      if (isEqual(newLocs, locs)) return;
-      locsDispatch({ type: "setAll", locations: newLocs });
-    }
+    if (searchOption.center === undefined) return;
+    const center = searchOption.center;
+    let newLocs = locs.map((loc) => {
+      loc.vars = loc.vars || {};
+      loc.vars.distance = distance(center, loc);
+      return loc;
+    });
+    // sort by distance
+    newLocs = newLocs.sort((a, b) => {
+      return a.vars?.distance! - b.vars?.distance!;
+    });
+    if (isEqual(newLocs, locs)) return;
+    locsDispatch({ type: "setAll", locations: newLocs });
   }, [searchOption.center, locs, locsDispatch]);
+  useEffect(() => {
+    if (searchOption.viewCenter === undefined) return;
+    const center = searchOption.viewCenter;
+    if (distance(center, locs[0]) == locs[0].vars?.viewDistance) return;
+
+    let newLocs = locs.map((loc) => {
+      loc.vars = loc.vars || {};
+      loc.vars.viewDistance = distance(center, loc);
+      return loc;
+    });
+    locsDispatch({ type: "setAll", locations: newLocs });
+  }, [searchOption.viewCenter, locs, locsDispatch]);
+
   useEffect(() => {
     const handleOrientation = (event: DeviceOrientationEvent) => {
       if (event.alpha !== null && event.absolute) {
