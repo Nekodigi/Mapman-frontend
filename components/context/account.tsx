@@ -82,7 +82,7 @@ const DEFAULT_ACCOUNT: Account = {
 type LocationEditorContextType = {
   loc: Location;
   setLoc: (loc: Location) => void;
-  fetchLocation: () => void;
+  fetchLocation: (name: string) => void;
   id: number; // -1 add
   invoke: (id: number, name: string) => void;
   //setId: (id: number) => void;
@@ -212,17 +212,17 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     }
   };
   const [id, _setId] = useState<number>(-1);
-  const fetchLocation = async () => {
-    if (lastFetchName === loc.name) return;
+  const fetchLocation = async (name: string) => {
+    if (lastFetchName === name) return;
     toast({ title: "Getting information from Google Map. Please wait..." });
     setEditorStatus("loading");
-    const location = await fetch(`/api/location?name=${loc.name}`, {
+    const location = await fetch(`/api/location?name=${name}`, {
       method: "POST",
     }).then((res) => res.json());
     if (location) {
       setEditorStatus("ready");
       setLoc(location);
-      setLastFetchName(loc.name);
+      setLastFetchName(name);
     }
   };
   const invoke = (id: number, name: string) => {
@@ -235,7 +235,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     }
     window.history.pushState(null, "", "?open=true");
     if (l.name !== "" && l.name !== lastFetchName && id === -1) {
-      fetchLocation();
+      fetchLocation(l.name);
     }
     setLoc(l);
   };

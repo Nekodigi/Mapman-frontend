@@ -100,7 +100,7 @@ export const EditLocation = () => {
             //trigger when finish hit enter
             onKeyDown={async (e) => {
               if (e.key === "Enter") {
-                locEditor?.fetchLocation();
+                locEditor?.fetchLocation(loc.name);
               }
             }}
           />
@@ -108,7 +108,7 @@ export const EditLocation = () => {
             variant="ghost"
             size="icon"
             onClick={() => {
-              locEditor?.fetchLocation();
+              locEditor?.fetchLocation(loc.name);
             }}
           >
             {locEditor?.status === "ready" ? <Search /> : <Spinner />}
