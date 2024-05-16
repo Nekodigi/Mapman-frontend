@@ -1,11 +1,7 @@
 "use client";
 
 import { Search as JSSearch } from "js-search";
-import React, {
-  useMemo,
-  useContext,
-  useCallback,
-} from "react";
+import React, { useMemo, useContext, useCallback } from "react";
 
 import { useGeolocated } from "react-geolocated";
 import { AccountContext } from "@/components/context/account";
@@ -16,6 +12,8 @@ import { Location } from "@/type/location";
 import { distance } from "@/utils/location";
 import { useRouter } from "next/navigation";
 import { MapComponent } from "./MapComponent";
+import { Button } from "@/components/ui/button";
+import { Layers } from "lucide-react";
 
 interface MapState {
   center: google.maps.LatLngLiteral;
@@ -111,6 +109,18 @@ const MapOverlay: React.FC = () => {
             shadow
           />
         )}
+        <Button
+          variant="outline"
+          size="icon"
+          onClick={() => {
+            account?.setSearchOption((prev) => ({
+              ...prev,
+              layer: prev.layer === "roadmap" ? "hybrid" : "roadmap",
+            }));
+          }}
+        >
+          <Layers className="size-4" />
+        </Button>
       </div>
     </div>
   );

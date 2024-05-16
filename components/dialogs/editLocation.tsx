@@ -35,6 +35,7 @@ import { ImageIcon, Search } from "lucide-react";
 import { DeleteAlert } from "../molecules/deleteAlert";
 import { PlateEditor } from "../molecules/plateEditor";
 import { ScrollArea } from "../ui/scroll-area";
+import { Spinner } from "../ui/spinner";
 
 const uploader = Uploader({
   apiKey: process.env.NEXT_PUBLIC_BYTE_SCALE_KEY!,
@@ -70,7 +71,6 @@ export const EditLocation = () => {
       if (!open) {
         router.back();
       }
-      locEditor?.setOpen(open);
     };
   }, [locEditor]);
 
@@ -111,7 +111,7 @@ export const EditLocation = () => {
               locEditor?.fetchLocation();
             }}
           >
-            <Search />
+            {locEditor?.status === "ready" ? <Search /> : <Spinner />}
           </Button>
         </div>
         <div className="flex items-center gap-4">

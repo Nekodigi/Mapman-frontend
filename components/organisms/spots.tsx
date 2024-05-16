@@ -38,8 +38,7 @@ export const Spots = () => {
           size="icon"
           onClick={() => {
             //change url without refresh just add query
-            account?.locEditor.setOpen(true);
-            account?.locEditor.setId(-1);
+            account?.locEditor.invoke(-1, "");
           }}
         >
           <Plus />

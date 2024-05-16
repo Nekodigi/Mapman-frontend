@@ -138,7 +138,7 @@ export const MapComponent = () => {
     if (isGeolocationAvailable && isGeolocationEnabled && coords && map) {
       map.panTo({ lat: coords.latitude, lng: coords.longitude });
       //set zoom
-      map.setZoom(10);
+      map.setZoom(15);
     }
   }, [coords, isGeolocationAvailable, isGeolocationEnabled, map]);
 
@@ -361,6 +361,11 @@ export const MapComponent = () => {
   useEffect(() => {
     console.log("loc update by component");
   }, [account?.locs]);
+
+  useEffect(() => {
+    if (!account?.searchOption.layer) return;
+    map?.setMapTypeId(account.searchOption.layer);
+  }, [account?.searchOption.layer]);
 
   // change opacity when filter
   useEffect(() => {

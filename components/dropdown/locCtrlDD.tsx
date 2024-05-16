@@ -28,8 +28,7 @@ export const LocCtrlDD = ({ locName }: LocCtrlDDProps) => {
         <DropdownMenuItem
           onClick={() => {
             const id = account?.locs.findIndex((l) => l.name === locName)!;
-            account?.locEditor.setOpen(true);
-            account?.locEditor.setId(id);
+            account?.locEditor.invoke(id, "");
           }}
         >
           Edit

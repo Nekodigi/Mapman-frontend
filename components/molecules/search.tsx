@@ -55,12 +55,7 @@ export const Search = ({ finish, search }: SearchProps) => {
 
   const createNew = () => {
     if (inputText) {
-      account?.locEditor.setOpen(true);
-      account?.locEditor.setId(-1);
-      account?.locEditor.setLoc({
-        ...account.locEditor.loc,
-        name: inputText,
-      });
+      account?.locEditor.invoke(-1, inputText);
       inputRef.current?.blur();
     }
   };

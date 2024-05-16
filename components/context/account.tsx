@@ -17,6 +17,7 @@ import { distance } from "@/utils/location";
 import { useSession } from "next-auth/react";
 import { isEqual } from "lodash";
 import { useGeolocated } from "react-geolocated";
+import { useToast } from "../ui/use-toast";
 //endregion
 
 //region CONSTANT
@@ -83,9 +84,12 @@ type LocationEditorContextType = {
   setLoc: (loc: Location) => void;
   fetchLocation: () => void;
   id: number; // -1 add
-  setId: (id: number) => void;
+  invoke: (id: number, name: string) => void;
+  //setId: (id: number) => void;
   open: boolean;
-  setOpen: (open: boolean) => void;
+  //setOpen: (open: boolean) => void;
+  status: "loading" | "ready";
+  setStatus: React.Dispatch<React.SetStateAction<"loading" | "ready">>;
   finish: () => void;
 };
 export type HoursFilter = {
@@ -98,6 +102,7 @@ export type SearchOption = {
   viewCenter?: Location;
   hours: HoursFilter;
   lcat: LCategory;
+  layer: "roadmap" | "satellite" | "hybrid" | "terrain";
 };
 export type Vars = {
   heading?: number;
@@ -132,6 +137,7 @@ export const AccountContext = createContext<AccountContextType | undefined>(
 // TODO DON'T WAIT FOR ACCOUNT TO BE READY
 export const AccountProvider = ({ children }: AccountProviderProps) => {
   //region STATE
+  const { toast } = useToast();
   const { data: session, status } = useSession();
   const phase = useRef<"initializing" | "loading" | "ready">("initializing");
   const [searchOption, setSearchOption] = useState<SearchOption>({
@@ -142,6 +148,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       time: new Date().getHours() * 2 + new Date().getMinutes() / 30,
     },
     lcat: "all",
+    layer: "roadmap",
   });
   const [account, setAccount] = useState<Account>(DEFAULT_ACCOUNT);
   const locsDispatch = useCallback(
@@ -192,6 +199,10 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   );
   const [loc, setLoc] = useState<Location>(DEFAULT_LOC);
   const [lastFetchName, setLastFetchName] = useState<string>("");
+  const [editorStatus, setEditorStatus] = useState<"loading" | "ready">(
+    "ready"
+  );
+  const [open, setOpen] = useState<boolean>(false);
   const finish = () => {
     setOpen(false);
     if (id === -1) {
@@ -201,14 +212,34 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     }
   };
   const [id, _setId] = useState<number>(-1);
-  const [open, _setOpen] = useState<boolean>(false);
-  const setOpen = (open: boolean) => {
-    if (open) {
-      window.history.pushState(null, "", "?open=true");
-      if (loc.name !== "" && loc.name !== lastFetchName) fetchLocation();
+  const fetchLocation = async () => {
+    if (lastFetchName === loc.name) return;
+    toast({ title: "Getting information from Google Map. Please wait..." });
+    setEditorStatus("loading");
+    const location = await fetch(`/api/location?name=${loc.name}`, {
+      method: "POST",
+    }).then((res) => res.json());
+    if (location) {
+      setEditorStatus("ready");
+      setLoc(location);
+      setLastFetchName(loc.name);
     }
-    _setOpen(open);
   };
+  const invoke = (id: number, name: string) => {
+    let l = loc;
+    if (id === -1) {
+      l = DEFAULT_LOC;
+      l.name = name;
+    } else {
+      l = locs[id];
+    }
+    window.history.pushState(null, "", "?open=true");
+    if (l.name !== "" && l.name !== lastFetchName && id === -1) {
+      fetchLocation();
+    }
+    setLoc(l);
+  };
+
   const locs = useMemo(() => {
     console.log("locs memo");
     const index = account.profiles.findIndex(
@@ -242,17 +273,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
           time: new Date().getHours() * 2 + new Date().getMinutes() / 30,
         },
       }));
-    }
-  };
-  const setId = (id: number) => {
-    _setId(id);
-    if (id === -1) {
-      setLoc(DEFAULT_LOC);
-    } else {
-      const index = account.profiles.findIndex(
-        (profile) => profile.name === account.currentProfile
-      );
-      setLoc(account.profiles[index].locations[id]);
     }
   };
 
@@ -295,16 +315,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     return account_cache;
   };
 
-  const fetchLocation = async () => {
-    if (lastFetchName === loc.name) return;
-    const location = await fetch(`/api/location?name=${loc.name}`, {
-      method: "POST",
-    }).then((res) => res.json());
-    if (location) {
-      setLoc(location);
-      setLastFetchName(loc.name);
-    }
-  };
   //endregion
 
   //region EFFECTS
@@ -400,10 +410,11 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     loc,
     setLoc,
     id,
-    setId,
     open,
-    setOpen,
+    invoke,
     finish,
+    status: editorStatus,
+    setStatus: setEditorStatus,
     fetchLocation,
   };
   return (
