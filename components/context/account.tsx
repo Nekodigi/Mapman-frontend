@@ -157,7 +157,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       const index = account.profiles.findIndex(
         (profile) => profile.name === account.currentProfile
       );
-      console.log("locs dispatch");
       switch (action.type) {
         case "add":
           setAccount((prev) => {
@@ -174,23 +173,28 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
           });
           break;
         case "edit":
-          newAccount.profiles[index].locations = newAccount.profiles[
-            index
-          ].locations.map((location, index) =>
-            index === action.index ? action.location! : location
-          );
-          setAccount(newAccount);
+          setAccount((prev) => {
+            const newAccount = { ...prev };
+            newAccount.profiles[index].locations = newAccount.profiles[
+              index
+            ].locations.map((location, index) =>
+              index === action.index ? action.location! : location
+            );
+            return newAccount;
+          });
           break;
         case "delete":
-          newAccount.profiles[index].locations = newAccount.profiles[
-            index
-          ].locations.filter((_, index) => index !== action.index);
-          setAccount(newAccount);
+          setAccount((prev) => {
+            const newAccount = { ...prev };
+            newAccount.profiles[index].locations = newAccount.profiles[
+              index
+            ].locations.filter((_, index) => index !== action.index);
+            return newAccount;
+          });
           break;
         case "setAll":
           newAccount.profiles[index].locations = action.locations!;
           newAccount.profiles = [...newAccount.profiles];
-          console.log(newAccount.profiles);
           setAccount(newAccount);
           break;
       }
@@ -203,15 +207,15 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     "ready"
   );
   const [open, setOpen] = useState<boolean>(false);
-  const finish = () => {
+  const [id, setId] = useState<number>(-1);
+  const finish = useCallback(() => {
     setOpen(false);
     if (id === -1) {
       locsDispatch({ type: "add", location: loc, index: -1 });
     } else {
       locsDispatch({ type: "edit", location: loc, index: id });
     }
-  };
-  const [id, _setId] = useState<number>(-1);
+  }, [loc, id, locsDispatch]);
   const fetchLocation = async (name: string) => {
     if (lastFetchName === name) return;
     toast({ title: "Getting information from Google Map. Please wait..." });
@@ -237,11 +241,29 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     if (l.name !== "" && l.name !== lastFetchName && id === -1) {
       fetchLocation(l.name);
     }
+    setId(id);
     setLoc(l);
+  };
+  const saveAccount = async (acc: Account) => {
+    if (phase.current !== "ready" || status === "loading") {
+      return;
+    }
+    console.log("change saving...");
+    localStorage.setItem("account", JSON.stringify(acc));
+    if (acc.email === "") {
+      console.log("only local change saved!");
+      return;
+    }
+    await fetch("/api/account", {
+      method: "POST",
+      body: JSON.stringify(acc),
+    });
+    console.log("change saved!");
   };
 
   const locs = useMemo(() => {
     console.log("locs memo");
+    saveAccount(account);
     const index = account.profiles.findIndex(
       (profile) => profile.name === account.currentProfile
     );
@@ -276,22 +298,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     }
   };
 
-  const saveAccount = async (acc: Account) => {
-    if (phase.current !== "ready" || status === "loading") {
-      return;
-    }
-    console.log("change saving...");
-    localStorage.setItem("account", JSON.stringify(acc));
-    if (acc.email === "") {
-      console.log("only local change saved!");
-      return;
-    }
-    await fetch("/api/account", {
-      method: "POST",
-      body: JSON.stringify(acc),
-    });
-    console.log("change saved!");
-  };
   //* return undefined when identical
   const fetchAccount = async (cache: Account) => {
     const res = (await (
@@ -356,7 +362,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   useEffect(() => {
     saveAccount(account);
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [account.profiles, locs]);
+  }, [account.profiles]);
 
   useEffect(() => {
     //calculate all distance from center

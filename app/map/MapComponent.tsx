@@ -286,7 +286,6 @@ export const MapComponent = () => {
   };
 
   useEffect(() => {
-    console.log("locs! change");
     if (account?.locs && map) {
       const infoWindow = new google.maps.InfoWindow();
 
@@ -357,10 +356,6 @@ export const MapComponent = () => {
     setBounds();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [map, account?.locs]); //, account?.searchOption.viewCenter
-
-  useEffect(() => {
-    console.log("loc update by component");
-  }, [account?.locs]);
 
   useEffect(() => {
     if (!account?.searchOption.layer) return;
