@@ -458,8 +458,9 @@ export const MapComponent = () => {
         gestureHandling: "greedy",
       });
       const transitLayer = new google.maps.TransitLayer();
-      transitLayer.setMap(newMap);
-      directionsRenderer.setMap(newMap);
+      // TODO TRANSIT SWITCH
+      // transitLayer.setMap(newMap);
+      // directionsRenderer.setMap(newMap);
       var mapType = new google.maps.StyledMapType(monoStyle, {
         name: "Grayscale",
       });

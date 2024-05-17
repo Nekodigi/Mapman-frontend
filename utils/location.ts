@@ -150,7 +150,6 @@ export const getLocationByName = async (name: string) => {
     lat: res.geometry?.location.lat,
     zoom: 15,
     imgs: res.photos?.map((photo: PlacePhoto) => photo2url(photo)) || [],
-    map: "google",
     website: res.website,
     status: {
       checkSum: "",
