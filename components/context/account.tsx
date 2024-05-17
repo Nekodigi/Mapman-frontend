@@ -39,7 +39,6 @@ const DEFAULT_LOC: Location = {
   lat: 0,
   zoom: 15,
   imgs: [],
-  map: "google",
   status: {
     checkSum: "",
     isArchived: false,
@@ -59,6 +58,7 @@ const DEFAULT_ACCOUNT: Account = {
       locations: [],
       documents: [],
       cover: "",
+      map: "google",
       status: {
         checkSum: "0",
         isArchived: false,

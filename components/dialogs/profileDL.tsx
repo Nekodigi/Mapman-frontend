@@ -5,7 +5,14 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Download, Plus, Settings, Trash2, Upload } from "lucide-react";
+import {
+  DeleteIcon,
+  Download,
+  Plus,
+  Settings,
+  Trash2,
+  Upload,
+} from "lucide-react";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -28,7 +35,8 @@ import { DeleteAlert } from "../molecules/deleteAlert";
 
 export const ProfileMenu = () => {
   const account = useContext(AccountContext);
-
+  const [openCreate, setOpenCreate] = useState(false);
+  const [openDelete, setOpenDelete] = useState(false);
   const hiddenFileInput = useRef<HTMLInputElement>(null);
 
   const profiles = useMemo(
@@ -111,6 +119,25 @@ export const ProfileMenu = () => {
       </div>
 
       <div className="flex gap-2">
+        <CreateDD open={openCreate} setOpen={setOpenCreate} />
+        <DeleteAlert
+          open={openDelete}
+          setOpen={setOpenDelete}
+          title={`Delete "${account?.account.currentProfile}" Profile`}
+          description="This action cannot be undone. Are you sure?"
+          onConfirm={() => {
+            account?.setAccount((prev) => {
+              const newAccount = { ...prev };
+              const index = newAccount.profiles.findIndex(
+                (p) => p.name === account?.account.currentProfile
+              );
+              if (index === -1) return newAccount;
+              newAccount.profiles.splice(index, 1);
+              newAccount.currentProfile = newAccount.profiles[0]?.name;
+              return newAccount;
+            });
+          }}
+        />
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
             <Button variant="outline" size="icon">
@@ -133,38 +160,37 @@ export const ProfileMenu = () => {
               <Upload className="size-4" />
               Import
             </DropdownMenuItem>
+            <DropdownMenuItem
+              className="flex gap-2"
+              onClick={() => {
+                setOpenCreate(true);
+              }}
+            >
+              <Plus className="size-4" />
+              Add
+            </DropdownMenuItem>
+            <DropdownMenuItem
+              className="flex gap-2"
+              onClick={() => {
+                setOpenDelete(true);
+              }}
+            >
+              <Trash2 className="size-4" />
+              Delete
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
-        <CreateDD />
-        <DeleteAlert
-          title={`Delete "${account?.account.currentProfile}" Profile`}
-          description="This action cannot be undone. Are you sure?"
-          onConfirm={() => {
-            account?.setAccount((prev) => {
-              const newAccount = { ...prev };
-              const index = newAccount.profiles.findIndex(
-                (p) => p.name === account?.account.currentProfile
-              );
-              if (index === -1) return newAccount;
-              newAccount.profiles.splice(index, 1);
-              newAccount.currentProfile = newAccount.profiles[0]?.name;
-              return newAccount;
-            });
-          }}
-        >
-          <Button variant="outline" size="icon">
-            <Trash2 className="size-4" />
-          </Button>
-        </DeleteAlert>
       </div>
     </div>
   );
 };
 
-const CreateDD = () => {
+type CreateDDProps = {
+  open: boolean;
+  setOpen: (v: boolean) => void;
+};
+const CreateDD = ({ open, setOpen }: CreateDDProps) => {
   const account = useContext(AccountContext);
-
-  const [open, setOpen] = useState(false);
   const [name, setName] = useState("");
   const router = useRouter();
   const onCreate = () => {
@@ -184,6 +210,7 @@ const CreateDD = () => {
         isDeleted: false,
         createdAt: new Date(),
       },
+      map: "google",
     };
     // if exist
     if (account?.account.profiles.find((p) => p.name === name)) return;
@@ -200,11 +227,11 @@ const CreateDD = () => {
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
+      {/* <DialogTrigger asChild>
         <Button variant="outline" size="icon">
           <Plus className="size-4" />
         </Button>
-      </DialogTrigger>
+      </DialogTrigger> */}
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Create Profile</DialogTitle>

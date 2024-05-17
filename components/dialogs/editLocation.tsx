@@ -27,7 +27,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
-import { LCategory, MapType } from "@/type/location";
+import { LCategory } from "@/type/location";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
 import { Uploader } from "uploader"; // Installed by "react-uploader".
@@ -147,23 +147,6 @@ export const EditLocation = () => {
               })
             }
           />
-        </div>
-        <div className="flex items-center gap-4">
-          <Label className="min-w-20 text-right">Map</Label>
-          <ToggleGroup
-            value={loc.map}
-            onValueChange={(newMap: string) => {
-              newMap !== "" &&
-                setLoc({
-                  ...loc,
-                  map: newMap as MapType,
-                });
-            }}
-            type="single"
-          >
-            <ToggleGroupItem value="google">Google</ToggleGroupItem>
-            <ToggleGroupItem value="gaode">Gaode</ToggleGroupItem>
-          </ToggleGroup>
         </div>
         <div className="flex  w-full justify-center   gap-2 self-center">
           <Carousel

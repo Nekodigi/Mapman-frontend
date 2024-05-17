@@ -18,8 +18,6 @@ export const LCategoryLUT = [
   "other",
 ];
 
-export type MapType = "google" | "gaode";
-
 export type LocationVar = {
   distance?: number;
   viewDistance?: number;
@@ -36,7 +34,6 @@ export type Location = {
   lat: number;
   zoom?: number;
   imgs: string[];
-  map: MapType;
   website?: string;
   note?: string;
   ticket?: string;

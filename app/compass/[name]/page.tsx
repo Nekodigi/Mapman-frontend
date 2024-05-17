@@ -104,8 +104,6 @@ const Demo = ({ params }: { params: { name: string } }) => {
     //when heading change
     if (account?.vars?.heading === undefined) return;
     const heading = ((account.vars.heading + (dir || 0)) % 360) - 180;
-    //if (heading < 10) navigator.vibrate(1);
-
     console.log(heading, prevHeading.current);
     if (
       heading * prevHeading.current > 0 ||
