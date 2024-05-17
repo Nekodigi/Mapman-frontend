@@ -38,6 +38,7 @@ export const ProfileMenu = () => {
   const [openCreate, setOpenCreate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const hiddenFileInput = useRef<HTMLInputElement>(null);
+  const router = useRouter();
 
   const profiles = useMemo(
     () => account?.account.profiles.map((profile) => profile.name),
@@ -100,13 +101,14 @@ export const ProfileMenu = () => {
             <DropdownMenuSeparator />
             <DropdownMenuRadioGroup
               value={account?.account.currentProfile}
-              onValueChange={(v) =>
+              onValueChange={(v) => {
+                router.push("/map");
                 account?.setAccount((prev) => {
                   const newAccount = { ...prev };
                   newAccount.currentProfile = v;
                   return newAccount;
-                })
-              }
+                });
+              }}
             >
               {profiles?.map((profile) => (
                 <DropdownMenuRadioItem value={profile} key={profile}>

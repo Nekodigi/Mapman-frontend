@@ -14,7 +14,7 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { useCallback, useContext, useMemo } from "react";
+import React, { Suspense, useCallback, useContext, useMemo } from "react";
 import { Card } from "@/components/ui/card";
 
 import { CommentsProvider } from "@udecode/plate-comments";
@@ -79,72 +79,72 @@ export default function Page({ params }: { params: { name: string } }) {
               <ArrowLeft />
             </Button>
           </div>
+          <Suspense>
+            <div className="flex  w-full justify-center  gap-2 self-center  sm:p-2 sm:pb-0">
+              <Carousel
+                opts={{
+                  align: "start",
+                }}
+                className="w-full "
+              >
+                <CarouselContent>
+                  {loc.imgs.map((_, index) => (
+                    <CarouselItem
+                      key={index}
+                      className="sm:basis-1/2 md:basis-1/3 lg:basis-1/5"
+                    >
+                      <Card>
+                        <Image
+                          src={loc.imgs[index]}
+                          width={512}
+                          height={0}
+                          className="h-[160px] w-full object-cover opacity-100 duration-300  data-[loaded=false]:opacity-0 sm:rounded-lg"
+                          alt="thumbnail"
+                          data-loaded="false"
+                          onLoad={(event) => {
+                            event.currentTarget.setAttribute(
+                              "data-loaded",
+                              "true"
+                            );
+                          }}
+                          onClick={() => {
+                            window.history.pushState(
+                              null,
+                              "",
+                              `?openImage=true&loc=${loc.name}&imgId=${index}`
+                            );
+                          }}
+                        />
+                      </Card>
+                    </CarouselItem>
+                  ))}
 
-          <div className="flex  w-full justify-center  gap-2 self-center  sm:p-2 sm:pb-0">
-            <Carousel
-              opts={{
-                align: "start",
-              }}
-              className="w-full "
-            >
-              {" "}
-              <CarouselContent>
-                {loc.imgs.map((_, index) => (
-                  <CarouselItem
-                    key={index}
-                    className="sm:basis-1/2 md:basis-1/3 lg:basis-1/5"
-                  >
-                    <Card>
-                      <Image
-                        src={loc.imgs[index]}
-                        width={512}
-                        height={0}
-                        className="h-[160px] w-full object-cover opacity-100 duration-300  data-[loaded=false]:opacity-0 sm:rounded-lg"
-                        alt="thumbnail"
-                        data-loaded="false"
-                        onLoad={(event) => {
-                          event.currentTarget.setAttribute(
-                            "data-loaded",
-                            "true"
-                          );
+                  <CarouselItem className="sm:basis-1/2 md:basis-1/3 lg:basis-1/5">
+                    <Card className="">
+                      <Input
+                        type="file"
+                        title="Upload File"
+                        onChange={async (e) => {
+                          if (e.target.files) {
+                            toast({
+                              title: "Uploading image...",
+                              description: "It may take a few seconds.",
+                            });
+                            const res = await uploader.uploadFile(
+                              e.target.files[0]
+                            );
+                            loc.imgs.push(res.fileUrl);
+                            setLoc(loc);
+                          }
                         }}
-                        onClick={() => {
-                          window.history.pushState(
-                            null,
-                            "",
-                            `?openImage=true&loc=${loc.name}&imgId=${index}`
-                          );
-                        }}
+                        className="h-[160px] text-transparent"
                       />
                     </Card>
                   </CarouselItem>
-                ))}
-
-                <CarouselItem className="sm:basis-1/2 md:basis-1/3 lg:basis-1/5">
-                  <Card className="">
-                    <Input
-                      type="file"
-                      title="Upload File"
-                      onChange={async (e) => {
-                        if (e.target.files) {
-                          toast({
-                            title: "Uploading image...",
-                            description: "It may take a few seconds.",
-                          });
-                          const res = await uploader.uploadFile(
-                            e.target.files[0]
-                          );
-                          loc.imgs.push(res.fileUrl);
-                          setLoc(loc);
-                        }
-                      }}
-                      className="h-[160px] text-transparent"
-                    />
-                  </Card>
-                </CarouselItem>
-              </CarouselContent>
-            </Carousel>
-          </div>
+                </CarouselContent>
+              </Carousel>
+            </div>
+          </Suspense>
           <div className="p-4">
             <LocationInfos loc={loc} />
             <div className="flex h-16 items-center justify-between">

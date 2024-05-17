@@ -269,7 +269,7 @@ export const MapComponent = () => {
     if (almostZero(loc.vars?.distance)) {
       icon = {
         ...icon,
-        scale: 0.1,
+        scale: 0.05,
         strokeWeight: 0,
       };
     }
