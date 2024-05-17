@@ -6,6 +6,7 @@ const nextConfig = {
     styledComponents: true,
   },
   images: {
+    unoptimized: true,
     domains: [
       "localhost",
       "mapman-frontend.vercel.app",
@@ -20,6 +21,9 @@ const withPWA = withPWAInit({
   dest: "public",
   register: true,
   skipWaiting: true,
+  fallbacks: {
+    document: "/offline",
+  },
 });
 
 export default withPWA(nextConfig);

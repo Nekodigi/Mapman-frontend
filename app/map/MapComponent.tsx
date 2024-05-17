@@ -457,6 +457,8 @@ export const MapComponent = () => {
         renderingType: google.maps.RenderingType.VECTOR,
         gestureHandling: "greedy",
       });
+      const transitLayer = new google.maps.TransitLayer();
+      transitLayer.setMap(newMap);
       directionsRenderer.setMap(newMap);
       var mapType = new google.maps.StyledMapType(monoStyle, {
         name: "Grayscale",
