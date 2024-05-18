@@ -43,6 +43,7 @@ export const MapComponent = () => {
   const router = useRouter();
   const directionsService = new google.maps.DirectionsService();
   const directionsRenderer = new google.maps.DirectionsRenderer();
+  const searchOptionRef = useRef<SearchOption>();
 
   const { coords, isGeolocationAvailable, isGeolocationEnabled } =
     useGeolocated({
@@ -142,14 +143,19 @@ export const MapComponent = () => {
     }
   }, [coords, isGeolocationAvailable, isGeolocationEnabled, map]);
 
+  useEffect(() => {
+    searchOptionRef.current = account?.searchOption;
+  }, [account?.searchOption]);
+
   const dragend = useCallback(
     (marker: google.maps.Marker, loc: Location, e: any) => {
       if (!account?.locs) return;
       const p = e.latLng.toJSON() as google.maps.LatLngLiteral;
       const pos = { lat: p.lat, lon: p.lng } as Location;
       const candidate = account.locs.filter(
-        (l) => l.name !== loc.name && filter(l, account.searchOption)
+        (l) => l.name !== loc.name && filter(l, searchOptionRef.current!)
       );
+      console.log(candidate, searchOptionRef.current!);
       const closest = candidate.reduce((prev, curr) =>
         distance(curr, pos) < distance(prev, pos) ? curr : prev
       );
@@ -199,7 +205,7 @@ export const MapComponent = () => {
     },
     [
       account?.locs,
-      account?.searchOption,
+      // account?.searchOption,
       directionsRenderer,
       directionsService,
       map,
@@ -318,6 +324,7 @@ export const MapComponent = () => {
           });
           let marker = exist as google.maps.Marker;
           if (!exist) {
+            console.log(loc.name);
             marker = new google.maps.Marker({
               position: { lat: loc.lat, lng: loc.lon },
               map: map,
@@ -325,8 +332,7 @@ export const MapComponent = () => {
               opacity: 1,
               clickable: true,
               draggable: true,
-              icon:
-                loc.name === "Current Position" ? arrowMarker : circleMarker,
+              icon: circleMarker,
             });
             marker.addListener("click", () => {
               account.setSearchOption((prev) => ({
@@ -412,6 +418,18 @@ export const MapComponent = () => {
           lat: coords?.latitude || 0,
           lng: coords?.longitude || 0,
         });
+        currentPos.addListener("dragend", (e: any) => {
+          navigator.vibrate(1);
+          dragend(
+            currentPos,
+            {
+              lon: coords?.longitude || 0,
+              lat: coords?.latitude || 0,
+              name: "Current Position",
+            } as Location,
+            e
+          );
+        });
       } else {
         const marker = new google.maps.Marker({
           position: { lat: coords?.latitude || 0, lng: coords?.longitude || 0 },
@@ -419,19 +437,24 @@ export const MapComponent = () => {
           title: "Current Position",
           opacity: 1,
           clickable: true,
+          draggable: true, // TODO MAKE IT TRUELY DRAGGABLE
           icon: arrowMarker,
         });
-        // marker.addListener("click", () => {
-        //   account.setSearchOption((prev) => ({
-        //     ...prev,
-        //     viewCenter: {
-        //       lat: coords?.latitude || 0,
-        //       lon: coords?.longitude || 0,
-        //     },
-        //   }));
-        //   //open detail page
-        //   router.push(`/map/details/Current%20Position`);
-        // });
+        marker.addListener("dragstart", () => {
+          navigator.vibrate(1);
+        });
+        marker.addListener("dragend", (e: any) => {
+          navigator.vibrate(1);
+          dragend(
+            marker,
+            {
+              lon: coords?.longitude || 0,
+              lat: coords?.latitude || 0,
+              name: "Current Position",
+            } as Location,
+            e
+          );
+        });
         setMarkers([...markers, marker]);
       }
     }

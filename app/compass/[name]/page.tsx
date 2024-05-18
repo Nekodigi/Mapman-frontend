@@ -103,7 +103,7 @@ const Demo = ({ params }: { params: { name: string } }) => {
   useEffect(() => {
     //when heading change
     if (account?.vars?.heading === undefined) return;
-    const heading = ((account.vars.heading + (dir || 0)) % 360) - 180;
+    const heading = ((account.vars.heading + (dir || 0) + 360) % 360) - 180;
     console.log(heading, prevHeading.current);
     if (
       heading * prevHeading.current > 0 ||

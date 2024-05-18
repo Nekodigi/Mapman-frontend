@@ -210,6 +210,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   const [id, setId] = useState<number>(-1);
   const finish = useCallback(() => {
     setOpen(false);
+    setLastFetchName("");
     if (id === -1) {
       locsDispatch({ type: "add", location: loc, index: -1 });
     } else {

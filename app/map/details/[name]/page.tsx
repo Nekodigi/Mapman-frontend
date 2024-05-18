@@ -94,7 +94,7 @@ export default function Page({ params }: { params: { name: string } }) {
                       className="sm:basis-1/2 md:basis-1/3 lg:basis-1/5"
                     >
                       <Card>
-                        <Image
+                        {/* <Image
                           src={loc.imgs[index]}
                           width={512}
                           height={0}
@@ -114,7 +114,12 @@ export default function Page({ params }: { params: { name: string } }) {
                               `?openImage=true&loc=${loc.name}&imgId=${index}`
                             );
                           }}
-                        />
+                        /> */}
+                        <embed
+                          src="https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman%2Fndeji69%40gmail.com%2FHome%2F2024-05-17T14%3A21%3A21.827Z_05-i20uetuhara-R06-FLP03-4-d-%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86-%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88%E8%A1%A8%E7%B4%99.pdf"
+                          type="application/pdf"
+                          className="h-[160px] w-full object-cover opacity-100 duration-300  data-[loaded=false]:opacity-0 sm:rounded-lg"
+                        ></embed>
                       </Card>
                     </CarouselItem>
                   ))}
@@ -130,11 +135,34 @@ export default function Page({ params }: { params: { name: string } }) {
                               title: "Uploading image...",
                               description: "It may take a few seconds.",
                             });
-                            const res = await uploader.uploadFile(
-                              e.target.files[0]
+                            // const res = await uploader.uploadFile(
+                            //   e.target.files[0]
+                            // );
+                            const formData = new FormData();
+                            formData.append("file", e.target.files[0]);
+                            formData.append(
+                              "account",
+                              account?.account.email || "_"
                             );
-                            loc.imgs.push(res.fileUrl);
-                            setLoc(loc);
+                            formData.append("profile", loc.name);
+                            const res = await (
+                              await fetch("/api/upload", {
+                                method: "POST",
+                                body: formData,
+                              })
+                            ).json();
+                            if (res.status === "success") {
+                              toast({
+                                title: "Image uploaded",
+                              });
+                              console.log(res.url);
+                              loc.imgs.push(res.url);
+                              setLoc(loc);
+                            } else {
+                              toast({
+                                title: "Failed to upload image",
+                              });
+                            }
                           }
                         }}
                         className="h-[160px] text-transparent"

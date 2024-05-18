@@ -22,6 +22,13 @@ export default function Page() {
 
   const start = useMemo(() => {
     const name = decodeURIComponent(params.get("start")!);
+    if (name === "Current Position")
+      return {
+        name: name,
+        lat: account?.vars?.coords?.latitude!,
+        lon: account?.vars?.coords?.longitude!,
+        imgs: ["/icons/icon-192x192.png"],
+      };
     return account?.locs.find((l) => l.name === name);
   }, [params]);
 
@@ -73,13 +80,15 @@ export default function Page() {
         <div className="flex min-w-0 flex-col justify-start ">
           {start && (
             <div className="flex h-[72px] min-w-0 gap-2 px-2 py-1">
-              <Image
-                src={start.imgs[0]}
-                width={128}
-                height={128}
-                className="w-16 min-w-16 rounded object-cover"
-                alt="thumbnail"
-              />
+              {start.imgs[0] && (
+                <Image
+                  src={start.imgs[0]}
+                  width={128}
+                  height={128}
+                  className="w-16 min-w-16 rounded object-cover"
+                  alt="thumbnail"
+                />
+              )}
               <div className="flex min-w-0 flex-col gap-1">
                 <h3 className="truncate font-medium">{start.name}</h3>
                 <h3 className="truncate ">Depart {route?.depart}</h3>

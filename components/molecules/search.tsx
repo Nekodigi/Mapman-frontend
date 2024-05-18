@@ -56,6 +56,7 @@ export const Search = ({ finish, search }: SearchProps) => {
   const createNew = () => {
     if (inputText) {
       account?.locEditor.invoke(-1, inputText);
+      setInputText("");
       inputRef.current?.blur();
     }
   };
@@ -100,6 +101,11 @@ export const Search = ({ finish, search }: SearchProps) => {
               setInputText("");
               setSelected(undefined);
               //inputRef.current?.select(); // select all if selected when focus
+            }
+          }}
+          onKeyDown={(e) => {
+            if (e.key === "Enter" && searchResults?.length === 0) {
+              createNew();
             }
           }}
         />

@@ -72,9 +72,6 @@ export const ImageDL = () => {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-screen min-h-0 ">
-        <DialogHeader>
-          <DialogTitle>Image</DialogTitle>
-        </DialogHeader>
         {open && img && (
           <Image
             src={img}
@@ -84,42 +81,6 @@ export const ImageDL = () => {
             className="aspect-auto h-full min-h-0 object-contain"
           />
         )}
-        <div className="flex justify-end">
-          <AlertDialog>
-            <AlertDialogTrigger asChild>
-              <Button size="icon" onClick={() => {}} className="bg-red-500">
-                <Trash2 />
-              </Button>
-            </AlertDialogTrigger>
-            <AlertDialogContent>
-              <AlertDialogHeader>
-                <AlertDialogTitle>Delete Image</AlertDialogTitle>
-              </AlertDialogHeader>
-              <AlertDialogDescription>
-                Are you sure you want to delete this image?
-              </AlertDialogDescription>
-              <AlertDialogFooter>
-                <AlertDialogCancel>Cancel</AlertDialogCancel>
-                <AlertDialogAction
-                  onClick={() => {
-                    const imgs = account?.locs[imgInfo.locId].imgs.filter(
-                      (_, i) => i !== imgInfo.imgId
-                    );
-                    const loc = { ...account?.locs[imgInfo.locId], imgs };
-                    account?.locsDispatch({
-                      type: "edit",
-                      index: imgInfo.locId,
-                      location: loc,
-                    });
-                    router.back();
-                  }}
-                >
-                  Delete
-                </AlertDialogAction>
-              </AlertDialogFooter>
-            </AlertDialogContent>
-          </AlertDialog>
-        </div>
       </DialogContent>
     </Dialog>
   );
