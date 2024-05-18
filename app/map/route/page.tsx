@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { ArrowDown, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { Location } from "@/type/location";
 
 export default function Page() {
   const account = useContext(AccountContext);
@@ -27,8 +28,8 @@ export default function Page() {
         name: name,
         lat: account?.vars?.coords?.latitude!,
         lon: account?.vars?.coords?.longitude!,
-        imgs: ["/icons/icon-192x192.png"],
-      };
+        imgs: ["/icons/locationArrow.png"],
+      } as any as Location;
     return account?.locs.find((l) => l.name === name);
   }, [params]);
 
@@ -98,7 +99,7 @@ export default function Page() {
           )}
           {start && end && (
             <Link
-              href={`https://www.google.com/maps/dir/?api=1&origin=${start.name}&origin_place_id=${start.id}&destination=${end.name}&destination_place_id=${end.id}&travelmode=transit`}
+              href={`https://www.google.com/maps/dir/?api=1&origin=${start.name}${start.id !== undefined ? `&origin_place_id=${start.id!}` : ""}&destination=${end.name}&destination_place_id=${end.id}&travelmode=transit`}
               target="_blank"
             >
               <div className="flex flex-col items-center gap-2 p-8">
