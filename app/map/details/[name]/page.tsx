@@ -8,6 +8,7 @@ import {
   ArrowLeft,
   Compass,
   ExternalLink,
+  FileText,
   LocateFixed,
   Search,
 } from "lucide-react";
@@ -22,8 +23,8 @@ import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { commentsUsers, myUserId } from "@/lib/plate/comments";
-import { Uploader } from "uploader"; // Installed by "react-uploader".
 import { useToast } from "@/components/ui/use-toast";
+import { Document, Page } from "react-pdf";
 
 import {
   Carousel,
@@ -36,12 +37,9 @@ import { Plate } from "@udecode/plate-common";
 import { plugins } from "@/lib/plate/plate-plugins";
 import { Editor } from "@/components/plate-ui/editor";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { FilePreview } from "@/components/molecules/filePreview";
 
-const uploader = Uploader({
-  apiKey: process.env.NEXT_PUBLIC_BYTE_SCALE_KEY!,
-});
-
-export default function Page({ params }: { params: { name: string } }) {
+export default function App({ params }: { params: { name: string } }) {
   const account = useContext(AccountContext);
   const router = useRouter();
   const { toast } = useToast();
@@ -65,6 +63,72 @@ export default function Page({ params }: { params: { name: string } }) {
     [account]
   );
 
+  const isImage = (url: string) => {
+    if (url.match(/\.(jpeg|jpg|gif|png)$/) !== null) return true;
+    if (url.match(/lh3.googleusercontent.com/) !== null) return true;
+    if (url.match(/maps.googleapis.com/) !== null) return true;
+
+    return false;
+  };
+
+  const renderFile = (index: number, url: string, loc: Location) => {
+    if (isImage(url)) {
+      return (
+        <Image
+          src={url}
+          width={512}
+          height={0}
+          className="h-[160px] w-full object-cover opacity-100 duration-300  data-[loaded=false]:opacity-0 sm:rounded-lg"
+          alt="thumbnail"
+          data-loaded="false"
+          onLoad={(event) => {
+            event.currentTarget.setAttribute("data-loaded", "true");
+          }}
+          onClick={() => {
+            window.history.pushState(
+              null,
+              "",
+              `?openImage=true&loc=${loc.name}&imgId=${index}`
+            );
+          }}
+        />
+      );
+    } else if (url.match(/.pdf$/)) {
+      return (
+        <Link
+          href={url}
+          target="_blank"
+          className="flex flex-col h-[160px] justify-center items-center sm:rounded-lg overflow-hidden"
+        >
+          <Document
+            file={url}
+            onLoadError={console.error}
+            className="w-full h-full overflow-hidden"
+          >
+            <Page pageNumber={1} renderTextLayer={false} width={500} />
+          </Document>
+        </Link>
+      );
+    } else {
+      return (
+        <Link
+          href={url}
+          target="_blank"
+          className="flex flex-col h-[160px] justify-center items-center sm:rounded-lg overflow-hidden"
+        >
+          <FileText className="size-16" strokeWidth={1.5} />
+          <p className="truncate max-w-[300px] md:max-w-[180px]">
+            {decodeURIComponent(loc.imgs[index])
+              .split("/")
+              .pop()
+              ?.split("_")
+              .pop()}
+          </p>
+        </Link>
+      );
+    }
+  };
+
   return (
     <ScrollArea className="h-full min-h-0">
       {loc && (
@@ -80,7 +144,7 @@ export default function Page({ params }: { params: { name: string } }) {
             </Button>
           </div>
           <Suspense>
-            <div className="flex  w-full justify-center  gap-2 self-center  sm:p-2 sm:pb-0">
+            <div className="flex  w-screen justify-center  gap-2 self-center  sm:p-2 sm:pb-0">
               <Carousel
                 opts={{
                   align: "start",
@@ -88,38 +152,13 @@ export default function Page({ params }: { params: { name: string } }) {
                 className="w-full "
               >
                 <CarouselContent>
-                  {loc.imgs.map((_, index) => (
+                  {loc.imgs.map((img, index) => (
                     <CarouselItem
                       key={index}
                       className="sm:basis-1/2 md:basis-1/3 lg:basis-1/5"
                     >
-                      <Card>
-                        {/* <Image
-                          src={loc.imgs[index]}
-                          width={512}
-                          height={0}
-                          className="h-[160px] w-full object-cover opacity-100 duration-300  data-[loaded=false]:opacity-0 sm:rounded-lg"
-                          alt="thumbnail"
-                          data-loaded="false"
-                          onLoad={(event) => {
-                            event.currentTarget.setAttribute(
-                              "data-loaded",
-                              "true"
-                            );
-                          }}
-                          onClick={() => {
-                            window.history.pushState(
-                              null,
-                              "",
-                              `?openImage=true&loc=${loc.name}&imgId=${index}`
-                            );
-                          }}
-                        /> */}
-                        <embed
-                          src="https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman%2Fndeji69%40gmail.com%2FHome%2F2024-05-17T14%3A21%3A21.827Z_05-i20uetuhara-R06-FLP03-4-d-%E8%A8%80%E8%AA%9E%E5%87%A6%E7%90%86-%E3%83%AC%E3%83%9D%E3%83%BC%E3%83%88%E8%A1%A8%E7%B4%99.pdf"
-                          type="application/pdf"
-                          className="h-[160px] w-full object-cover opacity-100 duration-300  data-[loaded=false]:opacity-0 sm:rounded-lg"
-                        ></embed>
+                      <Card className="h-[160px]">
+                        <FilePreview url={img} />
                       </Card>
                     </CarouselItem>
                   ))}
@@ -135,9 +174,6 @@ export default function Page({ params }: { params: { name: string } }) {
                               title: "Uploading image...",
                               description: "It may take a few seconds.",
                             });
-                            // const res = await uploader.uploadFile(
-                            //   e.target.files[0]
-                            // );
                             const formData = new FormData();
                             formData.append("file", e.target.files[0]);
                             formData.append(
@@ -155,7 +191,6 @@ export default function Page({ params }: { params: { name: string } }) {
                               toast({
                                 title: "Image uploaded",
                               });
-                              console.log(res.url);
                               loc.imgs.push(res.url);
                               setLoc(loc);
                             } else {

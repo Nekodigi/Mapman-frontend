@@ -13,6 +13,7 @@ import { LocationInfos } from "../organisms/locationInfo";
 import { LocCtrlDD } from "../dropdown/locCtrlDD";
 import { useRouter } from "next/navigation";
 import { cn } from "@/lib/utils";
+import { FilePreview } from "./filePreview";
 
 type SpotProps = {
   loc: Location;
@@ -47,13 +48,9 @@ export const Spot = ({ loc, passive, className }: SpotProps) => {
             router.push(`/map/details/${encodeURIComponent(loc.name)}`);
           }}
         >
-          <Image
-            src={loc.imgs[0]}
-            width={128}
-            height={128}
-            className="w-16 min-w-16 rounded object-cover"
-            alt="thumbnail"
-          />
+          <div className="w-16 h-16">
+            <FilePreview url={loc.imgs[0]} />
+          </div>
           <LocationInfos loc={loc} />
         </div>
         {!passive && (

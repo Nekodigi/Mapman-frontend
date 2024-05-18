@@ -30,16 +30,12 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { LCategory } from "@/type/location";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useToast } from "@/components/ui/use-toast";
-import { Uploader } from "uploader"; // Installed by "react-uploader".
-import { ImageIcon, Search } from "lucide-react";
+import { FileText, ImageIcon, Search } from "lucide-react";
 import { DeleteAlert } from "../molecules/deleteAlert";
 import { PlateEditor } from "../molecules/plateEditor";
 import { ScrollArea } from "../ui/scroll-area";
 import { Spinner } from "../ui/spinner";
-
-const uploader = Uploader({
-  apiKey: process.env.NEXT_PUBLIC_BYTE_SCALE_KEY!,
-});
+import { FilePreview } from "../molecules/filePreview";
 
 export const EditLocation = () => {
   const { toast } = useToast();
@@ -174,24 +170,44 @@ export const EditLocation = () => {
                           title: "Uploading image...",
                           description: "It may take a few seconds.",
                         });
-                        const res = await uploader.uploadFile(
-                          e.target.files[0]
+                        const formData = new FormData();
+                        formData.append("file", e.target.files[0]);
+                        formData.append(
+                          "account",
+                          account?.account.email || "_"
                         );
-                        loc.imgs.push(res.fileUrl);
-                        setLoc(loc);
+                        formData.append("profile", loc.name);
+                        const res = await (
+                          await fetch("/api/upload", {
+                            method: "POST",
+                            body: formData,
+                          })
+                        ).json();
+                        if (res.status === "success") {
+                          toast({
+                            title: "Image uploaded",
+                          });
+                          console.log(res.url);
+                          loc.imgs.unshift(res.url);
+                          setLoc(loc);
+                        } else {
+                          toast({
+                            title: "Failed to upload image",
+                          });
+                        }
                       }
                     }}
                     className="hidden h-[80px] text-transparent"
                   />
-                  <ImageIcon className="size-8" />
-                  <p className="text-[10px] ">Upload image</p>
+                  <FileText className="size-8" />
+                  <p className="text-[10px] ">Upload file</p>
                 </Card>
               </CarouselItem>
               {loc.imgs.map((_, index) => (
                 <CarouselItem key={index} className="relative basis-1/3 ">
                   <DeleteAlert
-                    title="Delete Image"
-                    description="Are you sure you want to delete this image?"
+                    title="Delete File"
+                    description="Are you sure you want to delete this file?"
                     onConfirm={() => {
                       setLoc({
                         ...loc,
@@ -199,14 +215,8 @@ export const EditLocation = () => {
                       });
                     }}
                   >
-                    <Card>
-                      <Image
-                        src={loc.imgs[index]}
-                        width={512}
-                        height={0}
-                        className="h-[80px] w-full rounded-lg object-cover"
-                        alt="thumbnail"
-                      />
+                    <Card className="h-[80px]">
+                      <FilePreview url={loc.imgs[index]} passive />
                     </Card>
                   </DeleteAlert>
                 </CarouselItem>

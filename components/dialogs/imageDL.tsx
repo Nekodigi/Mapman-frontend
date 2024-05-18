@@ -1,7 +1,7 @@
 import { Trash2 } from "lucide-react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
-import { useContext, useMemo } from "react";
+import { useContext, useEffect, useMemo } from "react";
 
 import { AccountContext } from "../context/account";
 import { Button } from "../ui/button";
@@ -26,39 +26,8 @@ import {
 import { useRouter, useSearchParams } from "next/navigation";
 
 export const ImageDL = () => {
-  const account = useContext(AccountContext);
-  const { data: session, status } = useSession();
   const params = useSearchParams();
   const router = useRouter();
-  const profiles = useMemo(
-    () => account?.account.profiles.map((profile) => profile.name),
-    [account]
-  );
-
-  const imgInfo = useMemo(() => {
-    if (!account?.locs) return { locId: -1, imgId: -1 };
-    //find index of loc
-    const locId = account.locs.findIndex(
-      (loc) => loc.name === decodeURIComponent(params.get("loc") || "")
-    );
-    const imgId = parseInt(params.get("imgId") || "-1", 10);
-    //to int
-    return { locId, imgId };
-  }, [account?.locs, params]);
-
-  const open = useMemo(() => {
-    return (
-      params.get("openImage") === "true" &&
-      imgInfo.locId !== undefined &&
-      imgInfo.imgId !== -1 &&
-      account?.locs !== undefined
-    );
-  }, [account?.locs, imgInfo.imgId, imgInfo.locId, params]);
-
-  const img = useMemo(() => {
-    if (imgInfo.locId === -1 || imgInfo.imgId === -1) return null;
-    return account?.locs[imgInfo.locId].imgs[imgInfo.imgId];
-  }, [account?.locs, imgInfo.imgId, imgInfo.locId]);
 
   const setOpen = useMemo(() => {
     return (open: boolean) => {
@@ -68,13 +37,16 @@ export const ImageDL = () => {
     };
   }, [router]);
 
+  const url = params.get("url");
+  const open = params.get("openImage") === "true";
+
   //TODO theme, profile, account
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogContent className="max-h-screen min-h-0 ">
-        {open && img && (
+        {open && url && (
           <Image
-            src={img}
+            src={decodeURIComponent(url)}
             width={1920}
             height={1920}
             alt="Image"

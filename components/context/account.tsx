@@ -212,9 +212,9 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     setOpen(false);
     setLastFetchName("");
     if (id === -1) {
-      locsDispatch({ type: "add", location: loc, index: -1 });
+      locsDispatch({ type: "add", location: { ...loc }, index: -1 });
     } else {
-      locsDispatch({ type: "edit", location: loc, index: id });
+      locsDispatch({ type: "edit", location: { ...loc }, index: id });
     }
   }, [loc, id, locsDispatch]);
   const fetchLocation = async (name: string) => {

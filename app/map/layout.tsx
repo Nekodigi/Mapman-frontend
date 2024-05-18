@@ -10,6 +10,9 @@ import {
 } from "@/components/ui/resizable";
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
 import { Spinner } from "@/components/ui/spinner";
+import { pdfjs } from "react-pdf";
+
+pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
 export default function RootLayout({
   children,
