@@ -108,6 +108,7 @@ export type Vars = {
   heading?: number;
   orient?: DeviceOrientationEvent;
   coords?: GeolocationCoordinates;
+  isMobile: boolean;
 };
 type AccountContextType = {
   account: Account;
@@ -286,7 +287,17 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       watchPosition: true,
       userDecisionTimeout: 5000,
     });
-  const vars: Vars = { heading, coords, orient };
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    if (!navigator) return;
+    const isMobile =
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      );
+    setIsMobile(isMobile);
+  }, []);
+
+  const vars: Vars = { heading, coords, orient, isMobile };
   //endregion
 
   //region FUNCTION

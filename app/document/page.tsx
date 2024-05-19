@@ -28,36 +28,26 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import bcrypt from "bcryptjs";
 import { useRouter } from "next/navigation";
 
-const keyCache: { [password: string]: string } = {};
-
 function deriveKey(password: string): string {
-  if (keyCache[password]) {
-    return keyCache[password];
-  }
-  const salt = bcrypt.genSaltSync(10); // Adjust salt rounds as needed
-  const key = bcrypt.hashSync(password, salt);
-  keyCache[password] = key;
-  return key;
+  return CryptoJS.SHA256(password).toString();
 }
 
 function encrypt(data: string, password: string): string {
   const key = deriveKey(password);
   const encrypted = CryptoJS.AES.encrypt(data, key).toString();
-  return JSON.stringify({ key, encrypted });
+  return JSON.stringify({ encrypted });
 }
 
 function decrypt(ciphertext: string, password: string): string | null {
   try {
-    const { key, encrypted } = JSON.parse(ciphertext);
-    if (key !== deriveKey(password)) {
-      throw new Error("Incorrect password");
-    }
+    const { encrypted } = JSON.parse(ciphertext);
+    const key = deriveKey(password);
     const decrypted = CryptoJS.AES.decrypt(encrypted, key).toString(
       CryptoJS.enc.Utf8
     );
-    return decrypted;
+    return decrypted || null;
   } catch (error) {
-    console.error("Failed to decrypt data:", error);
+    //console.error("Failed to decrypt data:", error);
     return null;
   }
 }
@@ -67,26 +57,27 @@ export default function Page() {
   const [password, setPassword] = useState("");
   const router = useRouter();
   const [open, setOpen] = useState(true);
-  const firstTime = useRef(false);
+  const [firstTime, setFirstTime] = useState(false);
 
-  // test to store sample data and veryfy it
-  // useEffect(() => {
-  //   const password = "password";
-  //   const data = "Hello, World!";
-  //   saveToLocalStorage(DOC_NAME, data, password);
-  //   const password2 = "password2";
-  //   const loadedData = loadFromLocalStorage(DOC_NAME, password2);
-  //   console.log("Loaded data:", loadedData);
-  // }, []);
+  useEffect(() => {
+    const password = "password";
+    const data = "Hello, World!";
+    localStorage.setItem("test", encrypt(data, password));
+    const password2 = "password";
+    const loadedData = decrypt(localStorage.getItem(DOC_NAME)!, password2);
+    //console.log("Loaded data:", loadedData);
+  }, []);
 
   useEffect(() => {
     const encrypted = localStorage.getItem(DOC_NAME);
+    console.log(encrypted, password);
     if (encrypted === null) {
       setOpen(true);
-      firstTime.current = true;
+      setFirstTime(true);
       return;
     }
     const decrypted = decrypt(encrypted, password);
+    console.log(password, decrypted);
     if (decrypted === null) {
       setOpen(true);
     } else {
@@ -104,7 +95,6 @@ export default function Page() {
           }
         }}
       >
-        <DialogTrigger>Open</DialogTrigger>
         <DialogContent>
           <DialogHeader>
             <DialogTitle>
@@ -140,20 +130,24 @@ export default function Page() {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
-          <form>
-            <div>
-              <label htmlFor="password">Password:</label>
-              <input
-                id="password"
-                name="password"
-                type="password"
-                value={password}
-                autoComplete="new-password" // This triggers strong password suggestions
-                onChange={(e) => setPassword(e.target.value)}
-              />
-            </div>
-          </form>
-          <Button className="flex gap-2">
+          <Button
+            className="flex gap-2"
+            onClick={() => {
+              if (firstTime) {
+                const data = "Hello, World!";
+                console.log(
+                  "encrypt with password",
+                  password,
+                  encodeURIComponent(password),
+                  data,
+                  password === "password"
+                );
+                const encrypted = encrypt(data, password);
+                localStorage.setItem(DOC_NAME, encrypted);
+                setOpen(false);
+              }
+            }}
+          >
             <KeyRound className="min-w-4 size-4" />
             {firstTime ? "Encrypt" : "Decrypt"}
           </Button>

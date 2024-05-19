@@ -70,6 +70,7 @@ const LinkOrDiv = ({ passive, url, children }: LinkOrDivProps) => {
 };
 
 export const FilePreview = ({ url, passive }: FilePreviewProps) => {
+  const router = useRouter();
   const isImage = (url: string) => {
     if (url.match(/\.(jpeg|jpg|gif|png)$/) !== null) return true;
     if (url.match(/lh3.googleusercontent.com/) !== null) return true;

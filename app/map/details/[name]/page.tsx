@@ -72,64 +72,6 @@ export default function App({ params }: { params: { name: string } }) {
     return false;
   };
 
-  const renderFile = (index: number, url: string, loc: Location) => {
-    if (isImage(url)) {
-      return (
-        <Image
-          src={url}
-          width={512}
-          height={0}
-          className="h-[160px] w-full object-cover opacity-100 duration-300  data-[loaded=false]:opacity-0 sm:rounded-lg"
-          alt="thumbnail"
-          data-loaded="false"
-          onLoad={(event) => {
-            event.currentTarget.setAttribute("data-loaded", "true");
-          }}
-          onClick={() => {
-            window.history.pushState(
-              null,
-              "",
-              `?openImage=true&loc=${loc.name}&imgId=${index}`
-            );
-          }}
-        />
-      );
-    } else if (url.match(/.pdf$/)) {
-      return (
-        <Link
-          href={url}
-          target="_blank"
-          className="flex flex-col h-[160px] justify-center items-center sm:rounded-lg overflow-hidden"
-        >
-          <Document
-            file={url}
-            onLoadError={console.error}
-            className="w-full h-full overflow-hidden"
-          >
-            <Page pageNumber={1} renderTextLayer={false} width={500} />
-          </Document>
-        </Link>
-      );
-    } else {
-      return (
-        <Link
-          href={url}
-          target="_blank"
-          className="flex flex-col h-[160px] justify-center items-center sm:rounded-lg overflow-hidden"
-        >
-          <FileText className="size-16" strokeWidth={1.5} />
-          <p className="truncate max-w-[300px] md:max-w-[180px]">
-            {decodeURIComponent(loc.imgs[index])
-              .split("/")
-              .pop()
-              ?.split("_")
-              .pop()}
-          </p>
-        </Link>
-      );
-    }
-  };
-
   return (
     <ScrollArea className="h-full min-h-0">
       {loc && (
@@ -163,48 +105,6 @@ export default function App({ params }: { params: { name: string } }) {
                       </Card>
                     </CarouselItem>
                   ))}
-
-                  <CarouselItem className="sm:basis-1/2 md:basis-1/3 lg:basis-1/5">
-                    <Card className="">
-                      <Input
-                        type="file"
-                        title="Upload File"
-                        onChange={async (e) => {
-                          if (e.target.files) {
-                            toast({
-                              title: "Uploading image...",
-                              description: "It may take a few seconds.",
-                            });
-                            const formData = new FormData();
-                            formData.append("file", e.target.files[0]);
-                            formData.append(
-                              "account",
-                              account?.account.email || "_"
-                            );
-                            formData.append("profile", loc.name);
-                            const res = await (
-                              await fetch("/api/upload", {
-                                method: "POST",
-                                body: formData,
-                              })
-                            ).json();
-                            if (res.status === "success") {
-                              toast({
-                                title: "Image uploaded",
-                              });
-                              loc.imgs.push(res.url);
-                              setLoc(loc);
-                            } else {
-                              toast({
-                                title: "Failed to upload image",
-                              });
-                            }
-                          }
-                        }}
-                        className="h-[160px] text-transparent"
-                      />
-                    </Card>
-                  </CarouselItem>
                 </CarouselContent>
               </Carousel>
             </div>

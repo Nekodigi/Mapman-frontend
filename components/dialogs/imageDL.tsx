@@ -24,6 +24,8 @@ import {
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
 import { useRouter, useSearchParams } from "next/navigation";
+import Zoom from "react-medium-image-zoom";
+import { TransformWrapper, TransformComponent } from "react-zoom-pan-pinch";
 
 export const ImageDL = () => {
   const params = useSearchParams();
@@ -43,16 +45,20 @@ export const ImageDL = () => {
   //TODO theme, profile, account
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-h-screen min-h-0 ">
-        {open && url && (
-          <Image
-            src={decodeURIComponent(url)}
-            width={1920}
-            height={1920}
-            alt="Image"
-            className="aspect-auto h-full min-h-0 object-contain"
-          />
-        )}
+      <DialogContent className="max-h-screen min-h-0 max-w-screen-md p-0">
+        <TransformWrapper>
+          <TransformComponent>
+            {open && url && (
+              <Image
+                src={decodeURIComponent(url)}
+                width={1920}
+                height={1920}
+                alt="Image"
+                className="aspect-auto h-full max-h-screen max-w-screen w-full object-contain"
+              />
+            )}
+          </TransformComponent>
+        </TransformWrapper>
       </DialogContent>
     </Dialog>
   );

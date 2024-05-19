@@ -240,18 +240,8 @@ export default function Home() {
       profiles: data,
     }));
   };
-  const [isMobile, setIsMobile] = React.useState(false);
 
-  React.useEffect(() => {
-    if (!navigator) return;
-    setIsMobile(
-      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-        navigator.userAgent
-      )
-    );
-  }, []);
-
-  const Backend = isMobile ? TouchBackend : HTML5Backend;
+  const Backend = account?.vars?.isMobile ? TouchBackend : HTML5Backend;
   return (
     <DndProvider backend={Backend}>
       <div className="h-full min-w-screen overflow-auto">
