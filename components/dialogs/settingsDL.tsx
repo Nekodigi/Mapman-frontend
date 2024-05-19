@@ -2,7 +2,7 @@ import { Settings } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { useContext, useMemo, useState } from "react";
+import { useCallback, useContext, useMemo, useState } from "react";
 
 import { AccountContext } from "../context/account";
 import { Button } from "../ui/button";
@@ -16,27 +16,56 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 
-
-
-
 import { Label } from "@/components/ui/label";
 import { ProfileMenu } from "./profileDL";
+import {
+  useParams,
+  usePathname,
+  useRouter,
+  useSearchParams,
+} from "next/navigation";
 
 export const SettingsDL = () => {
   const account = useContext(AccountContext);
   const { data: session, status } = useSession();
-  const [open, setOpen] = useState(false);
+  const router = useRouter();
+  const params = useSearchParams();
+  const pathname = usePathname();
 
-  const profiles = useMemo(
-    () => account?.account.profiles.map((profile) => profile.name),
-    [account]
-  );
+  const current = useMemo(() => {
+    return pathname.split("/")[1];
+  }, [pathname]);
+
+  const open = useMemo(() => {
+    return params.get("openSettings") === "true";
+  }, [params]);
+
+  const setOpen = useCallback((open: boolean) => {
+    console.log(open);
+    if (open) {
+      window.history.pushState({}, "", "/settings?openSettings=true");
+    } else {
+      router.back();
+    }
+  }, []);
 
   //TODO theme, profile, account
   return (
-    <Dialog>
-      <DialogTrigger className="px-4">
-        <Settings strokeWidth={1.5} />
+    <Dialog
+      open={open}
+      onOpenChange={(open) => {
+        if (open) {
+          setOpen(open);
+        } else {
+          setOpen(open);
+        }
+      }}
+    >
+      <DialogTrigger className="px-4" onClick={() => setOpen(true)}>
+        <Settings
+          strokeWidth={1.5}
+          opacity={current === "profileManager" ? 1 : 0.5}
+        />
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -46,7 +75,7 @@ export const SettingsDL = () => {
           <Label className="min-w-20 text-right">Theme</Label>
           <ThemeToggle />
         </div>
-        <ProfileMenu />
+        <ProfileMenu parentSetOpen={setOpen} />
         <div className="flex items-center gap-4">
           <Label className="min-w-20 text-right">Account</Label>
           {status === "authenticated" ? (

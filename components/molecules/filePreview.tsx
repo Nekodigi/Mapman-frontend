@@ -85,7 +85,7 @@ export const FilePreview = ({ url, passive }: FilePreviewProps) => {
           src={url}
           width={512}
           height={0}
-          className="h-full w-full object-cover opacity-100 duration-300  data-[loaded=false]:opacity-0 sm:rounded-lg"
+          className="h-full w-full object-cover opacity-100 duration-300  data-[loaded=false]:opacity-0 rounded-lg"
           alt="thumbnail"
           data-loaded="false"
           onLoad={(event) => {

@@ -13,7 +13,8 @@ import {
   navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu";
 import { ImageDL } from "../dialogs/imageDL";
-import { Suspense } from "react";
+import { Suspense, useMemo } from "react";
+import { usePathname } from "next/navigation";
 
 type ButtonProps = {
   url: string;
@@ -35,18 +36,30 @@ const Button = ({ url, children }: ButtonProps) => {
 };
 
 export const Footer = () => {
+  const pathname = usePathname();
+
+  const current = useMemo(() => {
+    return pathname.split("/")[1];
+  }, [pathname]);
+
   return (
     <footer className="">
       <NavigationMenu className="max-w-full">
         <Button url="/map">
-          <Map strokeWidth={1.5} />
+          <Map strokeWidth={1.5} opacity={current === "map" ? 1 : 0.5} />
         </Button>
         <Button url="/document">
-          <FileText strokeWidth={1.5} />
+          <FileText
+            strokeWidth={1.5}
+            opacity={current === "document" ? 1 : 0.5}
+          />
         </Button>
-        <Button url="/ask">
-          <MessageSquareMore strokeWidth={1.5} />
-        </Button>
+        {/* <Button url="/ask">
+          <MessageSquareMore
+            strokeWidth={1.5}
+            opacity={current === "ask" ? 1 : 0.5}
+          />
+        </Button> */}
         <SettingsDL />
         <Suspense>
           <ImageDL />

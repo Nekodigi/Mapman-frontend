@@ -15,28 +15,42 @@ export default function Page() {
   const router = useRouter();
   const directionsService = new google.maps.DirectionsService();
   const [route, setRoute] = useState<{
-    distance: string;
-    duration: string;
-    depart: string;
-    arrive: string;
+    distance?: string;
+    duration?: string;
+    depart?: string;
+    arrive?: string;
   }>();
 
   const start = useMemo(() => {
     const name = decodeURIComponent(params.get("start")!);
     if (name === "Current Position")
       return {
-        name: name,
+        name: `${account?.vars?.coords?.latitude}, ${account?.vars?.coords?.longitude}`,
         lat: account?.vars?.coords?.latitude!,
         lon: account?.vars?.coords?.longitude!,
         imgs: ["/icons/locationArrow.png"],
       } as any as Location;
     return account?.locs.find((l) => l.name === name);
   }, [params]);
-
   const end = useMemo(() => {
     const name = decodeURIComponent(params.get("end")!);
     return account?.locs.find((l) => l.name === name);
   }, [params]);
+  const map = useMemo(() => {
+    if (!account) return "google";
+    const map = account.account.profiles.find(
+      (p) => p.name === account.account.currentProfile
+    )?.map;
+    return map ? map : "google";
+  }, [account]);
+  const url = useMemo(() => {
+    if (!start || !end) return;
+    if (map === "google") {
+      return `https://www.google.com/maps/dir/?api=1&origin=${start.name}${start.id !== undefined ? `&origin_place_id=${start.id!}` : ""}&destination=${end.name}&destination_place_id=${end.id}&travelmode=transit`;
+    } else {
+      return `https://uri.amap.com/navigation?from=${start.lon},${start.lat}&to=${end.lon},${end.lat}&mode=bus&policy=0&src=mypage&coordinate=wgs84&callnative=1`;
+    }
+  }, [start, end, map]);
 
   useEffect(() => {
     if (!start || !end) return;
@@ -59,6 +73,13 @@ export default function Page() {
             duration: duration ? duration : "",
             depart: depart ? depart : "",
             arrive: arrive ? arrive : "",
+          });
+        } else {
+          setRoute({
+            distance: undefined,
+            duration: undefined,
+            depart: undefined,
+            arrive: undefined,
           });
         }
       }
@@ -97,18 +118,15 @@ export default function Page() {
               {/* <LocationInfos loc={start} /> */}
             </div>
           )}
-          {start && end && (
-            <Link
-              href={`https://www.google.com/maps/dir/?api=1&origin=${start.name}${start.id !== undefined ? `&origin_place_id=${start.id!}` : ""}&destination=${end.name}&destination_place_id=${end.id}&travelmode=transit`}
-              target="_blank"
-            >
+          {url && (
+            <Link href={url} target="_blank">
               <div className="flex flex-col items-center gap-2 p-8">
                 <ArrowDown opacity={0.5} strokeWidth={1} />
                 <h3 className="truncate text-xl font-medium">
-                  {route?.duration}
+                  {route?.duration || "No route found"}
                 </h3>
                 <h3 className="truncate text-xl font-medium">
-                  {route?.distance}
+                  {route?.distance || "Open in Map"}
                 </h3>
                 <ArrowDown opacity={0.5} strokeWidth={1} />
               </div>

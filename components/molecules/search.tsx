@@ -13,6 +13,7 @@ import { AccountContext } from "../context/account";
 import {
   Command,
   CommandEmpty,
+  CommandGroup,
   CommandInput,
   CommandItem,
   CommandList,
@@ -37,6 +38,7 @@ export const Search = ({ finish, search }: SearchProps) => {
       const input = inputRef.current;
       if (input) {
         if (e.key === "Escape") {
+          setOpen(false);
           input.blur();
         }
       }
@@ -68,6 +70,17 @@ export const Search = ({ finish, search }: SearchProps) => {
     };
   }, []);
 
+  //convert google map url to name
+  const url2name = (url: string) => {
+    //if include google.com/maps/place
+    if (url.includes("google.com/maps/place")) {
+      const name = url.split("/place/").pop()?.split("/@")[0];
+      //replace + with space
+      return name?.replace(/\+/g, " ") || url;
+    }
+    return url;
+  };
+
   const searchResults = useMemo(
     () => search(inputText) || [],
     [inputText, search]
@@ -86,8 +99,8 @@ export const Search = ({ finish, search }: SearchProps) => {
           ref={inputRef}
           placeholder="Search place..."
           onValueChange={(text) => {
-            setInputText(text);
-            // clear selected when reedit
+            const name = url2name(text);
+            setInputText(name);
             if (selected) {
               setSelected(undefined);
             }
@@ -110,7 +123,7 @@ export const Search = ({ finish, search }: SearchProps) => {
           }}
         />
         <div className="relative">
-          {!selected && open && (
+          {!selected && open && searchResults && (
             <CommandList className="bg-background absolute left-0 top-0 w-full rounded shadow-md">
               <CommandEmpty className="text-muted-foreground ">
                 <Button
@@ -121,7 +134,7 @@ export const Search = ({ finish, search }: SearchProps) => {
                   }}
                 >{`Create "${inputText}"...`}</Button>
               </CommandEmpty>
-              {searchResults?.map((v) => (
+              {searchResults.map((v) => (
                 <CommandItem
                   className="flex items-center gap-2"
                   onSelect={() => {

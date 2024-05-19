@@ -2277,6 +2277,18 @@
   dependencies:
     tslib "^2.4.0"
 
+"@tanstack/react-table@^8.17.3":
+  version "8.17.3"
+  resolved "https://registry.yarnpkg.com/@tanstack/react-table/-/react-table-8.17.3.tgz#4e10b4cf5355a40d6d72a83d3f4b3ecd32f56bf4"
+  integrity sha512-5gwg5SvPD3lNAXPuJJz1fOCEZYk9/GeBFH3w/hCgnfyszOIzwkwgp5I7Q4MJtn0WECp84b5STQUDdmvGi8m3nA==
+  dependencies:
+    "@tanstack/table-core" "8.17.3"
+
+"@tanstack/table-core@8.17.3":
+  version "8.17.3"
+  resolved "https://registry.yarnpkg.com/@tanstack/table-core/-/table-core-8.17.3.tgz#d7a9830abb29cd369b52b2a7159dc0360af646fd"
+  integrity sha512-mPBodDGVL+fl6d90wUREepHa/7lhsghg2A3vFpakEhrhtbIlgNAZiMr7ccTgak5qbHqF14Fwy+W1yFWQt+WmYQ==
+
 "@tootallnate/once@2":
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/@tootallnate/once/-/once-2.0.0.tgz#f544a148d3ab35801c1f633a7441fd87c2e484bf"
@@ -7378,6 +7390,14 @@ react-dnd-html5-backend@^16.0.1:
   resolved "https://registry.yarnpkg.com/react-dnd-html5-backend/-/react-dnd-html5-backend-16.0.1.tgz#87faef15845d512a23b3c08d29ecfd34871688b6"
   integrity sha512-Wu3dw5aDJmOGw8WjH1I1/yTH+vlXEL4vmjk5p+MHxP8HuHJS1lAGeIdG/hze1AvNeXWo/JgULV87LyQOr+r5jw==
   dependencies:
+    dnd-core "^16.0.1"
+
+react-dnd-touch-backend@^16.0.1:
+  version "16.0.1"
+  resolved "https://registry.yarnpkg.com/react-dnd-touch-backend/-/react-dnd-touch-backend-16.0.1.tgz#e73f8169e2b9fac0f687970f875cac0a4d02d6e2"
+  integrity sha512-NonoCABzzjyWGZuDxSG77dbgMZ2Wad7eQiCd/ECtsR2/NBLTjGksPUx9UPezZ1nQ/L7iD130Tz3RUshL/ClKLA==
+  dependencies:
+    "@react-dnd/invariant" "^4.0.1"
     dnd-core "^16.0.1"
 
 react-dnd@^16.0.1:

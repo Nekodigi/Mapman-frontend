@@ -48,7 +48,7 @@ export const Spot = ({ loc, passive, className }: SpotProps) => {
             router.push(`/map/details/${encodeURIComponent(loc.name)}`);
           }}
         >
-          <div className="w-16 h-16">
+          <div className="min-w-16 w-16 h-16">
             <FilePreview url={loc.imgs[0]} />
           </div>
           <LocationInfos loc={loc} />

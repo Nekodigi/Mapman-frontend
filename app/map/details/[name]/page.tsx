@@ -10,6 +10,7 @@ import {
   ExternalLink,
   FileText,
   LocateFixed,
+  Milestone,
   Search,
 } from "lucide-react";
 import Image from "next/image";
@@ -219,6 +220,14 @@ export default function App({ params }: { params: { name: string } }) {
                   <Compass />
                 </Link>
               </Button>
+              <Button variant="ghost" size="icon" asChild>
+                <Link
+                  href={`/map/route?start=Current Position&end=${loc.name}`}
+                  passHref
+                >
+                  <Milestone opacity={0.5} strokeWidth={1} />
+                </Link>
+              </Button>
               <Button
                 variant="ghost"
                 size="icon"
@@ -229,14 +238,14 @@ export default function App({ params }: { params: { name: string } }) {
                   }));
                 }}
               >
-                <LocateFixed />
+                <LocateFixed opacity={0.5} strokeWidth={1} />
               </Button>
               <Button variant="ghost" size="icon" asChild>
                 <Link
                   href={`https://www.google.com/search?q=${loc.name}`}
                   target="_blank"
                 >
-                  <Search />
+                  <Search opacity={0.5} strokeWidth={1} />
                 </Link>
               </Button>
               <Button variant="ghost" size="icon" asChild>
@@ -244,7 +253,7 @@ export default function App({ params }: { params: { name: string } }) {
                   href={`https://www.google.com/maps/search/?api=1&query=${loc.name}&query_place_id=${loc.id}`}
                   target="_blank"
                 >
-                  <ExternalLink />
+                  <ExternalLink opacity={0.5} strokeWidth={1} />
                 </Link>
               </Button>
               <LocCtrlDD locName={loc.name} />

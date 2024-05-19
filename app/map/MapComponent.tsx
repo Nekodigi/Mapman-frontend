@@ -15,6 +15,7 @@ import { Button } from "@/components/ui/button";
 import { Location } from "@/type/location";
 import { almostZero, distance, filter } from "@/utils/location";
 import { useRouter } from "next/navigation";
+import { fill } from "lodash";
 
 const N_NEARBY = 5;
 const DIST_LIMIT = 12;
@@ -38,6 +39,7 @@ export const MapComponent = () => {
   const [map, setMap] = useState<google.maps.Map>();
   const [markers, setMarkers] = useState<google.maps.Marker[]>([]);
   const [circles, setCircles] = useState<google.maps.Circle[]>([]);
+  const polyline = useRef<google.maps.Polyline>();
   const [zoom, setZoom] = useState<number>(10);
   const account = useContext(AccountContext);
   const router = useRouter();
@@ -150,6 +152,8 @@ export const MapComponent = () => {
   const dragend = useCallback(
     (marker: google.maps.Marker, loc: Location, e: any) => {
       if (!account?.locs) return;
+      polyline.current?.setMap(null);
+
       const p = e.latLng.toJSON() as google.maps.LatLngLiteral;
       const pos = { lat: p.lat, lon: p.lng } as Location;
       const candidate = account.locs.filter(
@@ -172,7 +176,6 @@ export const MapComponent = () => {
         map: map,
         preserveViewport: true,
       };
-
       directionsRenderer.setOptions(option);
       directionsService.route(
         {
@@ -199,16 +202,56 @@ export const MapComponent = () => {
             );
 
             directionsRenderer.setDirections(result);
+          } else {
+            const lineSymbol = {
+              path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW,
+              scale: 4,
+              fill: "#3b82f6",
+            };
+            const pathSymbol = {
+              path: "M 0,-1 0,1",
+              strokeOpacity: 1,
+              scale: 4,
+            };
+            if (!polyline.current) {
+              polyline.current = new google.maps.Polyline({
+                path: [
+                  { lat: loc.lat, lng: loc.lon },
+                  { lat: closest.lat, lng: closest.lon },
+                ],
+                strokeWeight: 0,
+                icons: [
+                  {
+                    icon: pathSymbol,
+                    offset: "0",
+                    repeat: "20px",
+                  },
+                  {
+                    icon: lineSymbol,
+                    offset: "100%",
+                  },
+                ],
+                map: map,
+
+                strokeColor: "#3b82f6",
+              });
+            } else {
+              polyline.current.setMap(map!);
+              polyline.current.setPath([
+                { lat: loc.lat, lng: loc.lon },
+                { lat: closest.lat, lng: closest.lon },
+              ]);
+            }
           }
         }
       );
     },
     [
       account?.locs,
-      // account?.searchOption,
       directionsRenderer,
       directionsService,
       map,
+      polyline,
       router,
     ]
   );
@@ -293,7 +336,9 @@ export const MapComponent = () => {
 
   useEffect(() => {
     if (account?.locs && map) {
-      const infoWindow = new google.maps.InfoWindow();
+      const infoWindow = new google.maps.InfoWindow({
+        disableAutoPan: true,
+      });
 
       //add or remove changed markers
       // don't change marker if it not changed
@@ -348,6 +393,13 @@ export const MapComponent = () => {
             marker.addListener("dragend", (e: any) => {
               navigator.vibrate(1);
               dragend(marker, loc, e);
+            });
+            marker.addListener("mouseover", () => {
+              infoWindow.setContent(loc.name);
+              infoWindow.open(map, marker);
+            });
+            marker.addListener("mouseout", () => {
+              infoWindow.close();
             });
           }
 

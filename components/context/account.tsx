@@ -228,6 +228,10 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       setEditorStatus("ready");
       setLoc(location);
       setLastFetchName(name);
+    } else {
+      toast({ title: "Failed to fetch location" });
+      setEditorStatus("ready");
+      setLastFetchName(name);
     }
   };
   const invoke = (id: number, name: string) => {
@@ -382,7 +386,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     locsDispatch({ type: "setAll", locations: newLocs });
   }, [searchOption.center, locs, locsDispatch]);
   useEffect(() => {
-    if (searchOption.viewCenter === undefined) return;
+    if (searchOption.viewCenter === undefined || locs.length === 0) return;
     const center = searchOption.viewCenter;
     if (distance(center, locs[0]) == locs[0].vars?.viewDistance) return;
 
