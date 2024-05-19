@@ -241,10 +241,12 @@ export default function Home() {
     }));
   };
 
-  const isMobile =
-    /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+  const isMobile = React.useMemo(() => {
+    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
       navigator.userAgent
     );
+  }, []);
+
   const Backend = isMobile ? TouchBackend : HTML5Backend;
   return (
     <DndProvider backend={Backend}>
