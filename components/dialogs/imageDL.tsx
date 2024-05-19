@@ -45,7 +45,7 @@ export const ImageDL = () => {
   //TODO theme, profile, account
   return (
     <Dialog open={open} onOpenChange={setOpen}>
-      <DialogContent className="max-h-screen min-h-0 max-w-screen-md p-0">
+      <DialogContent className="max-h-screen min-h-0 w-screen p-0">
         <TransformWrapper>
           <TransformComponent>
             {open && url && (
@@ -54,7 +54,7 @@ export const ImageDL = () => {
                 width={1920}
                 height={1920}
                 alt="Image"
-                className="aspect-auto h-full max-h-screen max-w-screen w-full object-contain"
+                className="aspect-auto h-full min-h-0 min-w-0 w-full object-contain"
               />
             )}
           </TransformComponent>
