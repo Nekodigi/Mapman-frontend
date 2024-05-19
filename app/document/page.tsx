@@ -62,17 +62,6 @@ function decrypt(ciphertext: string, password: string): string | null {
   }
 }
 
-function saveToLocalStorage(key: string, data: string, password: string): void {
-  const encryptedData = encrypt(data, password);
-  localStorage.setItem(key, encryptedData);
-}
-
-function loadFromLocalStorage(key: string, password: string): string | null {
-  const encryptedData = localStorage.getItem(key);
-  if (!encryptedData) return null;
-  return decrypt(encryptedData, password);
-}
-
 const DOC_NAME = "encrypted-docs";
 export default function Page() {
   const [password, setPassword] = useState("");
@@ -90,7 +79,9 @@ export default function Page() {
 
   // if user haven't login prompt
   const open = useMemo(() => {
-    return loadFromLocalStorage(DOC_NAME, password) === null;
+    const encrypted = localStorage.getItem(DOC_NAME);
+    if (encrypted === null) return true;
+    return decrypt(encrypted, password) === null;
   }, [password]);
   //is first time by checking if DOC_NAME is in local storage
   const firstTime = useMemo(() => {
@@ -131,7 +122,6 @@ export default function Page() {
               )}
             </DialogDescription>
           </DialogHeader>
-          <input type="password" autoComplete="new-password" />
           <div className="flex flex-col gap-1.5 ">
             <Label>Password</Label>
             <Input
@@ -143,9 +133,6 @@ export default function Page() {
               placeholder="Enter password"
               onChange={(e) => setPassword(e.target.value)}
             />
-            <input type="password" autoComplete="current-password" />
-
-            <input type="email" autoComplete="email" />
           </div>
           <form>
             <div>
