@@ -24,7 +24,7 @@ import {
 
 import CryptoJS from "crypto-js";
 import pbkdf2 from "pbkdf2";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import bcrypt from "bcryptjs";
 import { useRouter } from "next/navigation";
 
@@ -66,6 +66,8 @@ const DOC_NAME = "encrypted-docs";
 export default function Page() {
   const [password, setPassword] = useState("");
   const router = useRouter();
+  const [open, setOpen] = useState(true);
+  const firstTime = useRef(false);
 
   // test to store sample data and veryfy it
   // useEffect(() => {
@@ -77,16 +79,20 @@ export default function Page() {
   //   console.log("Loaded data:", loadedData);
   // }, []);
 
-  // if user haven't login prompt
-  const open = useMemo(() => {
+  useEffect(() => {
     const encrypted = localStorage.getItem(DOC_NAME);
-    if (encrypted === null) return true;
-    return decrypt(encrypted, password) === null;
+    if (encrypted === null) {
+      setOpen(true);
+      firstTime.current = true;
+      return;
+    }
+    const decrypted = decrypt(encrypted, password);
+    if (decrypted === null) {
+      setOpen(true);
+    } else {
+      setOpen(false);
+    }
   }, [password]);
-  //is first time by checking if DOC_NAME is in local storage
-  const firstTime = useMemo(() => {
-    return localStorage.getItem(DOC_NAME) === null;
-  }, []);
 
   return (
     <div className="p-4">
