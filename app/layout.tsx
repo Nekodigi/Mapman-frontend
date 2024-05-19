@@ -11,6 +11,7 @@ import { cn } from "@/lib/utils";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/plate-ui/tooltip";
 import { pdfjs } from "react-pdf";
+import { Suspense } from "react";
 
 const fontSans = FontSans({
   subsets: ["latin"],
@@ -88,7 +89,9 @@ export default function RootLayout({
                 skipDelayDuration={0}
               >
                 {children}
-                <Footer />
+                <Suspense>
+                  <Footer />
+                </Suspense>
                 <Toaster />
               </TooltipProvider>
             </ThemeProvider>
