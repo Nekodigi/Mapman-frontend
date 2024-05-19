@@ -240,10 +240,14 @@ export default function Home() {
       profiles: data,
     }));
   };
+  const [isMobile, setIsMobile] = React.useState(false);
 
-  const isMobile = React.useMemo(() => {
-    return /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
-      navigator.userAgent
+  React.useEffect(() => {
+    if (!navigator) return;
+    setIsMobile(
+      /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(
+        navigator.userAgent
+      )
     );
   }, []);
 
