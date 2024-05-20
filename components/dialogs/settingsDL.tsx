@@ -24,6 +24,7 @@ import {
   useRouter,
   useSearchParams,
 } from "next/navigation";
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 
 export const SettingsDL = () => {
   const account = useContext(AccountContext);
@@ -54,18 +55,29 @@ export const SettingsDL = () => {
     <Dialog
       open={open}
       onOpenChange={(open) => {
-        if (open) {
-          setOpen(open);
-        } else {
-          setOpen(open);
-        }
+        console.log(open);
+        setOpen(open);
       }}
     >
-      <DialogTrigger className="px-4" onClick={() => setOpen(true)}>
-        <Settings
-          strokeWidth={1.5}
-          opacity={current === "profileManager" ? 1 : 0.5}
-        />
+      <DialogTrigger className="px-4" asChild>
+        <Button
+          variant="ghost"
+          className="flex justify-center items-center py-0 px-2"
+        >
+          {session?.user?.image && (
+            <Avatar className="flex justify-center items-center">
+              <AvatarImage
+                src={session?.user?.image}
+                alt={
+                  session?.user?.email?.substring(0, 2).toUpperCase() ||
+                  "not logged in"
+                }
+                className="rounded-full w-8 h-8"
+              />
+              <AvatarFallback>{session?.user?.email}</AvatarFallback>
+            </Avatar>
+          )}
+        </Button>
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
@@ -82,13 +94,19 @@ export const SettingsDL = () => {
             <div className="flex w-full items-center justify-between">
               <div className="flex items-center gap-2">
                 {session?.user?.image && (
-                  <Image
-                    src={session?.user?.image}
-                    alt="user"
-                    width={32}
-                    height={32}
-                    className="rounded-full"
-                  />
+                  <Avatar>
+                    <AvatarImage
+                      src={session?.user?.image}
+                      alt={
+                        session?.user?.email?.substring(0, 2).toUpperCase() ||
+                        "not logged in"
+                      }
+                      width={32}
+                      height={32}
+                      className="rounded-full"
+                    />
+                    <AvatarFallback>{session?.user?.email}</AvatarFallback>
+                  </Avatar>
                 )}
                 <p>{session?.user?.email}</p>
               </div>

@@ -87,7 +87,7 @@ export default function App({ params }: { params: { name: string } }) {
             </Button>
           </div>
           <Suspense>
-            <div className="flex  w-screen justify-center  gap-2 self-center  sm:p-2 sm:pb-0">
+            <div className="flex  w-screen justify-centergap-2 self-center  sm:p-2 sm:pb-0 min-h-[120px]">
               <Carousel
                 opts={{
                   align: "start",
