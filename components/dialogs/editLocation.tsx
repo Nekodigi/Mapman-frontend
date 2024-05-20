@@ -65,6 +65,7 @@ export const EditLocation = () => {
   const setOpen = useMemo(() => {
     return (open: boolean) => {
       if (!open) {
+        locEditor?.finish();
         router.back();
       }
     };
@@ -85,30 +86,37 @@ export const EditLocation = () => {
 
         <div className="flex items-center gap-4">
           <Label className="min-w-20 text-right">Name</Label>
-          <Input
-            value={loc.name}
-            onChange={(e) => {
-              setLoc({
-                ...loc,
-                name: e.target.value,
-              });
-            }}
-            //trigger when finish hit enter
-            onKeyDown={async (e) => {
-              if (e.key === "Enter") {
+          <div className="flex w-full gap-1">
+            <Input
+              value={loc.name}
+              onChange={(e) => {
+                setLoc({
+                  ...loc,
+                  name: e.target.value,
+                });
+              }}
+              //trigger when finish hit enter
+              onKeyDown={async (e) => {
+                if (e.key === "Enter") {
+                  locEditor?.fetchLocation(loc.name);
+                }
+              }}
+            />
+            <Button
+              variant="ghost"
+              size="icon"
+              onClick={() => {
                 locEditor?.fetchLocation(loc.name);
-              }
-            }}
-          />
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => {
-              locEditor?.fetchLocation(loc.name);
-            }}
-          >
-            {locEditor?.status === "ready" ? <Search /> : <Spinner />}
-          </Button>
+              }}
+              className="min-w-10"
+            >
+              {locEditor?.status === "ready" ? (
+                <Search />
+              ) : (
+                <Spinner /> //size="small" className="text-white"
+              )}
+            </Button>
+          </div>
         </div>
         <div className="flex items-center gap-4">
           <div className="min-w-20 text-right">
@@ -239,7 +247,7 @@ export const EditLocation = () => {
         <Button
           onClick={() => {
             setOpen(false);
-            locEditor?.finish();
+            //locEditor?.finish();
           }}
         >
           Submit

@@ -97,7 +97,9 @@ export const MapComponent = () => {
         account.searchOption.viewCenter || (initCenter as Location);
       if (!center) return;
 
-      let filtered = account.locs.filter((loc) =>
+      // filtered doesn't include it self
+      let filtered = account.locs.filter((loc) => loc.name !== center.name);
+      filtered = filtered.filter((loc) =>
         loc.vars?.viewDistance ? loc.vars?.viewDistance < DIST_LIMIT : true
       );
       filtered = filtered?.sort((a, b) => {
@@ -108,7 +110,14 @@ export const MapComponent = () => {
       });
       //get first 10 items of filtered
       filtered = filtered?.slice(0, N_NEARBY);
-
+      console.log(filtered);
+      if (filtered.length === 0)
+        filtered = [
+          {
+            lon: center.lon,
+            lat: center.lat + DIST_LIMIT / 111,
+          } as Location,
+        ];
       if (center.lat === initCenter.lat && center.lon === initCenter.lon) {
         filtered = account?.locs;
       }
@@ -133,7 +142,7 @@ export const MapComponent = () => {
         );
       }
       // // consider search bar consume 64px of 360px height
-      map.fitBounds(bounds, { top: 64, bottom: 64, left: 0, right: 0 });
+      map.fitBounds(bounds, { top: 72, bottom: 64, left: 32, right: 32 });
     }
   }, [account?.locs, account?.searchOption.viewCenter, map]);
   // jump to current position
@@ -336,9 +345,9 @@ export const MapComponent = () => {
 
   useEffect(() => {
     if (account?.locs && map) {
-      const infoWindow = new google.maps.InfoWindow({
-        disableAutoPan: true,
-      });
+      // const infoWindow = new google.maps.InfoWindow({
+      //   disableAutoPan: true,
+      // });
 
       //add or remove changed markers
       // don't change marker if it not changed
@@ -394,13 +403,8 @@ export const MapComponent = () => {
               navigator.vibrate(1);
               dragend(marker, loc, e);
             });
-            marker.addListener("mouseover", () => {
-              infoWindow.setContent(loc.name);
-              infoWindow.open(map, marker);
-            });
-            marker.addListener("mouseout", () => {
-              infoWindow.close();
-            });
+            marker.addListener("mouseover", () => {});
+            marker.addListener("mouseout", () => {});
           }
 
           if (loc.name === "Current Position") {

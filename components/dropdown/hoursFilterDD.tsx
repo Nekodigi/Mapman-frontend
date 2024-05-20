@@ -16,6 +16,7 @@ import { ToggleGroup, ToggleGroupItem } from "@/components/ui/toggle-group";
 import { renderHour } from "@/utils/date";
 import { WeekLUT } from "@/type/date";
 import { AccountContext } from "../context/account";
+import { cn } from "@/lib/utils";
 
 export const HoursFilterDD = () => {
   const account = useContext(AccountContext);
@@ -52,10 +53,17 @@ export const HoursFilterDD = () => {
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <Button variant="outline" className="shadow-lg">
+        <Button
+          variant="outline"
+          className={cn(
+            "shadow-lg",
+            type !== "anytime" &&
+              "bg-blue-500 hover:bg-blue-600 text-white hover:text-white"
+          )}
+        >
           <Clock className="mr-2 size-4" />
           {type === "now" && "Now"}
-          {type === "anytime" && "Anytime"}
+          {type === "anytime" && "Hours"}
           {type === "select" && `${WeekLUT[week]} ${renderHour(time)}`}
         </Button>
       </DropdownMenuTrigger>
