@@ -122,7 +122,7 @@ const Demo = ({ params }: { params: { name: string } }) => {
         {/* {account?.vars?.orient?.alpha && (
           
         )} */}
-        <ReactPhotoSphereViewer
+        {/* <ReactPhotoSphereViewer
           src="/images/focus.png"
           moveInertia={false}
           height={"100vh"}
@@ -137,7 +137,7 @@ const Demo = ({ params }: { params: { name: string } }) => {
         <p>{-((account?.vars?.orient?.alpha || 0) / 180) * Math.PI}</p>
         <p>{account?.vars?.orient?.alpha}</p>
         <p>{account?.vars?.orient?.beta}</p>
-        <p>{account?.vars?.orient?.gamma}</p>
+        <p>{account?.vars?.orient?.gamma}</p> */}
 
         <Card className="w-full max-w-[480px]">
           <CardHeader className="flex gap-4">

@@ -65,7 +65,7 @@ export default function App({ params }: { params: { name: string } }) {
   );
 
   const isImage = (url: string) => {
-    if (url.match(/\.(jpeg|jpg|gif|png)$/) !== null) return true;
+    if (url.match(/\.(jpeg|jpg|gif|png|webp|svg)$/) !== null) return true;
     if (url.match(/lh3.googleusercontent.com/) !== null) return true;
     if (url.match(/maps.googleapis.com/) !== null) return true;
 

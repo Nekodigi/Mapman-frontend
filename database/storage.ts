@@ -1,9 +1,17 @@
+// TODO Module parse failed: Unexpected character '�' (1:2)
+
 import { storage } from "firebase-admin";
 
 import { cert, getApps, initializeApp } from "firebase-admin/app";
 
 //TODO FIX HOURS SINCE WE CAN'T USE ARRAY or USE CONVERTER
 
+console.log(
+  process.env.SA_PROJECT_ID,
+  process.env.SA_CLIENT_EMAIL,
+  process.env.SA_PRIVATE_KEY,
+  process.env.BUCKET_NAME
+);
 if (!getApps().length) {
   initializeApp({
     credential: cert({
