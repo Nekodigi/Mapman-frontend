@@ -36,20 +36,23 @@ export const categorize = (location: string) => {
   }
 };
 
-// TODO THIS IS BAD BECAUSE IT IS CLIENT SIDE
 export const photo2url = async (
   photo: PlacePhoto,
   name: string,
   account: string,
   profile: string
 ) => {
+  // console.log(
+  //   // `https://places.googleapis.com/v1/${photo.photo_reference}/media?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}&PARAMETERS`
+  //   `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1920&photo_reference=${photo.photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}`
+  // );
   const url = await uploadMapPhoto(
     `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1920&photo_reference=${photo.photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}`,
     account,
     profile,
     name
   );
-
+  // console.log(url);
   return url;
 };
 
@@ -59,6 +62,7 @@ export const getLocationByName = async (
   profile: string
 ) => {
   //get place id
+  console.time("Get id");
   const id_res = await client.findPlaceFromText({
     params: {
       input: name,
@@ -71,7 +75,9 @@ export const getLocationByName = async (
     return null;
   }
   const id = id_res.data.candidates[0].place_id;
+  console.timeEnd("Get id");
   //get place detail
+  console.time("Get detail");
   const res = (
     await client.placeDetails({
       params: {
@@ -95,6 +101,8 @@ export const getLocationByName = async (
   ) {
     return null;
   }
+  console.timeEnd("Get detail");
+  console.time("upload photos");
   const location: Location = {
     name: res.name,
     id: id,
@@ -111,7 +119,7 @@ export const getLocationByName = async (
       // ) || [],
       await Promise.all(
         res.photos?.slice(0, 5).map(async (photo: PlacePhoto) => {
-          return await photo2url(photo, name, account, profile);
+          return await photo2url(photo, res.name!, account, profile);
         }) || []
       ),
     origImgs: res.photos,
@@ -124,5 +132,7 @@ export const getLocationByName = async (
       createdAt: new Date(),
     },
   };
+  console.timeEnd("upload photos");
+  console.log("LOCATION FETCHED");
   return location;
 };

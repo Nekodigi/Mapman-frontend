@@ -15,12 +15,13 @@ export const uploadFromUrl = async (
   const res = await fetch(url);
   const res_blob = await res.blob();
   const blob = bucket.file(filename);
+  const res_url = blob.publicUrl();
+
   let buffer = await res_blob.arrayBuffer();
   //resize blob image
   if (resize) {
     buffer = await sharp(buffer).resize(resize[0], resize[1]).toBuffer();
   }
-
   await blob.save(Buffer.from(buffer), {
     resumable: false,
     metadata: {
@@ -28,7 +29,8 @@ export const uploadFromUrl = async (
     },
   });
   await blob.makePublic();
-  return blob.publicUrl();
+
+  return res_url;
 };
 
 export const uploadMapPhoto = async (
@@ -38,21 +40,26 @@ export const uploadMapPhoto = async (
   name: string
 ) => {
   const fileName = `${new Date().toISOString()}.png`;
-  console.log(url);
-  const upl_url = await uploadFromUrl(
-    url,
-    `Mapman/${account}/${profile}/${name}/${fileName}`
-  );
-  const resized_url_128 = await uploadFromUrl(
-    upl_url,
-    `Mapman/${account}/${profile}/${name}/resized/128/${fileName}`,
-    [128, 128]
-  );
-  const resized_url_512 = await uploadFromUrl(
-    upl_url,
-    `Mapman/${account}/${profile}/${name}/resized/512/${fileName}`,
-    [512, 512]
-  );
+  const upl_url = bucket
+    .file(`Mapman/${account}/${profile}/${name}/${fileName}`)
+    .publicUrl();
+  const actual_upload = async () => {
+    await uploadFromUrl(
+      url,
+      `Mapman/${account}/${profile}/${name}/${fileName}`
+    );
+    await uploadFromUrl(
+      upl_url,
+      `Mapman/${account}/${profile}/${name}/resized/128/${fileName}`,
+      [128, 128]
+    );
+    await uploadFromUrl(
+      upl_url,
+      `Mapman/${account}/${profile}/${name}/resized/512/${fileName}`,
+      [512, 512]
+    );
+  };
+  actual_upload();
   return upl_url;
 };
 

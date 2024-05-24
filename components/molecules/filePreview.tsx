@@ -80,11 +80,26 @@ export const FilePreview = ({ url, passive }: FilePreviewProps) => {
     return false;
   };
 
+  const optimizeUrl = (url: string) => {
+    // if storage.googleapis.com
+    if (url.match(/storage.googleapis.com/)) {
+      const dUrl = decodeURIComponent(url);
+      const fileName = dUrl.split("/").pop()!;
+      const ext = fileName.split(".").pop();
+      if (ext === "png") {
+        const target = `resized/512/${fileName}`;
+        const replaced = dUrl.replace(fileName, target);
+        return replaced;
+      }
+    }
+    return url;
+  };
+
   const renderFile = (url: string) => {
     if (isImage(url)) {
       return (
         <Image
-          src={url}
+          src={optimizeUrl(url)}
           width={512}
           height={0}
           className="h-full w-full object-cover opacity-100 duration-300  data-[loaded=false]:opacity-0 rounded-lg"

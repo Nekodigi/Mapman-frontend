@@ -1,4 +1,6 @@
-// TODO Module parse failed: Unexpected character '�' (1:2)
+//set env from .env.local
+// import { config } from "dotenv";
+// config();
 
 // import { config } from "dotenv";
 // config("../.env");
@@ -20,7 +22,8 @@ if (!getApps().length) {
     credential: cert({
       projectId: process.env.SA_PROJECT_ID,
       clientEmail: process.env.SA_CLIENT_EMAIL,
-      privateKey: process.env.SA_PRIVATE_KEY?.split(String.raw`\n`).join("\n"),
+      //privateKey: process.env.SA_PRIVATE_KEY?.replace(/\\n/g, "\n"),
+      privateKey: process.env.SA_PRIVATE_KEY,
     }),
   });
 }

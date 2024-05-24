@@ -57,7 +57,6 @@ export default function App({ params }: { params: { name: string } }) {
     (loc: Location) => {
       account?.locsDispatch({
         type: "edit",
-        index: account.locs.findIndex((l) => l.name === loc.name),
         location: loc,
       });
     },
@@ -110,7 +109,7 @@ export default function App({ params }: { params: { name: string } }) {
             </div>
           </Suspense>
           <div className="p-4">
-            <LocationInfos loc={loc} />
+            <LocationInfos loc={loc} allHours />
             <div className="flex h-16 items-center justify-between">
               <Button variant="ghost" size="icon" asChild>
                 <Link
