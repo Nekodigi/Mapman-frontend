@@ -6,11 +6,13 @@ import { renderFilterHourRange, renderHourRange } from "@/utils/date";
 import { AccountContext } from "../context/account";
 import { useContext, useMemo } from "react";
 import { WeekLUT } from "@/type/date";
+import { cn } from "@/lib/utils";
 
 type LocationInfosProps = {
   loc: Location;
+  allHours?: boolean;
 };
-export const LocationInfos = ({ loc }: LocationInfosProps) => {
+export const LocationInfos = ({ loc, allHours }: LocationInfosProps) => {
   const account = useContext(AccountContext);
   const week = useMemo(() => {
     const w = account?.searchOption.hours.week;
@@ -38,7 +40,32 @@ export const LocationInfos = ({ loc }: LocationInfosProps) => {
         <p className="text-xs">
           {account &&
             loc.hours &&
-            renderFilterHourRange(account.searchOption.hours, loc.hours)}
+            (allHours ? (
+              <div className="flex gap-x-8 gap-y-1 flex-wrap">
+                {loc.hours.map((h, i) => {
+                  const filter = account.searchOption.hours;
+                  let week = new Date().getDay();
+                  if (filter.week !== undefined && filter.type === "select")
+                    week = filter.week;
+                  return (
+                    <div
+                      key={i}
+                      className={cn(
+                        "flex gap-1 min-w-[120px]",
+                        i === week
+                          ? "text-primary font-semibold"
+                          : "text-muted-foreground"
+                      )}
+                    >
+                      <p className="w-8">{WeekLUT[i]}</p>
+                      {renderHourRange(h)}
+                    </div>
+                  );
+                })}
+              </div>
+            ) : (
+              renderFilterHourRange(account.searchOption.hours, loc.hours)
+            ))}
         </p>
         <p className="text-xs">{loc.price}</p>
       </div>

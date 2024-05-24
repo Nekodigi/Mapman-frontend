@@ -27,8 +27,10 @@ export const LocCtrlDD = ({ locName }: LocCtrlDDProps) => {
         title="Delete location"
         description="Are you sure?"
         onConfirm={() => {
-          const id = account?.locs.findIndex((l) => l.name === locName)!;
-          account?.locsDispatch({ type: "delete", index: id });
+          account?.locsDispatch({
+            type: "delete",
+            location: { name: locName } as any as Location,
+          });
           router.push("/map");
         }}
       />

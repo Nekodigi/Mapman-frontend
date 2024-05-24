@@ -184,7 +184,11 @@ export const EditLocation = () => {
                           "account",
                           account?.account.email || "_"
                         );
-                        formData.append("profile", loc.name);
+                        formData.append(
+                          "profile",
+                          account?.account.currentProfile!
+                        );
+                        formData.append("name", loc.name);
                         const res = await (
                           await fetch("/api/upload", {
                             method: "POST",

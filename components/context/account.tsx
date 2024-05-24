@@ -231,7 +231,6 @@ type AccountProviderProps = {
 type Action = {
   type: "add" | "edit" | "delete" | "setAll";
   location?: Location;
-  index?: number;
   locations?: Location[];
 };
 //endregion
@@ -283,8 +282,8 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
             const newAccount = { ...prev };
             newAccount.profiles[index].locations = newAccount.profiles[
               index
-            ].locations.map((location, index) =>
-              index === action.index ? action.location! : location
+            ].locations.map((loc, index) =>
+              loc.name === action.location!.name ? action.location! : loc
             );
             return newAccount;
           });
@@ -294,7 +293,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
             const newAccount = { ...prev };
             newAccount.profiles[index].locations = newAccount.profiles[
               index
-            ].locations.filter((_, index) => index !== action.index);
+            ].locations.filter((loc, _) => loc.name !== action.location!.name);
             return newAccount;
           });
           break;
@@ -317,10 +316,11 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   const finish = useCallback(() => {
     setOpen(false);
     setLastFetchName("");
+    if (loc.name === "") return;
     if (id === -1) {
-      locsDispatch({ type: "add", location: { ...loc }, index: -1 });
+      locsDispatch({ type: "add", location: { ...loc } });
     } else {
-      locsDispatch({ type: "edit", location: { ...loc }, index: id });
+      locsDispatch({ type: "edit", location: { ...loc } });
     }
   }, [loc, id, locsDispatch]);
   const fetchLocation = async (name: string) => {

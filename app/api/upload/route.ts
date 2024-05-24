@@ -11,10 +11,11 @@ export async function POST(req: NextRequest, res: NextResponse) {
     const file = formData.get("file") as File;
     const account = formData.get("account") as string;
     const profile = formData.get("profile") as string;
+    const name = formData.get("name") as string;
     if (!file) {
       return NextResponse.json({ status: "fail", data: "No file uploaded" });
     }
-    const fileName = `Mapman/${account}/${profile}/${new Date().toISOString()}_${file.name}`;
+    const fileName = `Mapman/${account}/${profile}/${name}/${new Date().toISOString()}_${file.name}`;
     const fileBuffer = await file.arrayBuffer();
     const blob = bucket.file(fileName);
     await blob.save(Buffer.from(fileBuffer), {
