@@ -44,20 +44,30 @@ export const uploadMapPhoto = async (
     .file(`Mapman/${account}/${profile}/${name}/${fileName}`)
     .publicUrl();
   const actual_upload = async () => {
-    await uploadFromUrl(
-      url,
-      `Mapman/${account}/${profile}/${name}/${fileName}`
-    );
-    await uploadFromUrl(
-      upl_url,
-      `Mapman/${account}/${profile}/${name}/resized/128/${fileName}`,
-      [128, 128]
-    );
-    await uploadFromUrl(
-      upl_url,
-      `Mapman/${account}/${profile}/${name}/resized/512/${fileName}`,
-      [512, 512]
-    );
+    const retries = 3;
+    let attempt = 0;
+    while (attempt < retries) {
+      try {
+        await uploadFromUrl(
+          url,
+          `Mapman/${account}/${profile}/${name}/${fileName}`
+        );
+        await uploadFromUrl(
+          upl_url,
+          `Mapman/${account}/${profile}/${name}/resized/128/${fileName}`,
+          [128, 128]
+        );
+        await uploadFromUrl(
+          upl_url,
+          `Mapman/${account}/${profile}/${name}/resized/512/${fileName}`,
+          [512, 512]
+        );
+        break;
+      } catch (e) {
+        console.log(e);
+        attempt++;
+      }
+    }
   };
   actual_upload();
   return upl_url;

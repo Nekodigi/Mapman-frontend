@@ -46,14 +46,18 @@ export const photo2url = async (
   //   // `https://places.googleapis.com/v1/${photo.photo_reference}/media?key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}&PARAMETERS`
   //   `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1920&photo_reference=${photo.photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}`
   // );
-  const url = await uploadMapPhoto(
-    `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1920&photo_reference=${photo.photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}`,
-    account,
-    profile,
-    name
-  );
-  // console.log(url);
-  return url;
+  try {
+    const url = await uploadMapPhoto(
+      `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1920&photo_reference=${photo.photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}`,
+      account,
+      profile,
+      name
+    );
+    return url;
+  } catch (e) {
+    console.log(e);
+    return "";
+  }
 };
 
 export const getLocationByName = async (

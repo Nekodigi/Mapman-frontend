@@ -15,7 +15,14 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { Suspense, useCallback, useContext, useMemo } from "react";
+import React, {
+  Suspense,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Card } from "@/components/ui/card";
 
 import { CommentsProvider } from "@udecode/plate-comments";
@@ -72,6 +79,7 @@ const LinkOrDiv = ({ passive, url, children }: LinkOrDivProps) => {
 
 export const FilePreview = ({ url, passive }: FilePreviewProps) => {
   const router = useRouter();
+  const [uploaded, setUploaded] = useState(true);
   const isImage = (url: string) => {
     if (url.match(/\.(jpeg|jpg|gif|png|webp|svg)$/) !== null) return true;
     if (url.match(/lh3.googleusercontent.com/) !== null) return true;
@@ -95,9 +103,30 @@ export const FilePreview = ({ url, passive }: FilePreviewProps) => {
     return url;
   };
 
+  useEffect(() => {
+    const check = async () => {
+      const res = await fetch(url);
+      console.log(res.status);
+      if (res.status === 200) {
+        setUploaded(true);
+      } else {
+        setUploaded(false);
+        // monitor the image
+        const interval = setInterval(async () => {
+          const res = await fetch(url);
+          if (res.status === 200) {
+            setUploaded(true);
+            clearInterval(interval);
+          }
+        }, 10000);
+      }
+    };
+    check();
+  }, [url]);
+
   const renderFile = (url: string) => {
     if (isImage(url)) {
-      return (
+      return uploaded ? (
         <Image
           src={optimizeUrl(url)}
           width={512}
@@ -117,6 +146,11 @@ export const FilePreview = ({ url, passive }: FilePreviewProps) => {
             );
           }}
         />
+      ) : (
+        <div className="flex flex-col gap-1 justify-center items-center min-h-full h-full w-full">
+          <Spinner />
+          <p className="text-sm">Processing</p>
+        </div>
       );
     } else {
       return (
