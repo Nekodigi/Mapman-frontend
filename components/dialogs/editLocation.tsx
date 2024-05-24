@@ -1,6 +1,6 @@
 "use client";
 
-import { useContext, useMemo, useRef, useState } from "react";
+import { useContext, useEffect, useMemo, useRef, useState } from "react";
 
 import { AccountContext } from "../context/account";
 import { LocCatDD } from "../dropdown/locCatDD";
@@ -56,6 +56,19 @@ export const EditLocation = () => {
   const locEditor = useMemo(() => account?.locEditor, [account]);
   const loc = useMemo(() => locEditor?.loc, [locEditor]);
   const setLoc = useMemo(() => locEditor?.setLoc, [locEditor]);
+  const [uploaded, setUploaded] = useState(true);
+  useEffect(() => {
+    if (loc && loc.imgs.length) {
+      const check = async () => {
+        const res = await fetch(loc.imgs[0]);
+        if (res.status === 200) {
+          setUploaded(true);
+        } else {
+          setUploaded(false);
+        }
+      };
+    }
+  }, [loc?.imgs]);
 
   //const open = useMemo(() => locEditor?.open, [locEditor]);
   const open = useMemo(() => {
@@ -74,6 +87,8 @@ export const EditLocation = () => {
   if (!loc || !setLoc || !open || !setOpen) {
     return null;
   }
+
+  // check validity of image url
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
@@ -224,7 +239,11 @@ export const EditLocation = () => {
                     }}
                   >
                     <Card className="h-[80px]">
-                      <FilePreview url={loc.imgs[index]} passive />
+                      {uploaded ? (
+                        <FilePreview url={loc.imgs[index]} passive />
+                      ) : (
+                        <Spinner />
+                      )}
                     </Card>
                   </DeleteAlert>
                 </CarouselItem>

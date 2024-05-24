@@ -44,7 +44,7 @@ export const photo2url = async (
   profile: string
 ) => {
   const url = await uploadMapPhoto(
-    `https://maps.googleapis.com/maps/api/place/photo?photo_reference=${photo.photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}`,
+    `https://maps.googleapis.com/maps/api/place/photo?maxwidth=1920&photo_reference=${photo.photo_reference}&key=${process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}`,
     account,
     profile,
     name
@@ -110,10 +110,11 @@ export const getLocationByName = async (
       //   photo2url(photo, name, account, profile)
       // ) || [],
       await Promise.all(
-        res.photos?.map(async (photo: PlacePhoto) => {
+        res.photos?.slice(0, 5).map(async (photo: PlacePhoto) => {
           return await photo2url(photo, name, account, profile);
         }) || []
       ),
+    origImgs: res.photos,
     website: res.website,
     status: {
       checkSum: "",

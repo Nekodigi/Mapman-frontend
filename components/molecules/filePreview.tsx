@@ -38,6 +38,7 @@ import { plugins } from "@/lib/plate/plate-plugins";
 import { Editor } from "@/components/plate-ui/editor";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { Spinner } from "../ui/spinner";
+import e from "express";
 
 type FilePreviewProps = {
   url: string;

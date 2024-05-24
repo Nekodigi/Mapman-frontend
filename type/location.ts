@@ -1,3 +1,4 @@
+import { PlacePhoto } from "@googlemaps/google-maps-services-js";
 import { Status } from "./status";
 
 export type LCategory =
@@ -34,6 +35,7 @@ export type Location = {
   lat: number;
   zoom?: number;
   imgs: string[];
+  origImgs?: PlacePhoto[];
   website?: string;
   note?: string;
   ticket?: string;

@@ -1,5 +1,8 @@
 //set env from .env.local
 
+// import { config } from "dotenv";
+// config("../.env");
+
 import { bucket } from "@/database/storage";
 import sharp from "sharp";
 
@@ -35,6 +38,7 @@ export const uploadMapPhoto = async (
   name: string
 ) => {
   const fileName = `${new Date().toISOString()}.png`;
+  console.log(url);
   const upl_url = await uploadFromUrl(
     url,
     `Mapman/${account}/${profile}/${name}/${fileName}`
