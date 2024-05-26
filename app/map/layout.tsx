@@ -45,7 +45,6 @@ export default function RootLayout({
       <ResizablePanelGroup direction={width > BP ? "horizontal" : "vertical"}>
         {width > BP && (
           <ResizablePanel className="flex flex-col">
-            {" "}
             <Suspense>{children}</Suspense>
           </ResizablePanel>
         )}
@@ -60,7 +59,9 @@ export default function RootLayout({
         </ResizablePanel>
         {width <= BP && <ResizableHandle />}
         {width <= BP && (
-          <ResizablePanel className="flex flex-col">{children}</ResizablePanel>
+          <ResizablePanel className="flex flex-col">
+            <Suspense>{children}</Suspense>
+          </ResizablePanel>
         )}
       </ResizablePanelGroup>
       <Suspense>
