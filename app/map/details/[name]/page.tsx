@@ -16,7 +16,14 @@ import {
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import React, { Suspense, useCallback, useContext, useMemo } from "react";
+import React, {
+  Suspense,
+  useCallback,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
 import { Card } from "@/components/ui/card";
 
 import { CommentsProvider } from "@udecode/plate-comments";
@@ -39,11 +46,37 @@ import { plugins } from "@/lib/plate/plate-plugins";
 import { Editor } from "@/components/plate-ui/editor";
 import { ScrollArea } from "@/components/ui/scroll-area";
 import { FilePreview } from "@/components/molecules/filePreview";
+import useWindowDimensions from "@/components/atoms/windowDimension";
+import { cn } from "@/lib/utils";
 
 export default function App({ params }: { params: { name: string } }) {
   const account = useContext(AccountContext);
+  const ref = React.useRef<HTMLDivElement>(null);
+  const SM = 640;
+  const MD = 768;
+  const LG = 1024;
+  const [width, setWidth] = useState(0);
   const router = useRouter();
   const { toast } = useToast();
+
+  useEffect(() => {
+    const handleResize = () => {
+      console.log(ref.current?.offsetWidth || 0);
+      setWidth(ref.current?.offsetWidth || 0);
+    };
+    window.addEventListener("resize", handleResize);
+    // interval monitor
+    const interval = setInterval(() => {
+      if (ref.current?.offsetWidth) {
+        setWidth(ref.current?.offsetWidth || 0);
+      }
+    }, 500);
+    handleResize();
+    return () => {
+      window.removeEventListener("resize", handleResize);
+      clearInterval(interval);
+    };
+  }, []);
 
   const loc = useMemo(() => {
     const name = decodeURIComponent(params.name);
@@ -72,7 +105,7 @@ export default function App({ params }: { params: { name: string } }) {
   };
 
   return (
-    <ScrollArea className="h-full min-h-0">
+    <ScrollArea className="h-full min-h-0" ref={ref}>
       {loc && (
         <div className="flex min-h-0 grow flex-col overflow-auto">
           <div
@@ -86,7 +119,12 @@ export default function App({ params }: { params: { name: string } }) {
             </Button>
           </div>
           <Suspense>
-            <div className="flex  w-screen justify-centergap-2 self-center  sm:p-2 sm:pb-0 min-h-[120px]">
+            <div
+              className={cn(
+                "flex  w-full justify-centergap-2 self-center min-h-[120px]",
+                width > SM ? "p-2 pb-0" : ""
+              )}
+            >
               <Carousel
                 opts={{
                   align: "start",
@@ -97,7 +135,15 @@ export default function App({ params }: { params: { name: string } }) {
                   {loc.imgs.map((img, index) => (
                     <CarouselItem
                       key={index}
-                      className="sm:basis-1/2 md:basis-1/3 lg:basis-1/5"
+                      className={
+                        width < SM
+                          ? "w-full"
+                          : width < MD
+                            ? "basis-1/2"
+                            : width < LG
+                              ? "basis-1/3"
+                              : "basis-1/5"
+                      }
                     >
                       <Card className="h-[160px]">
                         <FilePreview url={img} />

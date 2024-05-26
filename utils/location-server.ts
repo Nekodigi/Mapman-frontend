@@ -117,15 +117,11 @@ export const getLocationByName = async (
     lon: res.geometry?.location.lng,
     lat: res.geometry?.location.lat,
     zoom: 15,
-    imgs:
-      // res.photos?.map((photo: PlacePhoto) =>
-      //   photo2url(photo, name, account, profile)
-      // ) || [],
-      await Promise.all(
-        res.photos?.slice(0, 5).map(async (photo: PlacePhoto) => {
-          return await photo2url(photo, res.name!, account, profile);
-        }) || []
-      ),
+    imgs: await Promise.all(
+      res.photos?.slice(0, 5).map(async (photo: PlacePhoto) => {
+        return await photo2url(photo, res.name!, account, profile);
+      }) || []
+    ),
     origImgs: res.photos,
     website: res.website,
     status: {

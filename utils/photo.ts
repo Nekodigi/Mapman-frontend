@@ -5,6 +5,7 @@
 
 import { bucket } from "@/database/storage";
 import sharp from "sharp";
+import { makeid } from "./str";
 
 //based on reference above but use await
 export const uploadFromUrl = async (
@@ -39,9 +40,9 @@ export const uploadMapPhoto = async (
   profile: string,
   name: string
 ) => {
-  const fileName = `${new Date().toISOString()}.png`;
+  const fileName = `${makeid(10)}.png`;
   const upl_url = bucket
-    .file(`Mapman/${account}/${profile}/${name}/${fileName}`)
+    .file(`Mapman/${account}/cache/${profile}/${name}/${fileName}`)
     .publicUrl();
   const actual_upload = async () => {
     const retries = 3;
@@ -50,21 +51,25 @@ export const uploadMapPhoto = async (
       try {
         await uploadFromUrl(
           url,
-          `Mapman/${account}/${profile}/${name}/${fileName}`
+          `Mapman/${account}/cache/${profile}/${name}/${fileName}`
         );
         await uploadFromUrl(
           upl_url,
-          `Mapman/${account}/${profile}/${name}/resized/128/${fileName}`,
+          `Mapman/${account}/cache/${profile}/${name}/resized/128/${fileName}`,
           [128, 128]
         );
         await uploadFromUrl(
           upl_url,
-          `Mapman/${account}/${profile}/${name}/resized/512/${fileName}`,
+          `Mapman/${account}/cache/${profile}/${name}/resized/512/${fileName}`,
           [512, 512]
         );
         break;
       } catch (e) {
-        console.log(e);
+        if (attempt === retries - 1) {
+          console.log("Failed to upload", url);
+        } else {
+          console.log("retrying");
+        }
         attempt++;
       }
     }

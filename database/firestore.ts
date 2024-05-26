@@ -1,3 +1,6 @@
+import { config } from "dotenv";
+config();
+
 import { firestore } from "firebase-admin";
 import { cert, getApps, initializeApp } from "firebase-admin/app";
 import { accountConverter } from "./account";

@@ -3,6 +3,7 @@ import fs from "fs";
 import { pipeline } from "stream";
 import { promisify } from "util";
 import { bucket } from "@/database/storage";
+import { makeid } from "@/utils/str";
 const pump = promisify(pipeline);
 
 export async function POST(req: NextRequest, res: NextResponse) {
@@ -15,7 +16,7 @@ export async function POST(req: NextRequest, res: NextResponse) {
     if (!file) {
       return NextResponse.json({ status: "fail", data: "No file uploaded" });
     }
-    const fileName = `Mapman/${account}/${profile}/${name}/${new Date().toISOString()}_${file.name}`;
+    const fileName = `Mapman/${account}/${profile}/${name}/${makeid(10)}_${file.name}`;
     const fileBuffer = await file.arrayBuffer();
     const blob = bucket.file(fileName);
     await blob.save(Buffer.from(fileBuffer), {

@@ -1,6 +1,6 @@
 credentials/*
 .env
-
+local/*
 
 
 # Auto Generated PWA files

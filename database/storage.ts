@@ -1,9 +1,6 @@
 //set env from .env.local
-// import { config } from "dotenv";
-// config();
-
-// import { config } from "dotenv";
-// config("../.env");
+import { config } from "dotenv";
+config();
 
 import { storage } from "firebase-admin";
 

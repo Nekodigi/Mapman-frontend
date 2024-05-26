@@ -389,12 +389,12 @@ export const MapComponent = () => {
               icon: circleMarker,
             });
             marker.addListener("click", () => {
+              router.push(`/map/details/${loc.name}`);
               account.setSearchOption((prev) => ({
                 ...prev,
                 viewCenter: loc,
               }));
               navigator.vibrate(1);
-              router.push(`/map/details/${loc.name}`);
             });
             marker.addListener("dragstart", () => {
               navigator.vibrate(1);

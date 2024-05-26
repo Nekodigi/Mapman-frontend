@@ -11,6 +11,7 @@ import {
 import { Wrapper, Status } from "@googlemaps/react-wrapper";
 import { Spinner } from "@/components/ui/spinner";
 import { pdfjs } from "react-pdf";
+import useWindowDimensions from "@/components/atoms/windowDimension";
 
 pdfjs.GlobalWorkerOptions.workerSrc = `//unpkg.com/pdfjs-dist@${pdfjs.version}/build/pdf.worker.min.js`;
 
@@ -19,6 +20,9 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const { height, width } = useWindowDimensions();
+  const BP = 1000;
+
   const render = (status: Status): JSX.Element | null => {
     switch (status) {
       case Status.LOADING:
@@ -38,21 +42,27 @@ export default function RootLayout({
 
   return (
     <div className="flex min-h-0 grow flex-col">
-      <Wrapper
-        apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}
-        render={render as any}
-      >
-        <ResizablePanelGroup direction="vertical">
-          <ResizablePanel>
-            <MapUI />
-          </ResizablePanel>
-          <ResizableHandle />
+      <ResizablePanelGroup direction={width > BP ? "horizontal" : "vertical"}>
+        {width > BP && (
           <ResizablePanel className="flex flex-col">{children}</ResizablePanel>
-        </ResizablePanelGroup>
-        <Suspense>
-          <EditLocation />
-        </Suspense>
-      </Wrapper>
+        )}
+        {width > BP && <ResizableHandle />}
+        <ResizablePanel>
+          <Wrapper
+            apiKey={process.env.NEXT_PUBLIC_GOOGLE_MAP_API_KEY!}
+            render={render as any}
+          >
+            <MapUI />
+          </Wrapper>
+        </ResizablePanel>
+        {width <= BP && <ResizableHandle />}
+        {width <= BP && (
+          <ResizablePanel className="flex flex-col">{children}</ResizablePanel>
+        )}
+      </ResizablePanelGroup>
+      <Suspense>
+        <EditLocation />
+      </Suspense>
     </div>
   );
 }

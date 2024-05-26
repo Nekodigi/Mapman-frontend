@@ -34,18 +34,21 @@ export const Spot = ({ loc, passive, className }: SpotProps) => {
     visible && (
       <div
         className={cn(
-          "flex w-screen items-center justify-between pr-4",
+          "flex w-full items-center justify-between pr-4",
           className
         )}
       >
         <div
           className="flex h-[72px] min-w-0 w-full  gap-2 px-2 py-1 "
           onClick={() => {
-            account?.setSearchOption((prev) => ({
-              ...prev,
-              viewCenter: loc,
-            }));
             router.push(`/map/details/${encodeURIComponent(loc.name)}`);
+            const f = async () => {
+              account?.setSearchOption((prev) => ({
+                ...prev,
+                viewCenter: loc,
+              }));
+            };
+            f();
           }}
         >
           <div className="min-w-16 w-16 h-16">

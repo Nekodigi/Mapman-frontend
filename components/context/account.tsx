@@ -368,6 +368,12 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       console.log("only local change saved!");
       return;
     }
+    //check need
+    if (isEqual(acc.profiles, account.profiles)) {
+      console.log("no change to save!");
+      return;
+    }
+
     await fetch("/api/account", {
       method: "POST",
       body: JSON.stringify(acc),
