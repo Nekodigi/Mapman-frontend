@@ -50,6 +50,7 @@ import e from "express";
 type FilePreviewProps = {
   url: string;
   passive?: boolean;
+  small?: boolean;
 };
 
 type LinkOrDivProps = {
@@ -77,7 +78,7 @@ const LinkOrDiv = ({ passive, url, children }: LinkOrDivProps) => {
   }
 };
 
-export const FilePreview = ({ url, passive }: FilePreviewProps) => {
+export const FilePreview = ({ url, passive, small }: FilePreviewProps) => {
   const router = useRouter();
   const [uploaded, setUploaded] = useState(true);
   const isImage = (url: string) => {
@@ -88,24 +89,29 @@ export const FilePreview = ({ url, passive }: FilePreviewProps) => {
     return false;
   };
 
-  const optimizeUrl = (url: string) => {
-    // if storage.googleapis.com
-    if (url.match(/storage.googleapis.com/)) {
-      const dUrl = decodeURIComponent(url);
-      const fileName = dUrl.split("/").pop()!;
-      const ext = fileName.split(".").pop();
-      if (ext === "png") {
-        const target = `resized/512/${fileName}`;
-        const replaced = dUrl.replace(fileName, target);
-        return replaced;
+  const optimizeUrl = useCallback(
+    (url: string) => {
+      // if storage.googleapis.com
+      if (url.match(/storage.googleapis.com/)) {
+        const dUrl = decodeURIComponent(url);
+        const fileName = dUrl.split("/").pop()!;
+        const ext = fileName.split(".").pop();
+        if (ext === "png") {
+          let target = `resized/512/${fileName}`;
+          if (small) target = `resized/128/${fileName}`;
+          const replaced = dUrl.replace(fileName, target);
+          return replaced;
+        }
       }
-    }
-    return url;
-  };
+      return url;
+    },
+    [small]
+  );
 
   useEffect(() => {
     const check = async () => {
-      const res = await fetch(url);
+      const ourl = optimizeUrl(url);
+      const res = await fetch(ourl);
       console.log(res.status);
       if (res.status === 200) {
         setUploaded(true);
@@ -113,7 +119,7 @@ export const FilePreview = ({ url, passive }: FilePreviewProps) => {
         setUploaded(false);
         // monitor the image
         const interval = setInterval(async () => {
-          const res = await fetch(url);
+          const res = await fetch(ourl);
           if (res.status === 200) {
             setUploaded(true);
             clearInterval(interval);
@@ -122,7 +128,7 @@ export const FilePreview = ({ url, passive }: FilePreviewProps) => {
       }
     };
     check();
-  }, [url]);
+  }, [optimizeUrl, url]);
 
   const renderFile = (url: string) => {
     if (isImage(url)) {

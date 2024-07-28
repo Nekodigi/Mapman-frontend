@@ -52,7 +52,7 @@ export const Spot = ({ loc, passive, className }: SpotProps) => {
           }}
         >
           <div className="min-w-16 w-16 h-16">
-            <FilePreview url={loc.imgs[0] || "icons/no-image.png"} />
+            <FilePreview url={loc.imgs[0] || "icons/no-image.png"} small />
           </div>
           <LocationInfos loc={loc} />
         </div>
