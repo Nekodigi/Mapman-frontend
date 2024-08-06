@@ -110,7 +110,7 @@ export const MapComponent = () => {
       });
       //get first 10 items of filtered
       filtered = filtered?.slice(0, N_NEARBY);
-      console.log(filtered);
+      //console.log(filtered);
       if (filtered.length === 0)
         filtered = [
           {
@@ -168,7 +168,7 @@ export const MapComponent = () => {
       const candidate = account.locs.filter(
         (l) => l.name !== loc.name && filter(l, searchOptionRef.current!)
       );
-      console.log(candidate, searchOptionRef.current!);
+      //console.log(candidate, searchOptionRef.current!);
       const closest = candidate.reduce((prev, curr) =>
         distance(curr, pos) < distance(prev, pos) ? curr : prev
       );
@@ -378,7 +378,7 @@ export const MapComponent = () => {
           });
           let marker = exist as google.maps.Marker;
           if (!exist) {
-            console.log(loc.name);
+            //console.log(loc.name);
             marker = new google.maps.Marker({
               position: { lat: loc.lat, lng: loc.lon },
               map: map,
