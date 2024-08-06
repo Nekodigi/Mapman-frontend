@@ -67,7 +67,7 @@ export default function Page() {
           const duration = result.routes[0].legs[0].duration?.text;
           const depart = result.routes[0].legs[0].departure_time?.text;
           const arrive = result.routes[0].legs[0].arrival_time?.text;
-          console.log(distance, duration, depart, arrive);
+          //console.log(distance, duration, depart, arrive);
           setRoute({
             distance: distance ? distance : "",
             duration: duration ? duration : "",

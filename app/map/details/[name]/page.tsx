@@ -61,7 +61,7 @@ export default function App({ params }: { params: { name: string } }) {
 
   useEffect(() => {
     const handleResize = () => {
-      console.log(ref.current?.offsetWidth || 0);
+      //console.log(ref.current?.offsetWidth || 0);
       setWidth(ref.current?.offsetWidth || 0);
     };
     window.addEventListener("resize", handleResize);
@@ -201,7 +201,7 @@ export default function App({ params }: { params: { name: string } }) {
                   <ExternalLink opacity={0.5} strokeWidth={1} />
                 </Link>
               </Button>
-              <LocCtrlDD locName={loc.name} />
+              <LocCtrlDD loc={loc} />
             </div>
             {loc.note && (
               <DndProvider backend={HTML5Backend}>

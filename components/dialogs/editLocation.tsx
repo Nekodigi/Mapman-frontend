@@ -201,7 +201,7 @@ export const EditLocation = () => {
                           toast({
                             title: "Image uploaded",
                           });
-                          console.log(res.url);
+                          //console.log(res.url);
                           loc.imgs.unshift(res.url);
                           setLoc(loc);
                         } else {

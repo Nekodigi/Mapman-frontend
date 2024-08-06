@@ -267,7 +267,9 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
           setAccount((prev) => {
             const newAccount = { ...prev };
             const locationExists = newAccount.profiles[index].locations.find(
-              (location) => location.name === action.location!.name
+              (location) =>
+                location.name === action.location!.name ||
+                location.id === action.location!.id
             );
             if (locationExists) return newAccount;
             newAccount.profiles[index].locations = [
@@ -283,7 +285,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
             newAccount.profiles[index].locations = newAccount.profiles[
               index
             ].locations.map((loc, index) =>
-              loc.name === action.location!.name ? action.location! : loc
+              loc.id === action.location!.id ? action.location! : loc
             );
             return newAccount;
           });
@@ -293,7 +295,14 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
             const newAccount = { ...prev };
             newAccount.profiles[index].locations = newAccount.profiles[
               index
-            ].locations.filter((loc, _) => loc.name !== action.location!.name);
+            ].locations.filter((loc, _) => loc.id !== action.location!.id);
+            // console.log(
+            //   "delete",
+            //   newAccount.profiles[index].locations.filter(
+            //     (loc, _) => loc.id !== action.location!.id
+            //   ),
+            //   action.location!.id
+            // );
             return newAccount;
           });
           break;
@@ -382,7 +391,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   };
 
   const locs = useMemo(() => {
-    console.log("locs memo");
+    //console.log("locs memo");
     saveAccount(account);
     const index = account.profiles.findIndex(
       (profile) => profile.name === account.currentProfile
@@ -472,10 +481,10 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
 
   useEffect(() => {
     if (phase.current !== "initializing") return;
-    console.time("cache");
+    //console.time("cache");
     const account_cache = fetchAccountCache();
     setAccount(account_cache);
-    console.timeEnd("cache");
+    //console.timeEnd("cache");
 
     if (status === "loading") return;
     phase.current = "loading";

@@ -42,7 +42,7 @@ export const SettingsDL = () => {
   }, [params]);
 
   const setOpen = useCallback((open: boolean) => {
-    console.log(open);
+    //console.log(open);
     if (open) {
       window.history.pushState({}, "", "/settings?openSettings=true");
     } else {
@@ -55,7 +55,7 @@ export const SettingsDL = () => {
     <Dialog
       open={open}
       onOpenChange={(open) => {
-        console.log(open);
+        //console.log(open);
         setOpen(open);
       }}
     >

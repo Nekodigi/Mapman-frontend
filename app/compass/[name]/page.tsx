@@ -95,7 +95,6 @@ const Demo = ({ params }: { params: { name: string } }) => {
       tooltip: "Image embedded in the scene",
     });
     // markersPlugs.addEventListener("select-marker", () => {
-    //   console.log("asd");
     // });
   };
   const [h, setH] = useState(0);
@@ -104,7 +103,7 @@ const Demo = ({ params }: { params: { name: string } }) => {
     //when heading change
     if (account?.vars?.heading === undefined) return;
     const heading = ((account.vars.heading + (dir || 0) + 360) % 360) - 180;
-    console.log(heading, prevHeading.current);
+    //console.log(heading, prevHeading.current);
     if (
       heading * prevHeading.current > 0 ||
       Math.abs(heading - prevHeading.current) < 10

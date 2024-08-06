@@ -197,7 +197,7 @@ export default function Home() {
           }
           return row;
         });
-        console.log(newData);
+        //console.log(newData);
         const converted = newData.map((profile: any) => ({
           ...profile,
           status: {
@@ -208,7 +208,7 @@ export default function Home() {
         converted.forEach((profile) => {
           delete profile.archived;
         });
-        console.log(converted);
+        //console.log(converted);
         account?.setAccount((prev) => ({
           ...prev,
           profiles: converted,

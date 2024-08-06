@@ -64,7 +64,7 @@ export const Spot = ({ loc, passive, className }: SpotProps) => {
               </Link>
             </Button>
 
-            <LocCtrlDD locName={loc.name} />
+            <LocCtrlDD loc={loc} />
           </div>
         )}
       </div>

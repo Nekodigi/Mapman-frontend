@@ -112,7 +112,7 @@ export const FilePreview = ({ url, passive, small }: FilePreviewProps) => {
     const check = async () => {
       const ourl = optimizeUrl(url);
       const res = await fetch(ourl);
-      console.log(res.status);
+      //console.log(res.status);
       if (res.status === 200) {
         setUploaded(true);
       } else {

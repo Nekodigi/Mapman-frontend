@@ -10,11 +10,12 @@ import { useContext, useState } from "react";
 import { AccountContext } from "../context/account";
 import { useRouter } from "next/navigation";
 import { DeleteAlert } from "../molecules/deleteAlert";
+import { Location } from "@/type/location";
 
 type LocCtrlDDProps = {
-  locName: string;
+  loc: Location;
 };
-export const LocCtrlDD = ({ locName }: LocCtrlDDProps) => {
+export const LocCtrlDD = ({ loc }: LocCtrlDDProps) => {
   const account = useContext(AccountContext);
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -29,7 +30,7 @@ export const LocCtrlDD = ({ locName }: LocCtrlDDProps) => {
         onConfirm={() => {
           account?.locsDispatch({
             type: "delete",
-            location: { name: locName } as any as Location,
+            location: loc,
           });
           router.push("/map");
         }}
@@ -43,7 +44,7 @@ export const LocCtrlDD = ({ locName }: LocCtrlDDProps) => {
         <DropdownMenuContent className="">
           <DropdownMenuItem
             onClick={() => {
-              const id = account?.locs.findIndex((l) => l.name === locName)!;
+              const id = account?.locs.findIndex((l) => l.id === loc.id)!;
               account?.locEditor.invoke(id, "");
             }}
           >
