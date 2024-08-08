@@ -411,6 +411,10 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     }
     console.log("change saving...");
     localStorage.setItem("account", JSON.stringify(acc));
+    let backup = localStorage.getItem("account-bul");
+    if (backup?.length || 0 < JSON.stringify(acc).length) {
+      localStorage.setItem("account-bul", JSON.stringify(acc));
+    }
     if (session?.user?.email === "") {
       console.log("only local change saved!");
       return;
