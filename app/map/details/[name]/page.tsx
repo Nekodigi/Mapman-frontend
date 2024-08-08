@@ -32,7 +32,6 @@ import { HTML5Backend } from "react-dnd-html5-backend";
 
 import { commentsUsers, myUserId } from "@/lib/plate/comments";
 import { useToast } from "@/components/ui/use-toast";
-import { Document, Page } from "react-pdf";
 
 import {
   Carousel,

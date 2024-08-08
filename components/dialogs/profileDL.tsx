@@ -269,7 +269,7 @@ const EditDD = ({ open, setOpen }: EditDDProps) => {
     const url = URL.createObjectURL(blob);
     const a = document.createElement("a");
     a.href = url;
-    a.download = "mapman.json";
+    a.download = `${account.account.currentProfile}.json`;
     a.click();
     URL.revokeObjectURL(url);
   };

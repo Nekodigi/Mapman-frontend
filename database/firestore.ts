@@ -2,6 +2,7 @@ import { config } from "dotenv";
 config();
 
 import { firestore } from "firebase-admin";
+import { getFirestore } from "firebase-admin/firestore";
 import { cert, getApps, initializeApp } from "firebase-admin/app";
 import { accountConverter } from "./account";
 
@@ -16,9 +17,10 @@ if (!getApps().length) {
       privateKey: process.env.SA_PRIVATE_KEY,
     }),
   });
+  getFirestore().settings({ ignoreUndefinedProperties: true });
 }
 
-export const db = firestore();
+export const db = getFirestore();
 
 export const fs_a = db
   .collection("mapman")

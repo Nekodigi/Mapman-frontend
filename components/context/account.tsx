@@ -48,6 +48,34 @@ const DEFAULT_LOC: Location = {
   },
 };
 
+const EMPTY_ACCOUNT: Account = {
+  name: "new user",
+  email: "",
+  currentProfile: "Default",
+  profiles: [
+    {
+      name: "Default",
+      locations: [],
+      documents: [],
+      cover: "",
+      map: "google",
+      status: {
+        checkSum: "0",
+        isArchived: false,
+        isDeleted: false,
+        createdAt: new Date(),
+      },
+    },
+  ],
+  theme: "light",
+  subscription: "free",
+  status: {
+    checkSum: "0",
+    isArchived: false,
+    isDeleted: false,
+    createdAt: new Date(),
+  },
+};
 const DEFAULT_ACCOUNT: Account = {
   name: "new user",
   email: "",
@@ -255,7 +283,22 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     lcat: "all",
     layer: "roadmap",
   });
-  const [account, setAccount] = useState<Account>(DEFAULT_ACCOUNT);
+  const fetchAccountCache = () => {
+    console.log("loading cache");
+    let account_cache = {} as Account;
+    try {
+      const cache = localStorage.getItem("account");
+      if (cache !== null) account_cache = JSON.parse(cache) as Account;
+    } catch (e) {
+      console.error("cache cannot be loaded");
+      account_cache = DEFAULT_ACCOUNT;
+    }
+    if (status === "authenticated")
+      account_cache.email = session?.user?.email || "";
+    return account_cache;
+  };
+
+  const [account, setAccount] = useState<Account>(EMPTY_ACCOUNT);
   const locsDispatch = useCallback(
     (action: Action) => {
       const newAccount = { ...account };
@@ -283,7 +326,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
             newAccount.profiles[index].locations = newAccount.profiles[
               index
             ].locations.map((loc, index) =>
-              loc.name === action.location!.name ? action.location! : loc
+              loc.id === action.location!.id ? action.location! : loc
             );
             return newAccount;
           });
@@ -293,7 +336,11 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
             const newAccount = { ...prev };
             newAccount.profiles[index].locations = newAccount.profiles[
               index
-            ].locations.filter((loc, _) => loc.name !== action.location!.name);
+            ].locations.filter(
+              (loc, _) =>
+                loc.id !== action.location!.id &&
+                loc.name !== action.location!.name
+            );
             return newAccount;
           });
           break;
@@ -382,7 +429,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   };
 
   const locs = useMemo(() => {
-    console.log("locs memo");
     saveAccount(account);
     const index = account.profiles.findIndex(
       (profile) => profile.name === account.currentProfile
@@ -446,18 +492,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       return res;
     }
   };
-  const fetchAccountCache = () => {
-    let account_cache = DEFAULT_ACCOUNT;
-    try {
-      const cache = localStorage.getItem("account");
-      if (cache !== null) account_cache = JSON.parse(cache) as Account;
-    } catch (e) {}
-    if (status === "authenticated")
-      account_cache.email = session?.user?.email || "";
-    // render account
-    setAccount(account_cache);
-    return account_cache;
-  };
 
   //endregion
 
@@ -475,6 +509,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     console.time("cache");
     const account_cache = fetchAccountCache();
     setAccount(account_cache);
+    console.log(account_cache);
     console.timeEnd("cache");
 
     if (status === "loading") return;

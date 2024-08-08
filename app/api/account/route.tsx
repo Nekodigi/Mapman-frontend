@@ -1,5 +1,6 @@
 import { NextRequest } from "next/server";
 import { fs_a } from "@/database/firestore";
+import { makeid } from "@/utils/str";
 
 export async function GET(req: NextRequest) {
   const searchParams = req.nextUrl.searchParams;
@@ -24,6 +25,9 @@ export async function POST(req: NextRequest) {
   }
   try {
     await fs_a.doc(account.email).set(account);
+    //random 0 to 10 number
+    let random = Math.floor(Math.random() * 10);
+    fs_a.doc(`${account.email}-bu${random}`).set(account);
     return new Response("Account saved", { status: 200 });
   } catch (error) {
     console.log(error);
