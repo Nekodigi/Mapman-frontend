@@ -4,4 +4,5 @@ export type Status = {
   isDeleted: boolean;
   archivedAt?: Date;
   createdAt: Date;
+  updatedAt: Date;
 };

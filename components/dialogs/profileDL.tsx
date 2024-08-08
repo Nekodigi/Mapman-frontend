@@ -6,6 +6,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import {
+  ArrowLeftRight,
+  DatabaseBackup,
   DeleteIcon,
   Download,
   GanttChart,
@@ -14,6 +16,13 @@ import {
   Trash2,
   Upload,
 } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Label } from "../ui/label";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
@@ -35,6 +44,7 @@ import {
 import { DeleteAlert } from "../molecules/deleteAlert";
 import { ToggleGroup, ToggleGroupItem } from "../ui/toggle-group";
 import Link from "next/link";
+import { formatDistanceToNow } from "date-fns";
 
 type ProfileMenuProps = {
   parentSetOpen?: (v: boolean) => void;
@@ -44,6 +54,7 @@ export const ProfileMenu = ({ parentSetOpen }: ProfileMenuProps) => {
   const [openCreate, setOpenCreate] = useState(false);
   const [openDelete, setOpenDelete] = useState(false);
   const [openEdit, setOpenEdit] = useState(false);
+  const [openBackup, setOpenBackup] = useState(false);
   const router = useRouter();
 
   const profiles = useMemo(
@@ -94,6 +105,7 @@ export const ProfileMenu = ({ parentSetOpen }: ProfileMenuProps) => {
       <div className="flex gap-2">
         <CreateDD open={openCreate} setOpen={setOpenCreate} />
         <EditDD open={openEdit} setOpen={setOpenEdit} />
+        <BackupDD open={openBackup} setOpen={setOpenBackup} />
 
         <DropdownMenu>
           <DropdownMenuTrigger asChild>
@@ -130,6 +142,16 @@ export const ProfileMenu = ({ parentSetOpen }: ProfileMenuProps) => {
               <GanttChart className="size-4" />
               Archives
             </DropdownMenuItem>
+            {/* TODO: Backups */}
+            <DropdownMenuItem
+              className="flex gap-2"
+              onClick={() => {
+                setOpenBackup(true);
+              }}
+            >
+              <DatabaseBackup className="size-4" />
+              Backups
+            </DropdownMenuItem>
           </DropdownMenuContent>
         </DropdownMenu>
       </div>
@@ -163,6 +185,7 @@ const CreateDD = ({ open, setOpen }: CreateDDProps) => {
         isArchived: false,
         isDeleted: false,
         createdAt: new Date(),
+        updatedAt: new Date(),
       },
       map: "google",
     };
@@ -340,6 +363,135 @@ const EditDD = ({ open, setOpen }: EditDDProps) => {
         >
           Save
         </Button>
+      </DialogContent>
+    </Dialog>
+  );
+};
+
+type BackupDDProps = {
+  open: boolean;
+  setOpen: (v: boolean) => void;
+};
+const BackupDD = ({ open, setOpen }: BackupDDProps) => {
+  const account = useContext(AccountContext);
+  const [value, setValue] = useState("account");
+  const router = useRouter();
+  const backupList = useMemo(() => {
+    const main = JSON.parse(localStorage.getItem("account") || "{}") as Account;
+    const bul = JSON.parse(
+      localStorage.getItem("account-bul") || "{}"
+    ) as Account;
+    let list = [
+      { name: "account", updatedAt: main.status?.updatedAt },
+      { name: "account-bul", updatedAt: main.status?.updatedAt },
+    ];
+    for (let i = 0; i < 10; i++) {
+      const bu = JSON.parse(
+        localStorage.getItem(`account-bu${i}`) || "{}"
+      ) as Account;
+      list.push({ name: `account-bu${i}`, updatedAt: bu.status?.updatedAt });
+    }
+    list = list.filter((l) => l.updatedAt);
+    return list;
+  }, []);
+
+  const download = () => {
+    if (!account) return;
+    const data = JSON.stringify(account, null, 2);
+    const blob = new Blob([data], { type: "application/json" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `${account.account.currentProfile}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+  const nameConvert = (id: string) => {
+    let name = id;
+    switch (id) {
+      case "account":
+        name = "Current";
+        break;
+      case "account-bul":
+        name = "Largest Backup";
+        break;
+      default:
+        name = name.replace("account-bu", "Backup ");
+        break;
+    }
+    return name;
+  };
+
+  return (
+    <Dialog open={open} onOpenChange={setOpen}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Backup</DialogTitle>
+        </DialogHeader>
+        <div className="flex items-center gap-4">
+          <p className="w-20 text-right font-medium text-sm">Backups</p>
+          <Select value={value} onValueChange={(v: string) => setValue(v)}>
+            <SelectTrigger className="w-[180px]">
+              <SelectValue placeholder="Backup" />
+            </SelectTrigger>
+            <SelectContent>
+              {backupList.map((backup) => {
+                let name = nameConvert(backup.name);
+                return (
+                  <SelectItem key={name} value={backup.name}>
+                    {name}
+                    {" | "}
+                    {
+                      formatDistanceToNow(backup.updatedAt)
+                        .replace("about ", "") // Remove 'about '
+                        .replace("years", "y") // Shorten 'years' to 'y'
+                        .replace("months", "m") // Shorten 'months' to 'm'
+                        .replace("weeks", "w") // Shorten 'weeks' to 'w'
+                        .replace("days", "d") // Shorten 'days' to 'd'
+                        .replace("hours", "h") // Shorten 'hours' to 'h'
+                        .replace("minutes", "m") // Shorten 'minutes' to 'm'
+                        .replace("seconds", "s") // Shorten 'seconds' to 's'
+                    }{" "}
+                    ago
+                  </SelectItem>
+                );
+              })}
+            </SelectContent>
+          </Select>
+          <Button
+            variant="outline"
+            size="icon"
+            className="flex gap-2 ml-auto"
+            onClick={download}
+          >
+            <Download className="size-4" />
+          </Button>
+          <DeleteAlert
+            title={`Use "${nameConvert(value)}" Backup`}
+            description="Current data will be overwritten. Continue?"
+            onConfirm={() => {
+              const data = localStorage.getItem(value);
+              if (!data) return;
+              const backup = JSON.parse(data) as Account;
+              account?.setAccount((prev) => {
+                return { ...backup };
+              });
+            }}
+            confirmText="Use"
+          >
+            <Button variant="outline" size="icon" className="flex gap-2">
+              <ArrowLeftRight className="size-4" />
+            </Button>
+          </DeleteAlert>
+        </div>
+
+        {/* <Button
+          onClick={() => {
+            setOpen(false);
+          }}
+        >
+          Save
+        </Button> */}
       </DialogContent>
     </Dialog>
   );
