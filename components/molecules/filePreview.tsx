@@ -172,7 +172,12 @@ export const FilePreview = ({ url, passive, small }: FilePreviewProps) => {
                 </div>
               }
             >
-              <Page pageNumber={1} renderTextLayer={false} width={500} />
+              <Page
+                pageNumber={1}
+                renderTextLayer={false}
+                renderAnnotationLayer={false}
+                width={500}
+              />
             </Document>
           ) : (
             <div className="flex flex-col justify-center items-center">
