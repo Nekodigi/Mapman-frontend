@@ -45,9 +45,40 @@ const DEFAULT_LOC: Location = {
     isDeleted: false,
     archivedAt: undefined,
     createdAt: new Date(),
+    updatedAt: new Date(),
   },
 };
 
+const EMPTY_ACCOUNT: Account = {
+  name: "new user",
+  email: "",
+  currentProfile: "Default",
+  profiles: [
+    {
+      name: "Default",
+      locations: [],
+      documents: [],
+      cover: "",
+      map: "google",
+      status: {
+        checkSum: "0",
+        isArchived: false,
+        isDeleted: false,
+        createdAt: new Date(),
+        updatedAt: new Date(),
+      },
+    },
+  ],
+  theme: "light",
+  subscription: "free",
+  status: {
+    checkSum: "0",
+    isArchived: false,
+    isDeleted: false,
+    createdAt: new Date(),
+    updatedAt: new Date(),
+  },
+};
 const DEFAULT_ACCOUNT: Account = {
   name: "new user",
   email: "",
@@ -89,6 +120,7 @@ const DEFAULT_ACCOUNT: Account = {
             isArchived: false,
             isDeleted: false,
             createdAt: new Date(),
+            updatedAt: new Date(),
           },
           vars: { viewDistance: 21.302159700527593 },
         },
@@ -121,6 +153,7 @@ const DEFAULT_ACCOUNT: Account = {
             isArchived: false,
             isDeleted: false,
             createdAt: new Date(),
+            updatedAt: new Date(),
           },
           vars: { viewDistance: 51.19705519771858 },
         },
@@ -157,6 +190,7 @@ const DEFAULT_ACCOUNT: Account = {
             isArchived: false,
             isDeleted: false,
             createdAt: new Date(),
+            updatedAt: new Date(),
           },
           vars: { viewDistance: 5.671655774105688 },
         },
@@ -169,6 +203,7 @@ const DEFAULT_ACCOUNT: Account = {
         isArchived: false,
         isDeleted: false,
         createdAt: new Date(),
+        updatedAt: new Date(),
       },
     },
   ],
@@ -179,6 +214,7 @@ const DEFAULT_ACCOUNT: Account = {
     isArchived: false,
     isDeleted: false,
     createdAt: new Date(),
+    updatedAt: new Date(),
   },
 };
 //endregion
@@ -218,6 +254,7 @@ export type Vars = {
 type AccountContextType = {
   account: Account;
   setAccount: React.Dispatch<React.SetStateAction<Account>>;
+  saveAccount: (acc: Account) => void;
   locs: Location[];
   locsDispatch: React.Dispatch<any>;
   locEditor: LocationEditorContextType;
@@ -255,7 +292,22 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     lcat: "all",
     layer: "roadmap",
   });
-  const [account, setAccount] = useState<Account>(DEFAULT_ACCOUNT);
+  const fetchAccountCache = () => {
+    console.log("loading cache");
+    let account_cache = {} as Account;
+    try {
+      const cache = localStorage.getItem("account");
+      if (cache !== null) account_cache = JSON.parse(cache) as Account;
+    } catch (e) {
+      console.error("cache cannot be loaded");
+      account_cache = DEFAULT_ACCOUNT;
+    }
+    if (status === "authenticated")
+      account_cache.email = session?.user?.email || "";
+    return account_cache;
+  };
+
+  const [account, setAccount] = useState<Account>(EMPTY_ACCOUNT);
   const locsDispatch = useCallback(
     (action: Action) => {
       const newAccount = { ...account };
@@ -296,13 +348,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
             newAccount.profiles[index].locations = newAccount.profiles[
               index
             ].locations.filter((loc, _) => loc.id !== action.location!.id);
-            // console.log(
-            //   "delete",
-            //   newAccount.profiles[index].locations.filter(
-            //     (loc, _) => loc.id !== action.location!.id
-            //   ),
-            //   action.location!.id
-            // );
             return newAccount;
           });
           break;
@@ -372,7 +417,16 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       return;
     }
     console.log("change saving...");
+    acc.status.updatedAt = new Date();
     localStorage.setItem("account", JSON.stringify(acc));
+    //longest data
+    let backup = localStorage.getItem("account-bul");
+    if (backup?.length || 0 < JSON.stringify(acc).length) {
+      localStorage.setItem("account-bul", JSON.stringify(acc));
+    }
+    //random backup
+    const i = Math.floor(Math.random() * 10);
+    localStorage.setItem(`account-bu${i}`, JSON.stringify(acc));
     if (session?.user?.email === "") {
       console.log("only local change saved!");
       return;
@@ -391,7 +445,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   };
 
   const locs = useMemo(() => {
-    //console.log("locs memo");
     saveAccount(account);
     const index = account.profiles.findIndex(
       (profile) => profile.name === account.currentProfile
@@ -455,18 +508,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       return res;
     }
   };
-  const fetchAccountCache = () => {
-    let account_cache = DEFAULT_ACCOUNT;
-    try {
-      const cache = localStorage.getItem("account");
-      if (cache !== null) account_cache = JSON.parse(cache) as Account;
-    } catch (e) {}
-    if (status === "authenticated")
-      account_cache.email = session?.user?.email || "";
-    // render account
-    setAccount(account_cache);
-    return account_cache;
-  };
 
   //endregion
 
@@ -484,7 +525,6 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     //console.time("cache");
     const account_cache = fetchAccountCache();
     setAccount(account_cache);
-    //console.timeEnd("cache");
 
     if (status === "loading") return;
     phase.current = "loading";
@@ -579,6 +619,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
       value={{
         account,
         setAccount,
+        saveAccount,
         locs,
         locsDispatch,
         locEditor,

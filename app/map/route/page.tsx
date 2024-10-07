@@ -8,6 +8,12 @@ import { ArrowDown, ArrowLeft } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { Location } from "@/type/location";
+import {
+  BrowserView,
+  MobileView,
+  isBrowser,
+  isMobile,
+} from "react-device-detect";
 
 export default function Page() {
   const account = useContext(AccountContext);
@@ -48,7 +54,11 @@ export default function Page() {
     if (map === "google") {
       return `https://www.google.com/maps/dir/?api=1&origin=${start.name}${start.id !== undefined ? `&origin_place_id=${start.id!}` : ""}&destination=${end.name}&destination_place_id=${end.id}&travelmode=transit`;
     } else {
-      return `https://uri.amap.com/navigation?from=${start.lon},${start.lat}&to=${end.lon},${end.lat}&mode=bus&policy=0&src=mypage&coordinate=wgs84&callnative=1`;
+      if (isMobile) {
+        return `amapuri://route/plan/?sid=&slat=${start.lat}&slon=${start.lon}&sname=${start.name}&did=&dlat=${end.lat}&dlon=${end.name}&dname=${end.name}&dev=0&t=01`;
+      } else {
+        return `https://uri.amap.com/navigation?from=${start.lon},${start.lat}&to=${end.lon},${end.lat}&mode=bus&policy=0&src=mypage&coordinate=wgs84&callnative=1`;
+      }
     }
   }, [start, end, map]);
 
