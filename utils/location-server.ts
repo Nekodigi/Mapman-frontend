@@ -130,6 +130,7 @@ export const getLocationByName = async (
       isDeleted: false,
       archivedAt: undefined,
       createdAt: new Date(),
+      updatedAt: new Date(),
     },
   };
   console.timeEnd("upload photos");
