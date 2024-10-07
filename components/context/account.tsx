@@ -521,9 +521,11 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   }, [searchOption.hours.type]);
 
   useEffect(() => {
-    if (phase.current !== "initializing" || !session?.user?.email) return;
+    if (phase.current !== "initializing") return;
     //console.time("cache");
     const account_cache = fetchAccountCache();
+    console.log(account_cache);
+    if (!account_cache.email) return;
     setAccount(account_cache);
 
     if (status === "loading") return;
