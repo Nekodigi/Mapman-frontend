@@ -110,9 +110,9 @@ const DEFAULT_ACCOUNT: Account = {
           lat: 37.870151,
           zoom: 15,
           imgs: [
-            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman/mapman/Default/University of California, Berkeley/2024-05-22T15:25:36.695Z.png",
-            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman/mapman/Default/University of California, Berkeley/2024-05-22T15:25:36.755Z.png",
-            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman/mapman/Default/University of California, Berkeley/2024-05-22T15:25:36.756Z.png",
+            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman%2Fmapman%2Fcache%2FSan%20Francisco%2FUniversity%20of%20California%2C%20Berkeley%2FDcOGRw1Rwd.png",
+            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman%2Fmapman%2Fcache%2FSan%20Francisco%2FUniversity%20of%20California%2C%20Berkeley%2FCHX6CIVAkl.png",
+            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman%2Fmapman%2Fcache%2FSan%20Francisco%2FUniversity%20of%20California%2C%20Berkeley%2FM4Chfxpgpp.png",
           ],
           website: "https://www.berkeley.edu/",
           status: {
@@ -143,9 +143,9 @@ const DEFAULT_ACCOUNT: Account = {
           lat: 37.4220541,
           zoom: 15,
           imgs: [
-            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman/mapman/Default/Googleplex/2024-05-22T15:27:29.256Z.png",
-            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman/mapman/Default/Googleplex/2024-05-22T15:27:29.318Z.png",
-            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman/mapman/Default/Googleplex/2024-05-22T15:27:29.320Z.png",
+            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman%2Fmapman%2Fcache%2FSan%20Francisco%2FGoogleplex%2FtVtAd1ZM4L.png",
+            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman%2Fmapman%2Fcache%2FSan%20Francisco%2FGoogleplex%2FqO0wjmKW4Q.png",
+            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman%2Fmapman%2Fcache%2FSan%20Francisco%2FGoogleplex%2F8MOQxaVPWF.png",
           ],
           website: "https://about.google/locations/?region=north-america",
           status: {
@@ -156,43 +156,6 @@ const DEFAULT_ACCOUNT: Account = {
             updatedAt: new Date(),
           },
           vars: { viewDistance: 51.19705519771858 },
-        },
-        {
-          name: "Golden Gate Bridge",
-          id: "ChIJw____96GhYARCVVwg5cT7c0",
-          original_categories: [
-            "tourist_attraction",
-            "point_of_interest",
-            "establishment",
-          ],
-          category: "landmark",
-          hours: [
-            [0, 48],
-            [0, 48],
-            [0, 48],
-            [0, 48],
-            [0, 48],
-            [0, 48],
-            [0, 48],
-          ],
-          importance: 1,
-          lon: -122.4785598,
-          lat: 37.8199109,
-          zoom: 15,
-          imgs: [
-            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman/mapman/Default/Golden Gate Bridge/2024-05-22T15:28:12.615Z.png",
-            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman/mapman/Default/Golden Gate Bridge/2024-05-22T15:28:12.680Z.png",
-            "https://storage.googleapis.com/sandbox-35d1d.appspot.com/Mapman/mapman/Default/Golden Gate Bridge/2024-05-22T15:28:12.681Z.png",
-          ],
-          website: "https://www.goldengate.org/",
-          status: {
-            checkSum: "",
-            isArchived: false,
-            isDeleted: false,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-          },
-          vars: { viewDistance: 5.671655774105688 },
         },
       ],
       documents: [],
@@ -445,6 +408,7 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   };
 
   const locs = useMemo(() => {
+    if (!account || !account.profiles) return [];
     saveAccount(account);
     const index = account.profiles.findIndex(
       (profile) => profile.name === account.currentProfile
