@@ -455,22 +455,25 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   };
 
   //* return undefined when identical
-  const fetchAccount = async (cache: Account) => {
+  const fetchAccount = async (email: string) => {//cache: Account
     let res;
     try {
       res = (await (
-        await fetch(`/api/account/?email=${cache.email}`)
+        await fetch(`/api/account/?email=${email}`)
       ).json()) as Account;
+      console.log(res)
     } catch (e) {
       //* cound be destructive
+      console.log("Fetch failed, loaded default")
       res = DEFAULT_ACCOUNT;
       res.email = session?.user?.email || "";
       saveAccount(res);
     }
     //console.log("initial synced account", res);
-    if (!isEqual(cache, res)) {
-      return res;
-    }
+    // if (!isEqual(cache, res)) {
+    //   return res;
+    // }
+    return res;
   };
 
   //endregion
@@ -487,10 +490,10 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
   useEffect(() => {
     if (phase.current !== "initializing") return;
     //console.time("cache");
-    const account_cache = fetchAccountCache();
-    console.log(account_cache);
-    if (!account_cache.email) return;
-    setAccount(account_cache);
+    // const account_cache = fetchAccountCache();
+    // console.log(account_cache);
+    // if (!account_cache.email) return;
+    // setAccount(account_cache);
 
     if (status === "loading") return;
     phase.current = "loading";
@@ -499,14 +502,14 @@ export const AccountProvider = ({ children }: AccountProviderProps) => {
     }, MINUTE_MS);
 
     const email = session?.user?.email || "";
-    account_cache.email = email;
+    //account_cache.email = email;
     if (email === undefined || email === "") {
       phase.current = "ready";
       console.log("initialization completed(not registered)");
       return;
     }
     (async () => {
-      const remote = await fetchAccount(account_cache);
+      const remote = await fetchAccount(email);
       if (remote) {
         setAccount(remote);
       }
